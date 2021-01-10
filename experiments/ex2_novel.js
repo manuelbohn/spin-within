@@ -252,7 +252,7 @@ var agentOrient = [
 var novel = ["right", "left", "left", "right", "left", "left", "right", "left", "right", "right", "left", "right","left", "right"]
 
 
-var back = [1,2,3,4,5,6,7,8,9,1,2,3,4,5];
+var back = [7,7,7,8,8,8,9,9,9,1,1,1];
 
 var words = ["katoll",
 "kendo",
@@ -264,7 +264,8 @@ var words = ["katoll",
 "oppil",
 "rifom",
 "frawoe",
-"metam"]
+"metam",
+"pemweck"]
 // beginning of actual experiment
 
 // Show the instructions slide .
@@ -364,7 +365,6 @@ hello:hello,
         agent: agents[0],
         leftObject: leftObject[0],
         rightObject: rightObject[0],
-				pos_correct: novel[0],
 				pick: pick,
         correct: correct
             };
@@ -648,6 +648,8 @@ $("#next").hide();
 
         if (experiment.agentOrient[0][0] == "disappear") {
             showAgent(agents[0], "straight")
+						sourceSound("sound/ring.mp3")
+						playSound();
             setTimeout(function () {
                 showAgent(agents[0], "disappear")
             }, 1000);

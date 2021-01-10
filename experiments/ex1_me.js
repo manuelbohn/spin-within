@@ -191,11 +191,11 @@ var agentOrient = [
     ["straight", "down"],
     ["straight", "down"],
     ["straight", "down"],
-    [ "straight","down"],
+    ["straight","down"],
     ["straight", "down"],
     ["straight", "down"],
     ["straight","down"],
-    [ "straight","down"],
+    ["straight","down"],
     ["straight", "down"],
     [ "straight","down"],
     [ "straight","down"],
@@ -205,7 +205,7 @@ var agentOrient = [
 
 var novelPos = ["right", "left", "left", "right", "left", "left", "right", "right", "left", "right", "left", "right", "right", "left"]
 
-var back = [1,2,3,4,5,6,7,8,9,1,2,3,4,5];
+var back = [1,2,3,3,3,4,4,4,5,5,5,6,6,6];
 
 
 // beginning of actual experiment
@@ -308,7 +308,6 @@ var experiment = {
         familiar: familiars[0],
 				leftObject: leftObject,
 				rightObject: rightObject,
-				pos_correct: novelPos[0],
 				pick: pick,
         correct: correct
             };
