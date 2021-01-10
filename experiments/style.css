@@ -329,8 +329,9 @@ sortButton {
 
 .point_agent_r {
     position: absolute;
-    bottom: 245px;
-    left: 280px;
+    bottom: 365px;
+    left: 50%;
+    margin-left: -175px;
     width: 350px;
     z-index: 2;
 }
@@ -338,8 +339,9 @@ sortButton {
 
 .point_agent_l {
     position: absolute;
-    bottom: 245px;
-    left: 360px;
+    bottom: 365px;
+    left: 50%;
+    margin-left: -175px;
     width: 350px;
     z-index: 2;
 }

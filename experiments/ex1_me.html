@@ -4,7 +4,7 @@
 <head>
 	<title>Learning words from animals</title>
 	<script src="jquery-1.11.2.min.js"></script>
-	<script src="mmturkey_spin_kids_me.js"></script>
+	<script src="data_submission.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <link type="text/css" href ="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/base/jquery-ui.css" rel="stylesheet" />
@@ -52,7 +52,7 @@
 					<button type="button" onClick="this.blur(); train.trainingDot()">Touch Training wiederholen</font></button>
 			</center>
 			<center>
-					<button type="button" onClick="this.blur(); showSlide('intro')">Weiter zu den Spielen</font></button>
+					<button type="button" onClick="this.blur(); showSlide('training')">Weiter zu den Spielen</font></button>
 			</center>
 	</div>
 
@@ -145,6 +145,8 @@
                         <audio id="sound" src = "" ></audio>
 
                         <img id="hill" class="hill"  src="images/hill.png">
+
+  <nextButton class ="button" type="button" id="next" align="center" onclick="experiment.next();"></nextButton>
 
                         <img id="Mouse_straight" class="agent"  src="images/Mouse_straight.png">
 

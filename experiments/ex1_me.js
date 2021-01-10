@@ -191,17 +191,17 @@ var agentOrient = [
     ["straight", "down"],
     ["straight", "down"],
     ["straight", "down"],
-    [ "down"],
-    [ "down"],
+    [ "straight","down"],
     ["straight", "down"],
-    ["down"],
-    [ "down"],
     ["straight", "down"],
-    [ "down"],
-    [ "down"],
+    ["straight","down"],
+    [ "straight","down"],
     ["straight", "down"],
-    [ "down"],
-    ["down"]];
+    [ "straight","down"],
+    [ "straight","down"],
+    ["straight", "down"],
+    [ "straight","down"],
+    ["straight","down"]];
 
 var novelPos = ["right", "left", "left", "right", "left", "left", "right", "right", "left", "right", "left", "right", "right", "left"]
 
@@ -290,15 +290,16 @@ var experiment = {
       data = {
         subid: subid,
         subage: subage,
-        condition: "basic_me",
+        task: "mutual_exclusivity",
         trial: trial[0],
 				word: words[0],
         agent: agents[0],
         novel: novels[0],
         familiar: familiars[0],
+				leftObject: leftObject[0],
+				rightObject: rightObject[0],
         pick: pick,
         position_novel: novelPos[0],
-        pick_src: pick_src,
         correct: correct
             };
       experiment.data.push(data);
@@ -455,7 +456,7 @@ eat2: function() {
 
     // move on to next phase of exposure
     experiment.agentOrient[0].shift();
-		setTimeout(function() {experiment.next() }, 2500);
+		//setTimeout(function() {experiment.next() }, 2500);
   },
 
 trainingDot: function() {
