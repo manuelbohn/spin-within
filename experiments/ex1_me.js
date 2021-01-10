@@ -230,11 +230,11 @@ var experiment = {
   checkInput: function() {
 		//subject ID
 		if (document.getElementById("subjectID").value.length < 1) {
-			$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
+			$("#checkMessage").html('<font color="red">Bitte Kind ID eintragen</font>');
 			return;
 		}
         if (document.getElementById("subjectAge").value.length < 1) {
-			$("#checkMessage").html('<font color="red">You must input a subject age</font>');
+			$("#checkMessage").html('<font color="red">Bitte Kind Alter eintragen</font>');
 			return;
 		}
 		experiment.subid = document.getElementById("subjectID").value
@@ -283,6 +283,16 @@ var experiment = {
         var pick = familiars[0]
         };
 
+
+				if (experiment.novelPos[0] == "left"){
+		        var leftObject = novels[0]
+						var rightObject = familiars[0]
+
+		    } else  {
+					var leftObject = familiars[0]
+					var rightObject = novels[0]
+		    }
+
     var subid = experiment.subid;
     var subage = experiment.subage;
 
@@ -294,12 +304,12 @@ var experiment = {
         trial: trial[0],
 				word: words[0],
         agent: agents[0],
-        novel: novels[0],
+        unfamiliar: novels[0],
         familiar: familiars[0],
-				leftObject: leftObject[0],
-				rightObject: rightObject[0],
-        pick: pick,
-        position_novel: novelPos[0],
+				leftObject: leftObject,
+				rightObject: rightObject,
+				pos_correct: novelPos[0],
+				pick: pick,
         correct: correct
             };
       experiment.data.push(data);
@@ -425,6 +435,8 @@ eat2: function() {
 
     background("images/back"+back[0]+".jpg")
 
+
+
     // show agent
     showAgent(agents[0],experiment.agentOrient[0][0]);
 
@@ -432,6 +444,7 @@ eat2: function() {
 
 
 	 if (experiment.hello[0] == "yes") {
+		 		pause("next", 1500);
         sourceSound("sound/"+agents[0]+"_hello.mp3");
         playSound();
     };

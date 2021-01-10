@@ -195,23 +195,13 @@ function playSound() {
 
 // Variables and randomization for the experiment
 
-var trial = ["train1","train2",1,2,3,4,5,6,7,8,9,10,11,12]
+var trial = [1,2,3,4,5,6,7,8,9,10,11,12]
 // agent order for training
 
 var hello = ["yes", "no", "no","yes", "no" ,"no", "yes", "no", "no","yes", "no", "no"]
 
 var agents = ["Cat","Cat","Cat","Sheep","Sheep","Sheep","Frog","Frog","Frog","Bear","Bear","Bear"];
 
-
-var trainObjectLeft = ["car","duck"];
-var trainObjectRight = ["bear","ball"];
-var objects = ["t01","t02","t03","t04","t05","t06","t07","t08","t09","t10","t11","t12","t13","t14","t15","t16","t17","t18","t19","t20","t21","t22"];
-
-// randomizing order and combiantion of test objects
-var testRightObject = objects.sort(() => .5 - Math.random()).slice(0,11);
-var remainingObjects = $.grep(objects, function(value) {
-    return $.inArray(value, testRightObject) < 0;});
-var testLeftObject = remainingObjects.sort(() => .5 - Math.random()).slice(0,11);
 var leftObject = [
 	"t13",
 	"t15",
@@ -255,8 +245,8 @@ var agentOrient = [
 		["straight", "point_l", "point_r", "disappear","gone","down"],
     ["straight", "point_l", "point_r", "disappear","gone","down"],
     ["straight", "point_r", "point_l", "disappear","gone","down"],
-    ["straight", "point_r", "point_l", "disappear","gone","down"]
-		["straight", "point_l", "point_r", "disappear","gone","down"],];
+    ["straight", "point_r", "point_l", "disappear","gone","down"],
+		["straight", "point_l", "point_r", "disappear","gone","down"]];
 
 
 var novel = ["right", "left", "left", "right", "left", "left", "right", "left", "right", "right", "left", "right","left", "right"]
@@ -264,17 +254,17 @@ var novel = ["right", "left", "left", "right", "left", "left", "right", "left", 
 
 var back = [1,2,3,4,5,6,7,8,9,1,2,3,4,5];
 
-var words = ["Cat_katoll.mp3",
-"Cat_kendo.mp3",
-"Cat_wisslo.mp3",
-"Sheep_gepsar.mp3",
-"Sheep_hurtel.mp3",
-"Sheep_tolte.mp3",
-"Frog_ennut.mp3",
-"Frog_oppil.mp3",
-"Frog_rifom.mp3",
-"Bear_frawoe.mp3",
-"Bear_metam.mp3"]
+var words = ["katoll",
+"kendo",
+"wisslo",
+"gepsar",
+"hurtel",
+"tolte",
+"ennut",
+"oppil",
+"rifom",
+"frawoe",
+"metam"]
 // beginning of actual experiment
 
 // Show the instructions slide .
@@ -297,16 +287,16 @@ hello:hello,
   checkInput: function() {
 		//subject ID
 		if (document.getElementById("subjectID").value.length < 1) {
-			$("#checkMessage").html('<font color="red">You must input a subject ID</font>');
+			$("#checkMessage").html('<font color="red">Bitte Kind ID eintragen</font>');
 			return;
 		}
         if (document.getElementById("subjectAge").value.length < 1) {
-			$("#checkMessage").html('<font color="red">You must input a subject age</font>');
+			$("#checkMessage").html('<font color="red">Bitte Kind Alter eintragen</font>');
 			return;
 		}
 		experiment.subid = document.getElementById("subjectID").value
         experiment.subage = document.getElementById("subjectAge").value
-        experiment.trainingDot()
+        experiment.next()
       },
 
 // end of the experiment
@@ -372,10 +362,10 @@ hello:hello,
         trial: trial[0],
 				word: words[0],
         agent: agents[0],
-        novel: novel[0],
-        pick: pick,
         leftObject: leftObject[0],
         rightObject: rightObject[0],
+				pos_correct: novel[0],
+				pick: pick,
         correct: correct
             };
       experiment.data.push(data);
@@ -447,39 +437,28 @@ pause: function () {
 
       showAgent(agents[0],"choice");
 
-
-    // animate agent in test trials
-
-    $("#"+agents[0]+"_choice").animate({height: "450px",opacity: '0.3', queue: false, duration: "slow"});
-    $("#"+agents[0]+"_choice").animate({height: "350px",opacity: '1', queue: false, duration: "slow"});
-
-
     // specify what is shown on the tables depending on training and test condition
 
       choiceLeftObject("images/"+leftObject[0]+".png");
 
       choiceRightObject("images/"+rightObject[0]+".png");
 
-			$(".object_l").click(experiment.eat);
+		//	$(".object_l").click(experiment.eat);
 
-			$(".object_r").click(experiment.eat);
+	//		$(".object_r").click(experiment.eat);
 
     // play choice sound
         setTimeout(function () {
-            sourceSound("sound/novel/" + words[0]);
+            sourceSound("sound/novel/"+agents[0]+"_"+ words[0]+".mp3")
             playSound();
         }, 500);
 
-			sound = document.getElementById("sound");
 
-       sound.onended = function () {
 
-    // choice can be made by clicking the objects after - possible after 5s
         $(".object_l").click(experiment.eat);
 
         $(".object_r").click(experiment.eat);
 
-    }
   },
 
 // moving on within a trial
@@ -616,12 +595,12 @@ $("#next").hide();
               sourceSound("sound/" + agents[0] + "_point_nothing.mp3");
               playSound();
 
-							sound = document.getElementById("sound");
 
-							sound.onended = function () {
+
+
 								//experiment.agentOrient[0].shift();
-								setTimeout(function() {experiment.next() }, 0);
-							}
+								setTimeout(function() {experiment.next() }, 3000);
+
 
           } else {
 
@@ -630,12 +609,10 @@ $("#next").hide();
 
 							$("#next").hide();
 
-							sound = document.getElementById("sound");
 
-							sound.onended = function () {
 							//	experiment.agentOrient[0].shift();
-								setTimeout(function() {experiment.next() }, 0);
-							}
+								setTimeout(function() {experiment.next() }, 3000);
+
 
           }
       }
@@ -649,12 +626,10 @@ $("#next").hide();
                sourceSound("sound/" + agents[0] + "_point_nothing.mp3");
                playSound();
 
-							 sound = document.getElementById("sound");
 
-							 sound.onended = function () {
 								 //experiment.agentOrient[0].shift();
-								 setTimeout(function() {experiment.next() }, 0);
-							 }
+								 setTimeout(function() {experiment.next() }, 3000);
+
 
            } else {
 
@@ -662,12 +637,10 @@ $("#next").hide();
                playSound();
 							 $("#next").hide();
 
-							 sound = document.getElementById("sound");
 
-							 sound.onended = function () {
 								 //experiment.agentOrient[0].shift();
-								 setTimeout(function() {experiment.next() }, 0);
-							 }
+								 setTimeout(function() {experiment.next() }, 3000);
+
 
            }
        }
