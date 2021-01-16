@@ -385,8 +385,8 @@ var experiment = {
 // end of the experiment
   end: function() {
     // Show the finish slide.
-    showSlide("finished");
-    setTimeout(function() { turk.submit(experiment) }, 1000);
+    showSlide("transition");
+    setTimeout(function() { turk.submit(experiment) }, 500);
   },
 
    endTraining: function() {
@@ -784,6 +784,10 @@ $("#next").show();
     // move on to next phase of exposure
     experiment.agentOrient[0].shift();
   },
+
+
+
+
 
 	trainingDot: function() {
 
