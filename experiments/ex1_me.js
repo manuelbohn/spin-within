@@ -12,7 +12,14 @@ var preObjects = [
 "corkscrew.png",
 "rasp.png",
 "opener.png",
-"duck.png","car.png","bear.png","ball.png","t01.png", "t02.png", "t03.png", "t04.png", "t05.png", "t06.png", "t07.png", "t08.png", "t09.png", "t10.png", "t11.png", "t12.png","back1.jpg","back2.jpg","back3.jpg","back4.jpg","back5.jpg","back6.jpg","back7.jpg","back8.jpg","back9.jpg","back10.jpg","empty.png"];
+"bread.png",
+"carrot.png",
+"apple.png",
+"duck.png",
+"duck.png","car.png","bear.png","ball.png","t01.png", "t02.png", "t03.png", "t04.png", "t05.png", "t06.png", "t07.png", "t08.png", "t09.png", "t10.png", "t11.png","t57.png",
+"t58.png",
+"t59.png",
+"t60.png", "t12.png","back1.jpg","back2.jpg","back3.jpg","back4.jpg","back5.jpg","back6.jpg","back7.jpg","back8.jpg","back9.jpg","back10.jpg","empty.png"];
 //for critical trials and fillers
 var images = new Array();
 for (i = 0; i < preObjects.length; i++) {
@@ -38,7 +45,13 @@ var preSounds = [
 "me/Frog_ukam.mp3",
 "me/Sheep_palvi.mp3",
 "me/Sheep_tikon.mp3",
-"me/Sheep_zubi.mp3"];
+"me/Sheep_zubi.mp3",
+"me/Bear_tomen.mp3",
+"me/Cat_wondie.mp3",
+"me/Frog_towak.mp3",
+"me/Sheep_wittu.mp3"
+
+];
 //for critical trials and fillers
 var sound = new Array();
 for (i = 0; i < preSounds.length; i++) {
@@ -174,17 +187,17 @@ function playSound() {
 
 // Variables and randomization for the experiment
 
-var trial = ["train1","train2",1,2,3,4,5,6,7,8,9,10,11,12]
+var trial = ["train1","train2",1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 // agent order for training
-var agents = ["Monkey","Dog","Bear","Bear","Bear","Cat","Cat","Cat","Frog","Frog","Frog","Sheep","Sheep","Sheep"];
+var agents = ["Monkey","Dog","Bear","Bear","Bear","Bear","Cat","Cat","Cat","Cat","Frog","Frog","Frog","Frog","Sheep","Sheep","Sheep","Sheep"];
 
-var novels = ["car","ball","t01","t02","t03","t04","t05","t06","t07","t08","t09","t11","t10","t12"]
+var novels = ["car","ball","t01","t02","t03","t04","t05","t06","t07","t08","t09","t11","t10","t12","t60","t59","t58","t57"]
 
-var familiars = ["duck","bear", "hanger", "pincer","thermo", "sieve", "wrench", "lock", "tweezers", "mic", "top", "corkscrew", "rasp", "opener",];
+var familiars = ["duck","bear", "hanger", "pincer","apple","thermo", "sieve","duck", "wrench", "lock","bread", "tweezers", "mic", "top", "corkscrew","carrot", "rasp", "opener",];
 
-var words = ["train","train","trelom", "hoefas", "bokas","pilunt", "plosse" ,"raschlau", "ukam", "munki",  "kattel","zubi", "tikon", "palvi" ]
+var words = ["train","train","trelom", "hoefas","tomen", "bokas","pilunt","wondie", "plosse" ,"raschlau", "ukam", "munki",  "kattel","towak","zubi", "tikon", "palvi","wittu"]
 
-var hello = ["yes","yes","yes", "no", "no","yes", "no" ,"no", "yes", "no", "no","yes", "no", "no"]
+var hello = ["yes","yes","yes", "no", "no", "no","yes", "no" ,"no", "no", "yes", "no", "no", "no","yes", "no", "no", "no"]
 
 // orientation of agent
 var agentOrient = [
@@ -201,11 +214,15 @@ var agentOrient = [
     [ "straight","down"],
     ["straight", "down"],
     [ "straight","down"],
+		    [ "straight","down"],
+				    [ "straight","down"],
+						    [ "straight","down"],
+								    [ "straight","down"],
     ["straight","down"]];
 
-var novelPos = ["right", "left", "left", "right", "left", "left", "right", "right", "left", "right", "left", "right", "right", "left"]
+var novelPos = ["right", "left", "left", "right", "left", "left", "right", "right", "left", "right", "left", "right", "right", "left","right","left", "left","right"]
 
-var back = [1,2,3,3,3,4,4,4,5,5,5,6,6,6];
+var back = [1,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6];
 
 
 // beginning of actual experiment
