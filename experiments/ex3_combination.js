@@ -20,10 +20,9 @@ var preObjects = ["duck.png","car.png","bear.png","ball.png",
 "t54.png",
 "t55.png",
 "t56.png",
-"t57.png",
-"t58.png",
-"t59.png",
-"t60.png",
+"bread.png",
+"carrot.png",
+"apple.png",
 "hanger.png",
 "pincer.png",
 "thermo.png",
@@ -68,25 +67,20 @@ var preSounds = [
 "comb/Bear_kotte.mp3",
 "comb/Bear_strillke.mp3",
 "comb/Bear_tiela.mp3",
-"comb/Bear_tomen.mp3",
 "comb/Cat_krumpatt.mp3",
 "comb/Cat_lentu.mp3",
 "comb/Cat_liput.mp3",
 "comb/Cat_prilin.mp3",
 "comb/Cat_tumpfer.mp3",
-"comb/Cat_wondie.mp3",
 "comb/Frog_dessa.mp3",
 "comb/Frog_nefu.mp3",
-"comb/Frog_pemweck.mp3",
 "comb/Frog_pretla.mp3",
 "comb/Frog_soerel.mp3",
-"comb/Frog_towak.mp3",
 "comb/Sheep_bucku.mp3",
 "comb/Sheep_miskeu.mp3",
 "comb/Sheep_nupfor.mp3",
 "comb/Sheep_quistla.mp3",
-"comb/Sheep_wefla.mp3",
-"comb/Sheep_wittu.mp3"
+"comb/Sheep_wefla.mp3"
 ];
 //for critical trials and fillers
 var sound = new Array();
@@ -221,10 +215,10 @@ function playSound() {
 
 // Variables and randomization for the experiment
 
-var trial = ["train1","train2",1,2,3,4,5,6,7,8,9,10,11,12,"pause",13,14,15,16,17,18,19,20,21,22,23,24];
+var trial = ["train1","train2",1,2,3,4,5,6,7,8,"pause",9,10,11,12,13,14,15,16];
 // agent order for training
 
-var agents = ["Monkey","Dog", "Bear","Bear","Bear","Cat","Cat","Cat","Frog","Frog","Frog","Sheep","Sheep","Sheep","Cat","Cat","Cat","Frog","Frog","Frog","Sheep","Sheep","Sheep","Bear","Bear","Bear"];
+var agents = ["Monkey","Dog", "Bear","Bear","Bear","Bear","Cat","Cat","Cat","Cat","Frog","Frog","Frog","Frog","Sheep","Sheep","Sheep","Sheep"];
 
 var novelObjects = ["car","ball","t37",
 "t38",
@@ -241,20 +235,14 @@ var novelObjects = ["car","ball","t37",
 "t49",
 "t50",
 "t51",
-"t52",
-"t53",
-"t54",
-"t55",
-"t56",
-"t57",
-"t58",
-"t59",
-"t60"
+"t52"
 ];
 
 var familiarObjects = ["duck","bear",
-"top", "rasp", "lock", "hanger", "opener", "corkscrew", "thermo", "wrench", "mic", "tweezers", "pincer", "sieve",
-"tweezers", "mic", "lock", "sieve", "rasp", "wrench", "hanger", "opener", "top", "pincer", "corkscrew", "thermo"];
+"duck","top", "rasp", "lock",
+ "hanger", "opener", "corkscrew","apple",
+ "thermo","bread", "wrench", "mic",
+  "tweezers", "pincer","carrot", "sieve"];
 
 // orientation of agent
 var agentOrient = [
@@ -275,77 +263,50 @@ var agentOrient = [
 	["straight", "point_l", "point_r", "disappear","gone","down"],
 	["straight", "point_r", "point_l", "disappear","gone","down"],
 	["straight", "point_r", "point_l", "disappear","gone","down"],
-	["straight", "point_l", "point_r", "disappear","gone","down"],
-	["straight", "point_r", "point_l", "disappear","gone","down"],
-	["straight", "point_r", "point_l", "disappear","gone","down"],
-	["straight", "point_l", "point_r", "disappear","gone","down"],
-	["straight", "point_l", "point_r", "disappear","gone","down"],
-	["straight", "point_r", "point_l", "disappear","gone","down"],
-	["straight", "point_l", "point_r", "disappear","gone","down"],
-	["straight", "point_l", "point_r", "disappear","gone","down"],
-	["straight", "point_r", "point_l", "disappear","gone","down"]];
+	["straight", "point_l", "point_r", "disappear","gone","down"]];
 
 
 var condition = [
     ["train","me_novel_left", "dis_novel_left"],
     ["train","me_novel_right", "dis_novel_right"],
+
 		["congruent", "me_novel_left", "dis_novel_left"],
 		["incongruent", "me_novel_right", "dis_novel_left"],
-		["congruent", "me_novel_left", "dis_novel_left"],
+		["congruent", "me_novel_left", "dis_novel_right"],
+		["incongruent", "me_novel_right", "dis_novel_right"],
+		["congruent", "me_novel_right", "dis_novel_left"],
+		["incongruent", "me_novel_left", "dis_novel_right"],
+		["incongruent", "me_novel_left", "dis_novel_left"],
+		["congruent", "me_novel_right", "dis_novel_right"],
+
+		["congruent", "me_novel_right", "dis_novel_right"],
+		["incongruent", "me_novel_left", "dis_novel_left"],
+		["incongruent", "me_novel_left", "dis_novel_right"],
+		["congruent", "me_novel_right", "dis_novel_left"],
+		["incongruent", "me_novel_right", "dis_novel_right"],
+		["congruent", "me_novel_left", "dis_novel_right"],
 		["incongruent", "me_novel_right", "dis_novel_left"],
-		["incongruent", "me_novel_left", "dis_novel_right"],
-		["congruent", "me_novel_right", "dis_novel_right"],
-		["incongruent", "me_novel_left", "dis_novel_right"],
-		["congruent", "me_novel_left", "dis_novel_left"],
-		["congruent", "me_novel_right", "dis_novel_right"],
-		["incongruent", "me_novel_left", "dis_novel_right"],
-		["congruent", "me_novel_right", "dis_novel_right"],
-		["incongruent", "me_novel_right", "dis_novel_left"],
-		["congruent", "me_novel_left", "dis_novel_left"],
-		["incongruent", "me_novel_right", "dis_novel_left"],
-		["congruent", "me_novel_left", "dis_novel_left"],
-		["incongruent", "me_novel_right", "dis_novel_left"],
-		["incongruent", "me_novel_left", "dis_novel_right"],
-		["congruent", "me_novel_right", "dis_novel_right"],
-		["incongruent", "me_novel_left", "dis_novel_right"],
-		["congruent", "me_novel_left", "dis_novel_left"],
-		["congruent", "me_novel_right", "dis_novel_right"],
-		["incongruent", "me_novel_left", "dis_novel_right"],
-		["congruent", "me_novel_right", "dis_novel_right"],
-		["incongruent", "me_novel_right", "dis_novel_left"]];
+		["congruent", "me_novel_left", "dis_novel_left"]
+
+	];
 
 
 var words = [
-	"train",
-	"train",
-"halke",
-"knaupett",
-"kotte",
-"krumpatt",
-"lentu",
-"liput",
-"dessa",
-"nefu",
-"pemweck",
-"bucku",
-"miskeu",
-"nupfor",
-"prilin",
-"tumpfer",
-"wondie",
-"pretla",
-"soerel",
-"towak",
-"quistla",
-"wefla",
-"wittu",
-"strillke",
-"tiela",
-"tomen"];
+"train",
+"train",
+"halke", "knaupett", "strillke", "kotte",
+"krumpatt", "lentu", "liput", "prilin",
+"dessa","nefu", "nomrai","pretla",
+"bucku","miskeu", "nupfor", "quistla"
+];
 
-var hello = ["yes","yes", "yes", "no", "no","yes", "no" ,"no", "yes", "no", "no","yes", "no", "no", "yes", "no", "no","yes", "no" ,"no", "yes", "no", "no","yes", "no", "no"];
+var hello = ["yes","yes",
+"yes", "no", "no", "no",
+"yes", "no" ,"no", "no",
+"yes", "no", "no", "no",
+"yes", "no", "no", "no"];
 
-var back = [1,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,10];
+var back = [1,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6];
 
 
 // beginning of actual experiment

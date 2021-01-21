@@ -15,7 +15,6 @@ var preObjects = [
 "bread.png",
 "carrot.png",
 "apple.png",
-"duck.png",
 "duck.png","car.png","bear.png","ball.png","t01.png", "t02.png", "t03.png", "t04.png", "t05.png", "t06.png", "t07.png", "t08.png", "t09.png", "t10.png", "t11.png","t57.png",
 "t58.png",
 "t59.png",
