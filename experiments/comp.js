@@ -1,10 +1,17 @@
 
 var pictures = [
-  ["wrench.png","tweezers.png", "top.png", "thermo.png","sieve.png","rasp.png"],
-  ["opener.png", "pincer.png","mic.png", "lock.png", "hanger.png", "corkscrew.png"]
+[  "rasp", "lock", "apple", "hydrant", "hanger", "dogtoy"],
+[  "globe", "pincer", "sieve", "carrot", "pushpin", "mic"],
+[  "opener", "funnel", "spyglass", "thermo", "bread", "top"],
+[  "tweezers", "duck", "microscope", "yardstick", "corkscrew", "wrench"]
 ]
 
-var target = ["wrench","tweezers", "top", "thermo","sieve","rasp","opener", "mic", "lock", "hanger", "corkscrew","pincer"]
+var target = [
+  "lock","rasp", "apple", "hanger",
+  "carrot","sieve","pincer", "mic",
+  "top", "opener", "thermo","bread",
+  "wrench","duck","corkscrew","tweezers"
+]
 
 function showCompObject(a,b) {
         document.getElementById("ob"+a).src=b;
@@ -28,12 +35,12 @@ var comp = {
 
     $("#text").text(target[0])
 
-    showCompObject("1","images/"+comp.pictures[0][0])
-    showCompObject("2","images/"+comp.pictures[0][1])
-    showCompObject("3","images/"+comp.pictures[0][2])
-    showCompObject("4","images/"+comp.pictures[0][3])
-    showCompObject("5","images/"+comp.pictures[0][4])
-    showCompObject("6","images/"+comp.pictures[0][5])
+    showCompObject("1","images/"+comp.pictures[0][0]+".png")
+    showCompObject("2","images/"+comp.pictures[0][1]+".png")
+    showCompObject("3","images/"+comp.pictures[0][2]+".png")
+    showCompObject("4","images/"+comp.pictures[0][3]+".png")
+    showCompObject("5","images/"+comp.pictures[0][4]+".png")
+    showCompObject("6","images/"+comp.pictures[0][5]+".png")
 
     $(".compItem").click(function() {
 
@@ -43,7 +50,7 @@ var comp = {
 
       $(".compItem").unbind("click");
 
-      var trial = 13 - comp.target.length
+      var trial = 17 - comp.target.length
 
       var pick_src = event.target.src;
 
@@ -59,7 +66,7 @@ var comp = {
         var correct = 0
         };
 
-        if (trial == 6){
+        if (trial == 4 | trial == 8 | trial == 12){
             comp.pictures.shift();
         };
 

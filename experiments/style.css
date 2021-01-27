@@ -418,6 +418,10 @@ sortButton {
     z-index: 2
 }
 
+.compItem {
+  width: 200px;
+}
+
 
 .fruit_l {
     position: absolute;
