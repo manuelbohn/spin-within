@@ -509,7 +509,7 @@ pause: function () {
                     showRightObject();
 
                     $("#object_l").css("bottom", "600px");
-                    $("#object_l").animate({bottom: "345px"},{duration: 1500});
+                    $("#object_l").animate({bottom: "295px"},{duration: 1500});
 
                     setTimeout(function() {
                         $("#object_r").animate({width: "200px", opacity: '0.3'});
@@ -543,7 +543,7 @@ pause: function () {
                     showRightObject();
 
                     $("#object_r").css("bottom", "600px");
-                    $("#object_r").animate({bottom: "345px"},{duration: 1500});
+                    $("#object_r").animate({bottom: "295px"},{duration: 1500});
 
                     setTimeout(function() {
                         $("#object_r").animate({width: "200px", opacity: '0.3'});

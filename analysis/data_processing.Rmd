@@ -22,7 +22,7 @@ comp_data <- data_frame()
 for (f in files) {
   jf <- paste("~/Work/Local/Spin-within/raw_data/comprehension/",f,sep="")
   jd <- jsonlite::fromJSON(paste(readLines(jf), collapse=""))
-  date <- str_sub(jf,33,str_length(jf)-11)
+  date <- str_sub(jf,61,str_length(jf)-11)
   id <- as_data_frame(jd$data$data) %>% mutate(test_date = date,
                                               trial = as.character(trial))
   comp_data <- bind_rows(comp_data, id)

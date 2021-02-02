@@ -320,7 +320,7 @@ sortButton {
 
 .agent {
     position: absolute;
-    bottom: 365px;
+    bottom: 315px;
     left: 50%;
     margin-left: -175px;
     width: 350px;
@@ -329,7 +329,7 @@ sortButton {
 
 .point_agent_r {
     position: absolute;
-    bottom: 365px;
+    bottom: 315px;
     left: 50%;
     margin-left: -175px;
     width: 350px;
@@ -339,7 +339,7 @@ sortButton {
 
 .point_agent_l {
     position: absolute;
-    bottom: 365px;
+    bottom: 315px;
     left: 50%;
     margin-left: -175px;
     width: 350px;
@@ -354,7 +354,7 @@ sortButton {
 
 .hill {
     position: absolute;
-    bottom: 125px;
+    bottom: 75px;
     left: 50%;
     margin-left: -175px;
     width: 350px;
@@ -470,7 +470,7 @@ sortButton {
 
 .table_r {
     position: absolute;
-    bottom: 200px;
+    bottom: 150px;
     right: 20%;
     margin-right: -140px;
     width: 280px;
@@ -479,7 +479,7 @@ sortButton {
 
 .table_l {
     position: absolute;
-    bottom: 200px;
+    bottom: 150px;
     left: 20%;
     margin-left: -140px;
     width: 280px;
@@ -528,7 +528,7 @@ sortButton {
 
 .object_r {
     position: absolute;
-    bottom: 345px;
+    bottom: 295px;
     right: 20%;
     margin-right: -75px;
     width: 150px;
@@ -538,7 +538,7 @@ sortButton {
 
 .object_l {
     position: absolute;
-    bottom: 345px;
+    bottom: 295px;
     left: 20%;
     margin-left: -75px;
     width: 150px;
