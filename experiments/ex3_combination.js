@@ -346,7 +346,7 @@ var experiment = {
 // end of the experiment
   end: function() {
     // Show the finish slide.
-    showSlide("transition");
+    showSlide("switch");
     setTimeout(function() { turk.submit(experiment) }, 500);
   },
 
