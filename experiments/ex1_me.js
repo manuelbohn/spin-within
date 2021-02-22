@@ -219,7 +219,7 @@ var agentOrient = [
 								    [ "straight","down"],
     ["straight","down"]];
 
-var novelPos = ["right", "left", "left", "right", "left", "left", "right", "right", "left", "right", "left", "right", "right", "left","right","left", "left","right"]
+var novelPos = ["right", "left", "left", "right", "left", "left", "right", "right", "left", "right", "left", "right", "right", "left","right","right", "left","left"]
 
 var back = [1,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6];
 

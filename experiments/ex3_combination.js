@@ -240,7 +240,7 @@ var novelObjects = ["car","ball","t37",
 
 var familiarObjects = ["duck","bear",
 "duck","top", "rasp", "lock",
- "hanger", "opener", "corkscrew","apple",
+ "hanger","apple", "opener", "corkscrew",
  "thermo","bread", "wrench", "mic",
   "tweezers", "pincer","carrot", "sieve"];
 
