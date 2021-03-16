@@ -1,0 +1,68 @@
+---
+title: "Spin-within example data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+
+library(tidyverse)
+library(knitr)
+
+```
+
+
+# Data
+
+```{r}
+data <- read_csv("../data/example_data.csv")
+```
+
+* subid: subject id
+* task: the three spin tasks `mutual_exclusivity`, `novelty`, `novelty`, `comprehension` and the two vocabulary tasks `comprehension` and `production`.
+* trial: trial number within task.
+* familiar: the familiar object involved (does not apply to `novelty`)
+* correct: did the child pick the correct object (for `mutual_exclusivity`: did they pick the unfamiliar object).
+* condition: combination only (`congruent` or `incongruent`).
+
+# Tasks
+
+We use the same tasks as in Spin, that is:
+ 
+* Mutual Exclusivity
+* Novelty
+* Combination
+
+In addition, we have two new vocabulary tasks:
+
+* Production
+* Comprehension
+
+Across all tasks (except novelty of course) we use a total of 16 familiar objects. There is one trial for each familiar object in mutual exclusivity, production and comprehension. There are also 16 trials in combination, half of which are congruent and the other half are incongruent.
+
+Production and comprehension task are run after the other three.
+
+## Production
+
+For the production task, the experimenter shows the child a picture of an object (the same as is used in the other experiments) and asks:"Can you tell me what this is?" The trial is coded as correct, if the child sys the correct word (or a word from a pre-specified list of synonyms). The experimenter goes through each of the 16 objects one by one.
+
+Picture below shows an example.
+
+```{r}
+knitr::include_graphics("../documentation/production_task_example_pic.png")
+```
+
+# Comprehension task
+
+The child is shown 6 objects on a screen, 4 of which are objects that appeared in the rest of the study and 2 are distractors The experimenter asks the child to pick out an object (e.g. "can you point to the lock?") and the child responds by selecting one of the objects. 
+
+We code as correct if the child clikcs on the correct object OR if they named the object during production.
+
+The experimenter goes through all 16 familiar objects on a total of 4 slides (each showing 6 objects, including 2 distractors).
+
+Picture below shows an example (familiar objects from the study: rasp, lock, apple, hange; distractors: dog toy and hydrant).
+
+```{r}
+knitr::include_graphics("../documentation/comprehension_task_example_pic.png")
+```
+
