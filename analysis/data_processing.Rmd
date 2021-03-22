@@ -56,7 +56,7 @@ data <-  raw_data%>%
 write_csv(data,"../data/merged_data.csv")
 
 # Für Louisa ab hier: 
-data <- read_csv("merged_data.csv")
+data <- read_csv("../data/merged_data.csv")
 ```
 
 # Sample
@@ -100,16 +100,14 @@ ggplot()+
 ```{r}
 cor <- data %>% 
   filter(task == "mutual_exclusivity" | task == "comprehension" | task == "production")%>%
-  group_by(subid, task)%>%
+  group_by(subid,subage, task)%>%
   summarise(mean = mean(correct))%>%
   pivot_wider(names_from = "task", values_from = "mean")%>%
-  ungroup()%>%
-  select(-subid)
+  ungroup()
 
-ggpairs(cor)+
-  ylim(0,1)+
-  xlim(0,1)+
-  theme_few()
+ggpairs(cor, columns =3:5)+
+  theme_few()+
+  scale_colour_ptol()
 ```
 
 
