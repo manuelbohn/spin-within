@@ -190,6 +190,9 @@ var model  = function(){
     })
   }
 
+  var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
+  var randomProductionProbability = 0 // uniformDrift({a:0, b:0.2, width: 0.05})
+  var successfulSelectionProbability = 1 // could also be a parameter like successfulProductionProbability
   foreach(function(age_month){
 
     var subjectData_byAge = _.filter(meData, {age_month: age_month})
@@ -205,6 +208,29 @@ var model  = function(){
 
       var sem_knowledge = logistic(itemLineParameters.intercept +
         itemLineParameters.slope * subj_age)
+
+
+        var productionModel = Infer({method: "enumerate", model: function(){
+            var knowsWord = flip(sem_knowledge)
+            var correctWord = knowsWord ?
+              flip(successfulProductionProbability) : // could be 1
+              flip(randomProductionProbability) // very small
+            return correctWord ? 1 : 0
+          }
+        })
+
+        observe(productionModel, d.productionCorrect)
+
+        var comprehensionModel = Infer({method: "enumerate", model: function(){
+          var knowsWord = flip(sem_knowledge)
+          var correctRef = knowsWord ?
+            flip(successfulSelectionProbability) : // could be 1
+            flip(1/6)
+          return correctRef
+          }
+        })
+
+        observe(comprehensionModel, d.comprehensionCorrect)
 
         var literalListener = cache(function(utterance){
           Infer({method: "enumerate", model: function(){
@@ -240,6 +266,7 @@ var model  = function(){
               mapData({data: subjectDataByAgeItem_correct}, function(d){
                 observe(modelPredictions, d)
               })
+
 
             }, familiars)
 
