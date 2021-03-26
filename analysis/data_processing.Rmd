@@ -13,6 +13,7 @@ library(readxl)
 library(tidyboot)
 library(GGally)
 
+
 ```
 
 # Comprehension
