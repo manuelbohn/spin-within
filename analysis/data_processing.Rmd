@@ -18,6 +18,11 @@ library(GGally)
 # Comprehension
 
 ```{r}
+
+# get data:
+
+# rsync -zaP manuelb@ccp-odc.eva.mpg.de:/srv/ccp-odc/manuel_bohn/spin-within/data/  ~/Work/Local/Spin-within/raw_data/
+
 files <- dir("~/Work/Local/Spin-within/raw_data", pattern = ".json")
 
 raw_data <- tibble()
@@ -43,20 +48,27 @@ log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xls
 log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>%
   filter(task == "production")%>%
   rename(subid = ID,
-         target = object,
+         familiar = object,
          correct = performance)%>%
   mutate(subid = as.character(subid))
 
 data <-  raw_data%>%
-  mutate(subage = ifelse(subage == "4 ", "4", subage))%>%
+  mutate(subage = ifelse(subage == "4 ", "4", subage),
+         familiar = ifelse(task == "comprehension", target, familiar))%>%
   left_join(log_id)%>%
   bind_rows(log_prod%>%left_join(log_id))%>%
-  filter(status == "keep")
+  filter(status == "keep", 
+         !grepl("train",trial))%>%
+  select(-target)%>%
+  mutate(age = age - min(age))
 
 write_csv(data,"../data/merged_data.csv")
 
+#write(toJSON(data), file = "../data//merged_data.json")
+
 # Für Louisa ab hier: 
-data <- read_csv("../data/merged_data.csv")
+data <- read_csv("../data/merged_data.csv")%>%
+  arrange(test_date)
 ```
 
 # Sample
