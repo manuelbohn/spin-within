@@ -60,45 +60,33 @@ var levels = function(df, label){
   return _.uniq(_.map(df, label));
 }
 
-//////////////// Inferring parameters //////////////
+//////////////// Data //////////////
 
 var data = json.read('../data/merged_data.json');
 
 var priorData = _.filter(data, {task: "novelty"})
-
 var meData = _.filter(data, {task: "mutual_exclusivity"})
-
 var comprehensionData = _.filter(data, {task: "comprehension"})
-
 var prodData = _.filter(data, {task: "production"})
 
 // var combData = json.read('../data/combination.json');
-//
-// var priorSubjects = levels(priorData, "subid")
-// var priorSubjectsAges = sort(levels(priorData, "age_month"))
 
 var familiars = levels(meData, "familiar")
-//var familiarsAges = sort(levels(meData, "age_month"))
 
 var subjects = levels(data, "subid")
-
-
-//var combDataAges = sort(levels(combData, "age_month"))
-
-var priorProbs = [.5, .5]
 
 var model  = function(){
 
   ////////////// Prior ////////////////////////
 
   var prior_slope = uniformDrift({
-    a: -2,
-    b: 2,
+    a: -3,
+    b: 3,
     width: 0.4
   })
   var prior_int = uniformDrift({
-    a: -2,
-    b: 2,
+    a: 0,
+    b: 4,
     width: 0.4
   })
 
@@ -133,6 +121,8 @@ var model  = function(){
 
 
   query.add(["parameter","sigma","prior", "NA", "NA"], priorSigma)
+  query.add(["parameter","intercept","prior", "NA", "NA"], prior_int)
+  query.add(["parameter","slope","prior", "NA", "NA"], prior_slope)
 
   //////////////// Semantic knowledge and speaker optimality ////////////////////////
 
@@ -167,13 +157,13 @@ var model  = function(){
 
 
   var sem_know_slope = uniformDrift({
-    a: -2,
-    b: 2,
+    a: 0,
+    b: 4,
     width: 0.4
   })
   var sem_know_int = uniformDrift({
-    a: -2,
-    b: 2,
+    a: -3,
+    b: 3,
     width: 0.4
   })
 
@@ -265,8 +255,14 @@ var model  = function(){
 
 
             query.add(["parameter","sigma","speaker_optimality", "NA", "NA"], speakerOptSigma)
+            query.add(["parameter","intercept","speaker_optimality", "NA", "NA"], speakerOptimalityParameters.intercept)
+            query.add(["parameter","slope","speaker_optimality", "NA", "NA"], speakerOptimalityParameters.slope)
+
             query.add(["parameter","sigma","semantic_knowledge", "NA", "NA"], semKnowSigma)
-            query.add(["parameter","parameter","successful_production_probability", "NA", "NA"], successfulProductionProbability)
+            query.add(["parameter","intercept","semantic_knowledge", "NA", "NA"], sem_know_int)
+            query.add(["parameter","slope","semantic_knowledge", "NA", "NA"], sem_know_slope)
+
+            query.add(["parameter","parameters","successful_production_probability", "NA", "NA"], successfulProductionProbability)
 
           //////////////// Model predictions and combination ////////////////////////
 
