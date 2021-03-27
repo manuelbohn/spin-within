@@ -80,17 +80,17 @@ var model  = function(){
   ////////////// Prior ////////////////////////
 
   var prior_slope = uniformDrift({
-    a: -3,
-    b: 3,
-    width: 0.4
+    a: -2,
+    b: 2,
+    width: 0.1
   })
   var prior_int = uniformDrift({
     a: 0,
-    b: 4,
-    width: 0.4
+    b: 2,
+    width: 0.1
   })
 
-  var priorSigma = uniformDrift({a: 0, b:3, width: 0.2})
+  var priorSigma = uniformDrift({a: 0, b:1, width: 0.1})
 
   foreach(function(subject){
 
@@ -128,21 +128,21 @@ var model  = function(){
 
   var speakerOptimalityParameters = {
     intercept: uniformDrift({
-      a: -3,
+      a: 0,
       b: 3,
-      width: 0.5
+      width: 0.1
     }),
     slope: uniformDrift({
       a: 0,
-      b: 4,
-      width: 0.5
+      b: 3,
+      width: 0.1
     })
   }
 
   var speakerOptSigma = uniformDrift({
     a: 0,
-    b: 3,
-    width: 0.2
+    b: 1,
+    width: 0.1
   })
 
   var sampleSpeakerOptimality = function(so){
@@ -158,16 +158,16 @@ var model  = function(){
 
   var sem_know_slope = uniformDrift({
     a: 0,
-    b: 4,
-    width: 0.4
+    b: 2,
+    width: 0.1
   })
   var sem_know_int = uniformDrift({
-    a: -3,
-    b: 3,
-    width: 0.4
+    a: -2,
+    b: 2,
+    width: 0.1
   })
 
-  var semKnowSigma = uniformDrift({a: 0, b:3, width: 0.2})
+  var semKnowSigma = uniformDrift({a: 0, b:1, width: 0.1})
 
 
   foreach(function(subject){
