@@ -53,6 +53,8 @@ log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>
          correct = performance)%>%
   mutate(subid = as.character(subid))
 
+# add filtering of invalid trials
+
 data <-  raw_data%>%
   mutate(subage = ifelse(subage == "4 ", "4", subage),
          familiar = ifelse(task == "comprehension", target, familiar))%>%
