@@ -112,6 +112,7 @@ var model  = function(){
     }})
 
     mapData({data: priorSubjectData_correct}, function(d){
+      // display("prior for subject = " + subject + " score = " + priorModel.score(d))
       observe(priorModel, d);
     })
 
@@ -199,18 +200,26 @@ var model  = function(){
           }
         })
 
-        observe(productionModel, prodSubItemData.correct)
+        // display(JSON.stringify(productionModel))
+        display(prodSubItemData)
+        display("production for subject = " + subject + " familiar = " + familiar + " score = " + productionModel.score(prodSubItemData[0]["correct"]))
+
+        observe(productionModel, prodSubItemData[0]["correct"])
 
         var comprehensionModel = Infer({method: "enumerate", model: function(){
           var knowsWord = flip(sem_knowledge)
           var correctRef = knowsWord ?
             flip(successfulSelectionProbability) : // could be 1
             flip(1/6)
-          return correctRef
+          return correctRef ? 1 : 0
           }
         })
 
-        observe(comprehensionModel, comprehensionSubItemData.correct)
+        display(JSON.stringify(comprehensionModel))
+        display(comprehensionSubItemData)
+        display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
+
+        observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
 
         var literalListener = cache(function(utterance){
           Infer({method: "enumerate", model: function(){
@@ -243,7 +252,8 @@ var model  = function(){
 
               var meModel = pragmaticListener({label: "novel_word"})
 
-              observe(meModel, meSubItemData.correct)
+              display("ME for subject = " + subject + " familiar = " + familiar + " score = " + meModel.score(meSubItemData[0]["correct"]))
+              observe(meModel, meSubItemData[0]["correct"])
 
             query.add(["parameter","parameters","semantic_knowledge", familiar, subject], sem_knowledge)
 
@@ -361,11 +371,17 @@ var model  = function(){
 
             var header = "iteration,a,b,c,d,e,f,g,h"
 
-            var lag = 9
+            // var lag = 9
+            //
+            // var samples = 20000;
+            //
+            // var burn = 100000;
 
-            var samples = 20000;
+            var lag = 1
 
-            var burn = 100000;
+            var samples = 20;
+
+            var burn = 10;
 
             var output_file = 'output/spin-within_model-'+ samples+'_burn'+burn+'_lag'+lag+'_chain'+chain+'.csv'
             var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
