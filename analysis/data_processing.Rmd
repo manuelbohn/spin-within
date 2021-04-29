@@ -67,11 +67,15 @@ data <-  raw_data%>%
 
 write_csv(data,"../data/merged_data.csv")
 
-#write(toJSON(data), file = "../data//merged_data.json")
-
 # Für Louisa ab hier: 
 data <- read_csv("../data/merged_data.csv")%>%
   arrange(test_date)
+
+data <- data %>% mutate(familiar = ifelse(familiar == "pincers", "pincer", familiar),
+                        familiar = ifelse(familiar == "file", "rasp", familiar))
+
+write(toJSON(data), file = "../data//merged_data.json")
+
 ```
 
 # Sample
@@ -147,3 +151,15 @@ ggplot()+
   ylim(-0.05, 1.05)+
   theme_few()
 ```
+
+
+
+```{r}
+data %>%
+  filter(subid == 65507,
+         task == "production")%>%
+  select(task, familiar, correct)
+
+unique(data$familiar)
+```
+
