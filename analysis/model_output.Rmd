@@ -51,11 +51,11 @@ data%>%
 # Model Output
 
 ```{r}
-# model <-  bind_rows(
-#   fread("../model/output/spin-within_model-20000_burn100000_lag9_chain1.csv")%>%mutate(chain = "1"),
-#   fread("../model/output/spin-within_model-20000_burn100000_lag9_chain2.csv")%>%mutate(chain = "2"),
-#   fread("../model/output/spin-within_model-20000_burn100000_lag9_chain3.csv")%>%mutate(chain = "3")
-# )%>%saveRDS("../model/output/model_run.rds")
+model <-  bind_rows(
+  fread("../model/output/spin-within_model-2000_burn1000_lag1_chain1")%>%mutate(chain = "1"),
+  #fread("../model/output/spin-within_model-20000_burn100000_lag9_chain2.csv")%>%mutate(chain = "2"),
+  #fread("../model/output/spin-within_model-20000_burn100000_lag9_chain3.csv")%>%mutate(chain = "3")
+)%>%saveRDS("../model/output/model_run.rds")
 
 model <- readRDS("../model/output/model_run.rds")
 ```
