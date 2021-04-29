@@ -372,15 +372,9 @@ var model  = function(){
 
             var header = "iteration,a,b,c,d,e,f,g,h"
 
-            // var lag = 9
-            //
-            // var samples = 20000;
-            //
-            // var burn = 100000;
-
             var lag = 4
 
-            var samples = 20000;
+            var samples = 10000;
 
             var burn = 50000;
 
