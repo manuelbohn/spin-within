@@ -201,9 +201,9 @@ var model  = function(){
         })
 
         // display(JSON.stringify(productionModel))
-        //display(prodSubItemData)
-        //display(familiar)
-        //display("production for subject = " + subject + " familiar = " + familiar + " score = " + productionModel.score(prodSubItemData[0]["correct"]))
+        // display(prodSubItemData)
+        // display(familiar)
+        // display("production for subject = " + subject + " familiar = " + familiar + " score = " + productionModel.score(prodSubItemData[0]["correct"]))
 
         observe(productionModel, prodSubItemData[0]["correct"])
 
@@ -216,9 +216,9 @@ var model  = function(){
           }
         })
 
-        //display(JSON.stringify(comprehensionModel))
-        //display(comprehensionSubItemData)
-        //display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
+        // display(JSON.stringify(comprehensionModel))
+        // display(comprehensionSubItemData)
+        // display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
 
         observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
 
@@ -254,7 +254,8 @@ var model  = function(){
               var meModel = pragmaticListener({label: "novel_word"})
 
               //display("ME for subject = " + subject + " familiar = " + familiar + " score = " + meModel.score(meSubItemData[0]["correct"]))
-              //observe(meModel, meSubItemData[0]["correct"])
+
+              observe(meModel, meSubItemData[0]["correct"])
 
             query.add(["parameter","parameters","semantic_knowledge", familiar, subject], sem_knowledge)
 
