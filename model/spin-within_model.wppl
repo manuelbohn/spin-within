@@ -85,7 +85,7 @@ var model  = function(){
     width: 0.1
   })
   var prior_int = uniformDrift({
-    a: 0,
+    a: -2,
     b: 2,
     width: 0.1
   })
