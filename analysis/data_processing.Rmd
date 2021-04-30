@@ -69,12 +69,10 @@ write_csv(data,"../data/merged_data.csv")
 
 # Für Louisa ab hier: 
 data <- read_csv("../data/merged_data.csv")%>%
-  arrange(test_date)
+  arrange(test_date)%>%
+  mutate(subage = factor(subage))
 
-data <- data %>% mutate(familiar = ifelse(familiar == "pincers", "pincer", familiar),
-                        familiar = ifelse(familiar == "file", "rasp", familiar))
-
-write(toJSON(data), file = "../data//merged_data.json")
+#write(toJSON(data), file = "../data//merged_data.json")
 
 ```
 
