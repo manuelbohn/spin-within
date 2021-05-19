@@ -51,13 +51,15 @@ log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>
   rename(subid = ID,
          familiar = object,
          correct = performance)%>%
-  mutate(subid = as.character(subid))
+  mutate(subid = as.character(subid), 
+         correct = as.numeric(correct))
 
 # add filtering of invalid trials
 
 data <-  raw_data%>%
   mutate(subage = ifelse(subage == "4 ", "4", subage),
-         familiar = ifelse(task == "comprehension", target, familiar))%>%
+         familiar = ifelse(task == "comprehension", target, familiar), 
+         subage = ifelse(subid == "79783", "4", subage))%>%
   left_join(log_id)%>%
   bind_rows(log_prod%>%left_join(log_id))%>%
   filter(status == "keep", 
@@ -94,11 +96,11 @@ p1 <- data %>%
   filter(task != "combination")%>%
   group_by(subage,task, subid) %>%
   filter(!grepl("train",trial)) %>%
-  summarise(mean = mean(correct))
+  summarise(mean = mean(correct, na.rm = T))
 
 p2 <- p1 %>%
   group_by(subage,task) %>%
-  tidyboot_mean(column = mean)%>%
+  tidyboot_mean(column = mean, na.rm = T)%>%
   mutate(chance = ifelse(task == "mutual_exclusivity" | task == "novelty", 1/2, NA))
 
 ggplot()+
@@ -134,7 +136,7 @@ ggpairs(cor, columns =3:5)+
 pc <- data %>%
   filter(task == "combination")%>%
   filter(!grepl("train",trial)) %>%
-  group_by(subage,task,condition) %>%
+  group_by(subage,task,familiar,condition) %>%
   tidyboot_mean(column = correct)
 
 
@@ -142,22 +144,12 @@ ggplot()+
   #geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
   #geom_smooth(data = p1, aes(x = subage, y = mean), method = "lm", col = "black", size = 1)+
   #geom_jitter(data = pc, aes(x = subage, y = mean), alpha = .5, width = .05, height = .01)+
-  geom_pointrange(data = pc, aes(x = subage, y = mean, ymin = ci_lower, ymax = ci_upper, col = condition), position = position_dodge(width = .5))+
-  #facet_grid(condition~.)+
+  geom_pointrange(data = pc, aes(x = subage, y = mean, ymin = ci_lower, ymax = ci_upper, col = condition))+
+  facet_wrap(~familiar)+
   labs(x = "Age Group", y = "Proportion unfamiliar object chosen") +
   scale_color_colorblind(name = "Condition") +
   ylim(-0.05, 1.05)+
   theme_few()
 ```
 
-
-
-```{r}
-data %>%
-  filter(subid == 65507,
-         task == "production")%>%
-  select(task, familiar, correct)
-
-unique(data$familiar)
-```
 
