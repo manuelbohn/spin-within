@@ -423,11 +423,11 @@ var model  = function(){
 
             var header = "iteration,a,b,c,d,e,f,g,h"
 
-            var lag = 0
+            var lag = 1
 
-            var samples = 10;
+            var samples = 20000;
 
-            var burn = 0;
+            var burn = 20000;
 
             var output_file = 'output/spin-within_model_item_slope-'+ samples+'_burn'+burn+'_lag'+lag+'_chain'+chain+'.csv'
             var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
