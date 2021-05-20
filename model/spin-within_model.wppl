@@ -377,7 +377,7 @@ var model  = function(){
 
             var samples = 10000;
 
-            var burn = 50000;
+            var burn = 100000;
 
             var output_file = 'output/spin-within_model-'+ samples+'_burn'+burn+'_lag'+lag+'_chain'+chain+'.csv'
             var callback = webpplSampleWriter.streamQueryCSV(output_file, header);

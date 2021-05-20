@@ -52,10 +52,10 @@ data%>%
 
 ```{r}
 model <-  bind_rows(
-  fread("../model/output/spin-within_model-10000_burn50000_lag4_chain1.csv")%>%mutate(chain = "1"),
-  fread("../model/output/spin-within_model-10000_burn50000_lag4_chain2.csv")%>%mutate(chain = "2"),
-  fread("../model/output/spin-within_model-10000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3"),
-)#%>%saveRDS("../model/output/model_run.rds")
+  fread("../model/output/spin-within_model-10000_burn100000_lag4_chain1.csv")%>%mutate(chain = "1"),
+  fread("../model/output/spin-within_model-10000_burn100000_lag4_chain2.csv")%>%mutate(chain = "2"),
+  fread("../model/output/spin-within_model-10000_burn100000_lag4_chain3.csv")%>%mutate(chain = "3")
+)%>%saveRDS("../model/output/model_run.rds")
 
 model <- readRDS("../model/output/model_run.rds")
 ```
@@ -165,8 +165,7 @@ model%>%
   ggplot(., aes(x = familiar, y= mode, col = chain))+
   geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .5), pch = 4)+
   scale_color_colorblind()+
-  facet_grid(~subject)+
-  coord_flip()+
+  facet_wrap(~subject)+
   theme_few()
 ```
 
