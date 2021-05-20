@@ -72,9 +72,10 @@ write_csv(data,"../data/merged_data.csv")
 # Für Louisa ab hier: 
 data <- read_csv("../data/merged_data.csv")%>%
   arrange(test_date)%>%
-  mutate(subage = factor(subage))
+  mutate(subage = factor(subage))#%>%
+  #filter(subid != "89475")
 
-#write(toJSON(data), file = "../data//merged_data.json")
+write(toJSON(data), file = "../data//merged_data.json")
 
 ```
 

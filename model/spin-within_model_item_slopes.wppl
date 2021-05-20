@@ -1,4 +1,4 @@
-// example call: time webppl spin-within_model.wppl --require webppl-json --require webppl-sample-writer 1
+// example call: time webppl spin-within_model_item_slopes.wppl --require webppl-json --require webppl-sample-writer 1
 
 var chain = last(process.argv)
 
@@ -152,26 +152,64 @@ var model  = function(){
    return x < 0 ? sampleSpeakerOptimality(so) : x
  }
 
-  //var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
+  var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
   //var successfulProductionProbability = beta({a: 5, b: 1})
-  var successfulProductionProbability = 1
+  //var successfulProductionProbability = 1
   var randomProductionProbability = 0 // uniformDrift({a:0, b:0.2, width: 0.05})
   var successfulSelectionProbability = 1 // could also be a parameter like successfulProductionProbability
 
 
-  var sem_know_slope = uniformDrift({
-    a: 0,
-    b: 2,
-    width: 0.1
-  })
-  var sem_know_int = uniformDrift({
-    a: -2,
-    b: 2,
-    width: 0.1
-  })
+    var globalLineParameters = {
+    intercept: uniformDrift({
+      a: -3,
+      b: 3,
+      width: 0.5
+    }),
+    slope: uniformDrift({
+      a: 0,
+      b: 2,
+      width: 0.5
+    })
+  }
 
-  var semKnowSigma = uniformDrift({a: 0, b:1, width: 0.1})
+  var itemVariability = {
+    intercept: uniformDrift({
+      a: 0,
+      b: 2,
+      width: 0.2
+    }),
+    slope: uniformDrift({
+      a: 0,
+      b: 1,
+      width: 0.2
+    })
+  }
 
+  var sampleItemParameters = function(itemName) {
+    return [itemName, {
+      intercept: gaussianDrift({
+        mu: globalLineParameters.intercept,
+        sigma: itemVariability.intercept,
+        width: 0.5
+      }),
+      slope: gaussianDrift({
+        mu: globalLineParameters.slope,
+        sigma: itemVariability.slope,
+        width: 0.5
+      })
+    }]
+  }
+
+  var all_item_parameters = _.fromPairs(map(sampleItemParameters, familiars))
+
+
+  //display(all_item_parameters)
+
+  var subject_sigma = uniformDrift({a: 0, b:1, width: 0.1})
+
+  var sampleLinguisticCompetence = function(age){
+    return gaussianDrift({ mu: age, sigma: subject_sigma, width: 0.1 })
+  }
 
   foreach(function(subject){
 
@@ -182,16 +220,25 @@ var model  = function(){
     var speakerOptimalitySample = speakerOptimalityParameters.intercept  + speakerOptimalityParameters.slope * meSubData[0].age
     var speakerOptimality = sampleSpeakerOptimality(speakerOptimalitySample)
 
+    var subj_linguistic_competence = sampleLinguisticCompetence(meSubData[0].age)
+
+    //display("subject age = " + meSubData[0].age + " ling_comp = " + subj_linguistic_competence)
+
     foreach(function(familiar){
 
       var meSubItemData = _.filter(meSubData, {familiar: familiar})
       var comprehensionSubItemData = _.filter(comprehensionSubData, {familiar: familiar})
       var prodSubItemData = _.filter(prodSubData, {familiar: familiar})
 
+      var itemLineParameters = all_item_parameters[familiar]
 
-      var semKnowAge = sem_know_int + sem_know_slope * meSubItemData[0].age
-      var semKnowSample = gaussianDrift({mu: semKnowAge, sigma: semKnowSigma, width: 0.1})
-      var sem_knowledge = logistic(semKnowSample)
+      //display("subject = " + subject + ", familiar = " + familiar + ", params = " + itemLineParameters.intercept + ";" + itemLineParameters.slope)
+
+      var sem_knowledge = logistic(itemLineParameters.intercept +
+        itemLineParameters.slope * subj_linguistic_competence)
+
+
+      //display("subject = " + subject + ", sem_knowledge = " + sem_knowledge + ", familiar = " + familiar)
 
         var productionModel = Infer({method: "enumerate", model: function(){
             var knowsWord = flip(sem_knowledge)
@@ -205,7 +252,7 @@ var model  = function(){
         // display(JSON.stringify(productionModel))
         // display(prodSubItemData)
         // display(familiar)
-        // display("production for subject = " + subject + " familiar = " + familiar + " score = " + productionModel.score(prodSubItemData[0]["correct"]))
+        //display("production for subject = " + subject + " familiar = " + familiar + " score = " + productionModel.score(prodSubItemData[0]["correct"]))
 
         observe(productionModel, prodSubItemData[0]["correct"])
 
@@ -220,7 +267,7 @@ var model  = function(){
 
         // display(JSON.stringify(comprehensionModel))
         // display(comprehensionSubItemData)
-        // display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
+        //display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
 
         observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
 
@@ -272,9 +319,10 @@ var model  = function(){
             query.add(["parameter","intercept","speaker_optimality", "NA", "NA"], speakerOptimalityParameters.intercept)
             query.add(["parameter","slope","speaker_optimality", "NA", "NA"], speakerOptimalityParameters.slope)
 
-            query.add(["parameter","sigma","semantic_knowledge", "NA", "NA"], semKnowSigma)
-            query.add(["parameter","intercept","semantic_knowledge", "NA", "NA"], sem_know_int)
-            query.add(["parameter","slope","semantic_knowledge", "NA", "NA"], sem_know_slope)
+            query.add(["parameter","intercept","semantic_knowledge", "NA", "NA"], globalLineParameters.intercept)
+            query.add(["parameter","slope","semantic_knowledge", "NA", "NA"], globalLineParameters.slope)
+            query.add(["parameter","sigma", "semantic_knowledge", "intercept", "NA", "NA"], itemVariability.intercept)
+            query.add(["parameter","sigma", "semantic_knowledge", "slope", "NA", "NA"], itemVariability.slope)
 
             query.add(["parameter","parameters","successful_production_probability", "NA", "NA"], successfulProductionProbability)
 
@@ -375,13 +423,13 @@ var model  = function(){
 
             var header = "iteration,a,b,c,d,e,f,g,h"
 
-            var lag = 4
+            var lag = 0
 
-            var samples = 10000;
+            var samples = 10;
 
-            var burn = 100000;
+            var burn = 0;
 
-            var output_file = 'output/spin-within_model-'+ samples+'_burn'+burn+'_lag'+lag+'_chain'+chain+'.csv'
+            var output_file = 'output/spin-within_model_item_slope-'+ samples+'_burn'+burn+'_lag'+lag+'_chain'+chain+'.csv'
             var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
 
             var output  = Infer({model,

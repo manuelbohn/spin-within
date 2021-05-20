@@ -207,3 +207,141 @@ model%>%
 
 ```
 
+# Item slope model
+
+```{r}
+item_model <-  bind_rows(
+  fread("../model/output/spin-within_model_item_slope-10_burn0_lag0_chain1.csv")%>%mutate(chain = "1"),
+  fread("../model/output/spin-within_model_item_slope-10_burn0_lag0_chain2.csv")%>%mutate(chain = "2")
+)
+
+```
+
+
+## Production probability
+
+```{r}
+item_model%>%
+  filter(c == "successful_production_probability")%>%
+  rename(value = f)%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  scale_fill_colorblind()+
+  xlim(0,1)+
+  theme_minimal()
+```
+
+## Speaker optimality
+
+### overall intercept, slope and sigma
+
+```{r}
+item_model%>%
+  filter(c == "speaker_optimality", 
+         b != "parameters")%>%
+  rename(parameter = b,
+         value = f)%>%
+  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind()+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+
+### by subject
+
+```{r}
+item_model%>%
+  rename(type = b,
+         parameter = c,
+         subject = e, 
+         speaker_optimality = f)%>%
+  filter(type != "sigma",
+         parameter == "speaker_optimality")%>%
+  ggplot(., aes(x = speaker_optimality, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_grid(subject~., scales = "free_y")+
+  scale_fill_colorblind()+
+  theme_minimal()
+```
+
+
+## Semantic knowledge
+
+### overall intercept, slope
+
+```{r}
+item_model%>%
+  filter(c == "semantic_knowledge", 
+         b != "parameters", 
+         b != "sigma")%>%
+  rename(parameter = b,
+         value = f)%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind()+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+### overall sigmas
+
+```{r}
+item_model%>%
+  filter(c == "semantic_knowledge", 
+         b != "parameters", 
+         b == "sigma")%>%
+  rename(parameter = d,
+         value = g)%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind()+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+### by subject
+
+```{r}
+item_model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         parameter == "semantic_knowledge", 
+         familiar == "sieve")%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_wrap(~subject, scales = "free_y")+
+  ggtitle("Semantic knowledge for sieve")+
+  scale_fill_colorblind()+
+  theme_minimal()
+```
+
+### by item
+
+```{r}
+item_model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         !is.na(value),
+         parameter == "semantic_knowledge")%>%
+  group_by(subject, familiar,chain)%>%
+    summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  ggplot(., aes(x = factor(subject), y= mode, col = chain))+
+  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
+  scale_color_colorblind()+
+  facet_grid(familiar~.)+
+  theme_few()
+```
