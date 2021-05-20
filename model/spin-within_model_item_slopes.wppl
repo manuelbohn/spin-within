@@ -206,7 +206,7 @@ var model  = function(){
   })
 
   var sampleSpeakerOptimality = function(so){
-      return gaussianDrift({ mu: age, sigma: speakerOptSigma, width: 0.1 })
+      return gaussianDrift({ mu: so, sigma: speakerOptSigma, width: 0.1 })
  }
 
   foreach(function(subject){
@@ -220,7 +220,7 @@ var model  = function(){
 
     var subj_linguistic_competence = sampleLinguisticCompetence(meSubData[0].age)
 
-    display("subject age = " + meSubData[0].age + " ling_comp = " + speakerOptimalitySample)
+    display("subject age = " + meSubData[0].age + " speak_opt_comp = " + speakerOptimalitySample + " speak_opt = " + speakerOptimality)
 
     foreach(function(familiar){
 
@@ -437,7 +437,7 @@ var model  = function(){
               verbose: true,
               method: 'MCMC',
               onlyMAP: true,
-              callbacks: [callback]
+              //callbacks: [callback]
             });
 
             'output written to ' + output_file
