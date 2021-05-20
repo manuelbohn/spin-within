@@ -220,7 +220,7 @@ var model  = function(){
 
     var subj_linguistic_competence = sampleLinguisticCompetence(meSubData[0].age)
 
-    display("subject age = " + meSubData[0].age + " speak_opt_comp = " + speakerOptimalitySample + " speak_opt = " + speakerOptimality)
+    //display("subject age = " + meSubData[0].age + " speak_opt_comp = " + speakerOptimalitySample + " speak_opt = " + speakerOptimality)
 
     foreach(function(familiar){
 
