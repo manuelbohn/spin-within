@@ -211,8 +211,9 @@ model%>%
 
 ```{r}
 item_model <-  bind_rows(
-  fread("../model/output/spin-within_model_item_slope-10_burn0_lag0_chain1.csv")%>%mutate(chain = "1"),
-  fread("../model/output/spin-within_model_item_slope-10_burn0_lag0_chain2.csv")%>%mutate(chain = "2")
+  fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain1.csv")%>%mutate(chain = "1"),
+  fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain2.csv")%>%mutate(chain = "2"),
+  fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3")
 )
 
 ```
@@ -345,3 +346,42 @@ item_model%>%
   facet_grid(familiar~.)+
   theme_few()
 ```
+## Prior sensitivity
+
+### overall intercept, slope and sigma
+
+```{r}
+item_model%>%
+  filter(c == "prior", 
+         b != "parameters")%>%
+  rename(parameter = b,
+         value = f)%>%
+  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind()+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+### by subject
+
+```{r}
+item_model%>%
+  rename(parameter = c, 
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(subject),
+         parameter == "prior")%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_wrap(~subject, scales = "free_y")+
+  scale_fill_colorblind()+
+  xlim(0,1)+
+  theme_minimal()
+
+```
+
+
