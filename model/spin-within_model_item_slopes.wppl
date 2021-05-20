@@ -437,7 +437,7 @@ var model  = function(){
               verbose: true,
               method: 'MCMC',
               onlyMAP: true,
-              //callbacks: [callback]
+              callbacks: [callback]
             });
 
             'output written to ' + output_file
