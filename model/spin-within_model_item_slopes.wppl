@@ -140,20 +140,8 @@ var model  = function(){
     })
   }
 
-  var speakerOptSigma = uniformDrift({
-    a: 0,
-    b: 1,
-    width: 0.1
-  })
-
-  var sampleSpeakerOptimality = function(so){
-   var x =  gaussianDrift({ mu: so, sigma: speakerOptSigma, width: 0.1 })
-   //return x < 0.001 ? 0.001 : x
-   return x < 0 ? sampleSpeakerOptimality(so) : x
- }
-
-  var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
-  //var successfulProductionProbability = beta({a: 5, b: 1})
+  //var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
+  var successfulProductionProbability = beta({a: 5, b: 1})
   //var successfulProductionProbability = 1
   var randomProductionProbability = 0 // uniformDrift({a:0, b:0.2, width: 0.05})
   var successfulSelectionProbability = 1 // could also be a parameter like successfulProductionProbability
@@ -202,7 +190,6 @@ var model  = function(){
 
   var all_item_parameters = _.fromPairs(map(sampleItemParameters, familiars))
 
-
   //display(all_item_parameters)
 
   var subject_sigma = uniformDrift({a: 0, b:1, width: 0.1})
@@ -211,18 +198,29 @@ var model  = function(){
     return gaussianDrift({ mu: age, sigma: subject_sigma, width: 0.1 })
   }
 
+
+  var speakerOptSigma = uniformDrift({
+    a: 0,
+    b: 1,
+    width: 0.1
+  })
+
+  var sampleSpeakerOptimality = function(so){
+      return gaussianDrift({ mu: age, sigma: speakerOptSigma, width: 0.1 })
+ }
+
   foreach(function(subject){
 
     var meSubData = _.filter(meData, {subid: subject})
     var comprehensionSubData = _.filter(comprehensionData, {subid: subject})
     var prodSubData = _.filter(prodData, {subid: subject})
 
-    var speakerOptimalitySample = speakerOptimalityParameters.intercept  + speakerOptimalityParameters.slope * meSubData[0].age
-    var speakerOptimality = sampleSpeakerOptimality(speakerOptimalitySample)
+    var speakerOptimalitySample = sampleSpeakerOptimality(meSubData[0].age)
+    var speakerOptimality = speakerOptimalityParameters.intercept  + speakerOptimalityParameters.slope * speakerOptimalitySample
 
     var subj_linguistic_competence = sampleLinguisticCompetence(meSubData[0].age)
 
-    //display("subject age = " + meSubData[0].age + " ling_comp = " + subj_linguistic_competence)
+    display("subject age = " + meSubData[0].age + " ling_comp = " + speakerOptimalitySample)
 
     foreach(function(familiar){
 
