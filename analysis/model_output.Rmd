@@ -214,7 +214,7 @@ item_model <-  bind_rows(
   fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain1.csv")%>%mutate(chain = "1"),
   fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain2.csv")%>%mutate(chain = "2"),
   fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3")
-)
+)%>%saveRDS("../model/output/model_run_item_slopes.rds")
 
 ```
 
@@ -316,7 +316,7 @@ item_model%>%
          value = f)%>%
   filter(!is.na(familiar),
          parameter == "semantic_knowledge", 
-         familiar == "sieve")%>%
+         familiar == "lock")%>%
   ggplot(., aes(x = value, fill = chain))+
   geom_density(alpha = .5)+
   facet_wrap(~subject, scales = "free_y")+
