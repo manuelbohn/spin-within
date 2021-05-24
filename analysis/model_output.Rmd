@@ -52,9 +52,9 @@ data%>%
 
 ```{r}
 model <-  bind_rows(
-  fread("../model/output/spin-within_model-10000_burn100000_lag4_chain1.csv")%>%mutate(chain = "1"),
-  fread("../model/output/spin-within_model-10000_burn100000_lag4_chain2.csv")%>%mutate(chain = "2"),
-  fread("../model/output/spin-within_model-10000_burn100000_lag4_chain3.csv")%>%mutate(chain = "3")
+  fread("../model/output/spin-within_model-20000_burn50000_lag4_chain1.csv")%>%mutate(chain = "1"),
+  fread("../model/output/spin-within_model-20000_burn50000_lag4_chain2.csv")%>%mutate(chain = "2"),
+  fread("../model/output/spin-within_model-20000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3")
 )%>%saveRDS("../model/output/model_run.rds")
 
 model <- readRDS("../model/output/model_run.rds")
