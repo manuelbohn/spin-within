@@ -140,9 +140,10 @@ model%>%
          value = f)%>%
   filter(!is.na(familiar),
          parameter == "semantic_knowledge", 
-         familiar == "sieve")%>%
+         familiar == "lock")%>%
   ggplot(., aes(x = value, fill = chain))+
   geom_density(alpha = .5)+
+  ggtitle("Seamntick knowledge for 'lock'")+
   facet_wrap(subject~., scales = "free_y")+
   scale_fill_colorblind()+
   theme_minimal()
@@ -157,15 +158,34 @@ model%>%
          subject = e, 
          value = f)%>%
   filter(!is.na(familiar),
+         !is.na(value),
          parameter == "semantic_knowledge")%>%
   group_by(subject, familiar,chain)%>%
     summarise(mode = estimate_mode(value),
             lci = hdi_lower(value),
             uci = hdi_upper(value))%>%
-  ggplot(., aes(x = familiar, y= mode, col = chain))+
-  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .5), pch = 4)+
+  ggplot(., aes(x = factor(subject), y= mode, col = chain))+
+  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
   scale_color_colorblind()+
-  facet_wrap(~subject)+
+  facet_grid(familiar~.)+
+  theme_few()
+
+model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         !is.na(value),
+         parameter == "semantic_knowledge")%>%
+  group_by(subject, familiar,chain)%>%
+    summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  ggplot(., aes(x = familiar, y= mode, col = factor(subject)))+
+  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
+  scale_color_viridis_d()+
+  facet_grid(chain~.)+
   theme_few()
 ```
 

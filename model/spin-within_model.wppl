@@ -152,8 +152,8 @@ var model  = function(){
    return x < 0 ? sampleSpeakerOptimality(so) : x
  }
 
-  var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
-  //var successfulProductionProbability = beta({a: 5, b: 1})
+  //var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
+  var successfulProductionProbability = beta({a: 5, b: 1})
   //var successfulProductionProbability = 1
   var randomProductionProbability = 0 // uniformDrift({a:0, b:0.2, width: 0.05})
   var successfulSelectionProbability = 1 // could also be a parameter like successfulProductionProbability
@@ -377,9 +377,9 @@ var model  = function(){
 
             var lag = 4
 
-            var samples = 20000;
+            var samples = 40000;
 
-            var burn = 50000;
+            var burn = 100000;
 
             var output_file = 'output/spin-within_model-'+ samples+'_burn'+burn+'_lag'+lag+'_chain'+chain+'.csv'
             var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
