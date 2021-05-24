@@ -75,7 +75,7 @@ data <- read_csv("../data/merged_data.csv")%>%
   mutate(subage = factor(subage))#%>%
   #filter(subid != "89475")
 
-write(toJSON(data), file = "../data//merged_data.json")
+#write(toJSON(data), file = "../data//merged_data.json")
 
 ```
 
@@ -129,7 +129,6 @@ ggpairs(cor, columns =3:5)+
   theme_few()+
   scale_colour_ptol()
 ```
-
 
 # combination
 

@@ -216,6 +216,8 @@ item_model <-  bind_rows(
   fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3")
 )%>%saveRDS("../model/output/model_run_item_slopes.rds")
 
+
+item_model <- readRDS("../model/output/model_run_item_slopes.rds")
 ```
 
 
@@ -264,7 +266,7 @@ item_model%>%
          parameter == "speaker_optimality")%>%
   ggplot(., aes(x = speaker_optimality, fill = chain))+
   geom_density(alpha = .5)+
-  facet_grid(subject~., scales = "free_y")+
+  facet_wrap(~subject, scales = "free_y")+
   scale_fill_colorblind()+
   theme_minimal()
 ```
@@ -320,7 +322,7 @@ item_model%>%
   ggplot(., aes(x = value, fill = chain))+
   geom_density(alpha = .5)+
   facet_wrap(~subject, scales = "free_y")+
-  ggtitle("Semantic knowledge for sieve")+
+  ggtitle("Semantic knowledge for lock")+
   scale_fill_colorblind()+
   theme_minimal()
 ```
@@ -344,6 +346,24 @@ item_model%>%
   geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
   scale_color_colorblind()+
   facet_grid(familiar~.)+
+  theme_few()
+
+item_model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         !is.na(value),
+         parameter == "semantic_knowledge")%>%
+  group_by(subject, familiar,chain)%>%
+    summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  ggplot(., aes(x = familiar, y= mode, col = factor(subject)))+
+  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
+  scale_color_viridis_d()+
+  facet_grid(chain~.)+
   theme_few()
 ```
 ## Prior sensitivity
