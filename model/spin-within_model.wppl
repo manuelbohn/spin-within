@@ -152,9 +152,9 @@ var model  = function(){
    return x < 0 ? sampleSpeakerOptimality(so) : x
  }
 
-  //var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
+  var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
   //var successfulProductionProbability = beta({a: 5, b: 1})
-  var successfulProductionProbability = 1
+  //var successfulProductionProbability = 1
   var randomProductionProbability = 0 // uniformDrift({a:0, b:0.2, width: 0.05})
   var successfulSelectionProbability = 1 // could also be a parameter like successfulProductionProbability
 
