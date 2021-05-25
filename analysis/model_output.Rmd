@@ -33,7 +33,6 @@ hdi_lower<- function(s){
 
 ```
 
-# Comprehension
 
 ```{r}
 data <- read_csv("../data/merged_data.csv")
@@ -48,19 +47,19 @@ data%>%
 ```
 
 
-# Model Output
+# Base Model
 
 ```{r}
 model <-  bind_rows(
-  fread("../model/output/spin-within_model-20000_burn50000_lag4_chain1.csv")%>%mutate(chain = "1"),
-  fread("../model/output/spin-within_model-20000_burn50000_lag4_chain2.csv")%>%mutate(chain = "2"),
-  fread("../model/output/spin-within_model-20000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3")
+  fread("../model/output/spin-within_model-40000_burn100000_lag4_chain1.csv")%>%mutate(chain = "1"),
+  fread("../model/output/spin-within_model-40000_burn100000_lag4_chain2.csv")%>%mutate(chain = "2"),
+  fread("../model/output/spin-within_model-40000_burn100000_lag4_chain3.csv")%>%mutate(chain = "3")
 )%>%saveRDS("../model/output/model_run.rds")
 
 model <- readRDS("../model/output/model_run.rds")
 ```
 
-# Production probability
+## Production probability
 
 ```{r}
 model%>%
@@ -73,9 +72,9 @@ model%>%
   theme_minimal()
 ```
 
-# Speaker optimality
+## Speaker optimality
 
-## overall intercept, slope and sigma
+### overall intercept, slope and sigma
 
 ```{r}
 model%>%
@@ -93,7 +92,7 @@ model%>%
 ```
 
 
-## by subject
+### by subject
 
 ```{r}
 model%>%
@@ -111,9 +110,9 @@ model%>%
 ```
 
 
-# Semantic knowledge
+## Semantic knowledge
 
-## overall intercept, slope and sigma
+### overall intercept, slope and sigma
 
 ```{r}
 model%>%
@@ -130,7 +129,7 @@ model%>%
   theme_minimal()
 ```
 
-## by subject
+### by subject
 
 ```{r}
 model%>%
@@ -149,7 +148,7 @@ model%>%
   theme_minimal()
 ```
 
-by item
+### by item
 
 ```{r}
 model%>%
@@ -189,9 +188,9 @@ model%>%
   theme_few()
 ```
 
-# Prior sensitivity
+## Prior sensitivity
 
-## overall intercept, slope and sigma
+### overall intercept, slope and sigma
 
 ```{r}
 model%>%
@@ -208,7 +207,7 @@ model%>%
   theme_minimal()
 ```
 
-## by subject
+### by subject
 
 ```{r}
 model%>%
@@ -227,13 +226,13 @@ model%>%
 
 ```
 
-# Item slope model
+# Comptence Model
 
 ```{r}
 item_model <-  bind_rows(
-  fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain1.csv")%>%mutate(chain = "1"),
-  fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain2.csv")%>%mutate(chain = "2"),
-  fread("../model/output/spin-within_model_item_slope-20000_burn50000_lag4_chain3.csv")%>%mutate(chain = "3")
+  fread("../model/output/spin-within_model_item_slope-40000_burn100000_lag4_chain1.csv")%>%mutate(chain = "1"),
+  fread("../model/output/spin-within_model_item_slope-40000_burn100000_lag4_chain2.csv")%>%mutate(chain = "2"),
+  fread("../model/output/spin-within_model_item_slope-40000_burn100000_lag4_chain3.csv")%>%mutate(chain = "3")
 )%>%saveRDS("../model/output/model_run_item_slopes.rds")
 
 
