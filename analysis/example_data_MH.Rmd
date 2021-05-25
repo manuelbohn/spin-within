@@ -25,6 +25,18 @@ data <- read_csv("../data/example_data.csv")
 * correct: did the child pick the correct object (for `mutual_exclusivity`: did they pick the unfamiliar object).
 * condition: combination only (`congruent` or `incongruent`).
 
+# Model
+
+The models differ in how we estimate the parameters for each individual. 
+
+## Gaussian model
+
+This model 
+
+## Age based competence model
+
+
+
 # Tasks
 
 We use the same tasks as in Spin, that is:
@@ -52,7 +64,7 @@ Picture below shows an example.
 knitr::include_graphics("../documentation/production_task_example_pic.png")
 ```
 
-# Comprehension task
+## Comprehension task
 
 The child is shown 6 objects on a screen, 4 of which are objects that appeared in the rest of the study and 2 are distractors The experimenter asks the child to pick out an object (e.g. "can you point to the lock?") and the child responds by selecting one of the objects. 
 
@@ -65,4 +77,6 @@ Picture below shows an example (familiar objects from the study: rasp, lock, app
 ```{r}
 knitr::include_graphics("../documentation/comprehension_task_example_pic.png")
 ```
+
+
 

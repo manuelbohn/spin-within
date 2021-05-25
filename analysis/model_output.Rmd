@@ -327,6 +327,23 @@ item_model%>%
   theme_minimal()
 ```
 
+### subhect sigmas
+
+```{r}
+item_model%>%
+  filter(c == "semantic_knowledge", 
+         b == "sigma", 
+         d == "subject")%>%
+  rename(parameter = d,
+         value = g)%>%
+  ggplot(., aes(x = value, fill = chain))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind()+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
 ### by subject
 
 ```{r}

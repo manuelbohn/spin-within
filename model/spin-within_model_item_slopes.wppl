@@ -92,17 +92,19 @@ var model  = function(){
 
   var priorSigma = uniformDrift({a: 0, b:2, width: 0.1})
 
+  var samplePrior = function(prior){
+      return gaussianDrift({ mu: prior, sigma: priorSigma, width: 0.1 })
+ }
+
   foreach(function(subject){
 
     var priorSubjectData = _.filter(priorData, {subid: subject})
 
     var priorSubjectData_correct = _.map(priorSubjectData, "correct")
 
-    var priorAge = prior_int + prior_slope * priorSubjectData[0].age
+    var priorSample = samplePrior(priorSubjectData[0].age)
 
-    var priorSample = gaussianDrift({mu: priorAge, sigma: priorSigma, width: 0.1})
-
-    var priorReg = logistic(priorSample)
+    var priorReg = logistic(prior_int + prior_slope * priorSample)
 
     var prior = [priorReg, 1 - priorReg]
 
@@ -121,7 +123,7 @@ var model  = function(){
   }, subjects)
 
 
-  query.add(["parameter","sigma","prior", "NA", "NA"], priorSigma)
+  query.add(["parameter","sigma","prior", "subject", "NA"], priorSigma)
   query.add(["parameter","intercept","prior", "NA", "NA"], prior_int)
   query.add(["parameter","slope","prior", "NA", "NA"], prior_slope)
 
@@ -313,10 +315,11 @@ var model  = function(){
           }, subjects)
 
 
-            query.add(["parameter","sigma","speaker_optimality", "NA", "NA"], speakerOptSigma)
+            query.add(["parameter","sigma","speaker_optimality", "subject", "NA"], speakerOptSigma)
             query.add(["parameter","intercept","speaker_optimality", "NA", "NA"], speakerOptimalityParameters.intercept)
             query.add(["parameter","slope","speaker_optimality", "NA", "NA"], speakerOptimalityParameters.slope)
 
+            query.add(["parameter","sigma","semantic_knowledge", "subject", "NA"], subject_sigma)
             query.add(["parameter","intercept","semantic_knowledge", "NA", "NA"], globalLineParameters.intercept)
             query.add(["parameter","slope","semantic_knowledge", "NA", "NA"], globalLineParameters.slope)
             query.add(["parameter","sigma", "semantic_knowledge", "intercept", "NA", "NA"], itemVariability.intercept)
