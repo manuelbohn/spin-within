@@ -142,7 +142,7 @@ model%>%
          familiar == "lock")%>%
   ggplot(., aes(x = value, fill = chain))+
   geom_density(alpha = .5)+
-  ggtitle("Seamntick knowledge for 'lock'")+
+  ggtitle("Seamntic knowledge for 'lock'")+
   facet_wrap(subject~., scales = "free_y")+
   scale_fill_colorblind()+
   theme_minimal()
@@ -299,7 +299,8 @@ item_model%>%
 item_model%>%
   filter(c == "semantic_knowledge", 
          b != "parameters", 
-         b != "sigma")%>%
+         d != "intercept",
+         d != "slope")%>%
   rename(parameter = b,
          value = f)%>%
   ggplot(., aes(x = value, fill = chain))+
@@ -440,4 +441,172 @@ item_model%>%
 
 ```
 
+## Relations between models and data
+
+Here are some simple correlations between the model estimates and the data.
+
+### Speaker Optimality and ME Data
+
+There shouldn't be a 1:1 correspondence (i.e. very high correlation) because the ME task also -- and critically -- involves semantic knowledge
+
+```{r}
+sgm <- gauss_model%>%
+  rename(type = b,
+         parameter = c,
+         subject = e, 
+         value = f)%>%
+  filter(type != "sigma",
+         parameter == "speaker_optimality")%>%
+  mutate(subject = factor(subject))%>%
+  group_by(subject)%>%
+  summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  mutate(model = "gaussian")
+
+scm <- comp_model%>%
+  rename(type = b,
+         parameter = c,
+         subject = e, 
+         value = f)%>%
+  filter(type != "sigma",
+         parameter == "speaker_optimality")%>%
+  mutate(subject = factor(subject))%>%
+  group_by(subject)%>%
+  summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  mutate(model = "competence")
+
+sd <- data%>%
+  filter(task == "mutual_exclusivity")%>%
+    mutate(subject = factor(subid))%>%
+    group_by(subject)%>%
+    summarise(data_mean = mean(correct))%>%
+  filter(!is.na(data_mean))
+
+bind_rows(
+  sgm%>%left_join(sd),
+  scm%>%left_join(sd)
+)%>%
+  ggplot(aes(x = mode, y = data_mean))+
+  geom_point(alpha = .5)+
+  stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = mode, y = data_mean, label = paste(..r.label..)), inherit.aes = F, size = 4, r.accuracy = 0.01, cor.coef.name = "r")+
+  facet_grid(~model)+
+  theme_minimal()+
+  geom_smooth(method = "lm", se = F, col = "black")+
+  ylim(0,1)
+```
+
+### Semantic knowledge and comprehension / production data
+
+Note that the model estimates also take in the ME data
+
+```{r}
+semgm <- gauss_model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         !is.na(value),
+         parameter == "semantic_knowledge")%>%
+  mutate(subject = factor(subject))%>%
+  group_by(familiar, subject)%>%
+  summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  mutate(model = "gaussian")
+
+semcm <- comp_model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         !is.na(value),
+         parameter == "semantic_knowledge")%>%
+  mutate(subject = factor(subject))%>%
+  group_by(familiar, subject)%>%
+  summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  mutate(model = "competence")
+
+semd <- data%>%
+  filter(task == "comprehension" | task == "production" 
+         #| task == "mutual_exclusivity"
+         )%>%
+    mutate(subject = factor(subid))%>%
+    group_by(familiar,subject)%>%
+    summarise(data_mean = mean(correct))
+
+bind_rows(
+  semgm%>%left_join(semd),
+  semcm%>%left_join(semd)
+)%>%
+  ggplot(aes(x = mode, y = data_mean))+
+    geom_abline(intercept = 0, slope = 1, lty = 2, alpha = .5)+
+  geom_point(alpha = .5)+
+  stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = mode, y = data_mean, label = paste(..r.label..)), inherit.aes = F, size = 4, r.accuracy = 0.01, cor.coef.name = "r")+
+  facet_grid(~model)+
+  theme_minimal()+
+  ylim(0,1)+
+  xlim(0,1)
+```
+
+### Prior
+
+Here we have a pretty good 1:1 correspondence and should see high correlations. 
+
+```{r}
+pgm <- gauss_model%>%
+  rename(parameter = c, 
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(subject),
+         parameter == "prior")%>%
+  mutate(subject = factor(subject))%>%
+  group_by(subject)%>%
+  summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  mutate(model = "gaussian")
+
+pcm <- comp_model%>%
+  rename(parameter = c, 
+         familiar = d, 
+         subject = e, 
+         value = f)%>%
+  filter(!is.na(subject),
+         parameter == "prior")%>%
+  mutate(subject = factor(subject))%>%
+  group_by(subject)%>%
+  summarise(mode = estimate_mode(value),
+            lci = hdi_lower(value),
+            uci = hdi_upper(value))%>%
+  mutate(model = "competence")
+
+pd <- data%>%
+    filter(task == "novelty")%>%
+    mutate(subject = factor(subid))%>%
+    group_by(subject)%>%
+    summarise(data_mean = mean(correct))%>%
+  filter(!is.na(data_mean))
+
+bind_rows(
+  pgm%>%left_join(pd),
+  pcm%>%left_join(pd)
+)%>%
+  ggplot(aes(x = mode, y = data_mean))+
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = .5)+
+  geom_point(alpha = .5)+
+  stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = mode, y = data_mean, label = paste(..r.label..)), inherit.aes = F, size = 4, r.accuracy = 0.01, cor.coef.name = "r")+
+  facet_grid(~model)+
+  theme_minimal()+
+  ylim(0,1)+
+  xlim(0,1)
+    
+```
 
