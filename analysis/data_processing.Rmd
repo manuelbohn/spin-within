@@ -59,7 +59,9 @@ log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>
 data <-  raw_data%>%
   mutate(subage = ifelse(subage == "4 ", "4", subage),
          familiar = ifelse(task == "comprehension", target, familiar), 
-         subage = ifelse(subid == "79783", "4", subage))%>%
+         subage = ifelse(subid == "79783", "4", subage),
+         subid = ifelse(subage == "89475", "89475",subid),
+         subage = ifelse(subid == "89475",3,subage ))%>%
   left_join(log_id)%>%
   bind_rows(log_prod%>%left_join(log_id))%>%
   filter(status == "keep", 
