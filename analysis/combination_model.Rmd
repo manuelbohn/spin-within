@@ -14,6 +14,7 @@ library(tidyboot)
 #library(GGally)
 library(coda)
 library(data.table)
+library(ggpubr)
 
 
 estimate_mode <- function(s) {
@@ -48,7 +49,7 @@ model <-  bind_rows(
 )%>%
   mutate(chain = as.character(chain))%>%saveRDS("../model/output/comb_model.rds")
 
-#model <- readRDS("../model/output/comb_model.rds")
+model <- readRDS("../model/output/comb_model.rds")
 ```
 
 ## Combination prediction
@@ -111,6 +112,52 @@ ggplot(chance, aes(x = chain, y = mean))+
 
 ```
 
+```{r}
+data_binned <- data%>%
+  group_by(subage, condition, familiar)%>%
+  summarize(k = sum(correct), n = n())%>%
+  ungroup() %>%
+  mutate(a = 1 + k,
+         b = 1 + n - k,
+         data_mean = (a-1)/(a+b-2),
+         data_ci_lower  = qbeta(.025, a, b),
+         data_ci_upper = qbeta(.975, a, b),
+         subage = factor(subage))%>%
+  select(-a,-b,-n,-k)
+
+
+model_binned <- model %>%
+  filter(a == "prediction")%>%
+  select(-a,-b, -g)%>%
+  rename(condition = c,
+         familiar = d, 
+         subid = e,
+         pred = f)%>%
+  filter(!is.na(subid))%>%
+  left_join(data %>% select(condition,familiar,subid,subage))%>%
+  mutate(subage = factor(subage))%>%
+  group_by(subage, condition, familiar)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+
+cor_plot <-  data_binned %>% left_join(model_binned)
+
+ggplot(data = cor_plot,aes(x = model_mean, y = data_mean, col = subage)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
+  geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
+  geom_point(size = 1.5, stroke = 1, pch = 5)+
+  coord_fixed()+
+stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
+  xlim(0,1)+ylim(0,1)+
+  xlab("Model")+
+  ylab("Data")+
+  theme_few() + 
+  scale_colour_ptol(name ="Condition")
+
+```
 
 
 ## Production probability
@@ -153,9 +200,10 @@ model%>%
   rename(type = b,
          parameter = c,
          subject = e, 
-         speaker_optimality = f)%>%
+         speaker_optimality = f,)%>%
   filter(type != "sigma",
-         parameter == "speaker_optimality")%>%
+         parameter == "speaker_optimality",
+         )%>%
   ggplot(., aes(x = speaker_optimality, fill = chain))+
   geom_density(alpha = .5)+
   facet_wrap(subject~., scales = "free_y")+
@@ -212,6 +260,7 @@ model%>%
          value = f)%>%
   filter(!is.na(familiar),
          !is.na(value),
+         !is.na(subject),
          parameter == "semantic_knowledge")%>%
   group_by(subject, familiar,chain)%>%
     summarise(mode = estimate_mode(value),
@@ -221,24 +270,6 @@ model%>%
   geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
   scale_color_colorblind()+
   facet_grid(familiar~.)+
-  theme_few()
-
-model%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         !is.na(value),
-         parameter == "semantic_knowledge")%>%
-  group_by(subject, familiar,chain)%>%
-    summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  ggplot(., aes(x = familiar, y= mode, col = factor(subject)))+
-  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
-  scale_color_viridis_d()+
-  facet_grid(chain~.)+
   theme_few()
 ```
 
@@ -278,389 +309,5 @@ model%>%
   xlim(0,1)+
   theme_minimal()
 
-```
-
-# Comptence Model
-
-```{r}
-item_model <-  bind_rows(
-  fread("../model/output/spin-within_model_item_slope-40000_burn100000_lag4_chain1.csv")%>%mutate(chain = "1"),
-  fread("../model/output/spin-within_model_item_slope-40000_burn100000_lag4_chain2.csv")%>%mutate(chain = "2"),
-  fread("../model/output/spin-within_model_item_slope-40000_burn100000_lag4_chain3.csv")%>%mutate(chain = "3")
-)%>%saveRDS("../model/output/model_run_item_slopes.rds")
-
-
-item_model <- readRDS("../model/output/model_run_item_slopes.rds")
-```
-
-
-## Production probability
-
-```{r}
-item_model%>%
-  filter(c == "successful_production_probability")%>%
-  rename(value = f)%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  scale_fill_colorblind()+
-  xlim(0,1)+
-  theme_minimal()
-```
-
-## Speaker optimality
-
-### overall intercept, slope and sigma
-
-```{r}
-item_model%>%
-  filter(c == "speaker_optimality", 
-         b != "parameters")%>%
-  rename(parameter = b,
-         value = f)%>%
-  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_grid(~parameter)+
-  scale_fill_colorblind()+
-  xlim(-4,4)+
-  theme_minimal()
-```
-
-
-### by subject
-
-```{r}
-item_model%>%
-  rename(type = b,
-         parameter = c,
-         subject = e, 
-         speaker_optimality = f)%>%
-  filter(type != "sigma",
-         parameter == "speaker_optimality")%>%
-  ggplot(., aes(x = speaker_optimality, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_wrap(~subject, scales = "free_y")+
-  scale_fill_colorblind()+
-  theme_minimal()
-```
-
-
-## Semantic knowledge
-
-### overall intercept, slope
-
-```{r}
-item_model%>%
-  filter(c == "semantic_knowledge", 
-         b != "parameters", 
-         d != "intercept",
-         d != "slope")%>%
-  rename(parameter = b,
-         value = f)%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_grid(~parameter)+
-  scale_fill_colorblind()+
-  xlim(-4,4)+
-  theme_minimal()
-```
-
-### overall sigmas
-
-```{r}
-item_model%>%
-  filter(c == "semantic_knowledge", 
-         b != "parameters", 
-         b == "sigma")%>%
-  rename(parameter = d,
-         value = g)%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_grid(~parameter)+
-  scale_fill_colorblind()+
-  xlim(-4,4)+
-  theme_minimal()
-```
-
-### subhect sigmas
-
-```{r}
-item_model%>%
-  filter(c == "semantic_knowledge", 
-         b == "sigma", 
-         d == "subject")%>%
-  rename(parameter = d,
-         value = g)%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_grid(~parameter)+
-  scale_fill_colorblind()+
-  xlim(-4,4)+
-  theme_minimal()
-```
-
-### by subject
-
-```{r}
-item_model%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         parameter == "semantic_knowledge", 
-         familiar == "lock")%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_wrap(~subject, scales = "free_y")+
-  ggtitle("Semantic knowledge for lock")+
-  scale_fill_colorblind()+
-  theme_minimal()
-```
-
-### by item
-
-```{r}
-item_model%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         !is.na(value),
-         parameter == "semantic_knowledge")%>%
-  group_by(subject, familiar,chain)%>%
-    summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  ggplot(., aes(x = factor(subject), y= mode, col = chain))+
-  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
-  scale_color_colorblind()+
-  facet_grid(familiar~.)+
-  theme_few()
-
-item_model%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         !is.na(value),
-         parameter == "semantic_knowledge")%>%
-  group_by(subject, familiar,chain)%>%
-    summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  ggplot(., aes(x = familiar, y= mode, col = factor(subject)))+
-  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
-  scale_color_viridis_d()+
-  facet_grid(chain~.)+
-  theme_few()
-```
-## Prior sensitivity
-
-### overall intercept, slope and sigma
-
-```{r}
-item_model%>%
-  filter(c == "prior", 
-         b != "parameters")%>%
-  rename(parameter = b,
-         value = f)%>%
-  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_grid(~parameter)+
-  scale_fill_colorblind()+
-  xlim(-4,4)+
-  theme_minimal()
-```
-
-### by subject
-
-```{r}
-item_model%>%
-  rename(parameter = c, 
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(subject),
-         parameter == "prior")%>%
-  ggplot(., aes(x = value, fill = chain))+
-  geom_density(alpha = .5)+
-  facet_wrap(~subject, scales = "free_y")+
-  scale_fill_colorblind()+
-  xlim(0,1)+
-  theme_minimal()
-
-```
-
-## Relations between models and data
-
-Here are some simple correlations between the model estimates and the data.
-
-### Speaker Optimality and ME Data
-
-There shouldn't be a 1:1 correspondence (i.e. very high correlation) because the ME task also -- and critically -- involves semantic knowledge
-
-```{r}
-sgm <- gauss_model%>%
-  rename(type = b,
-         parameter = c,
-         subject = e, 
-         value = f)%>%
-  filter(type != "sigma",
-         parameter == "speaker_optimality")%>%
-  mutate(subject = factor(subject))%>%
-  group_by(subject)%>%
-  summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  mutate(model = "gaussian")
-
-scm <- comp_model%>%
-  rename(type = b,
-         parameter = c,
-         subject = e, 
-         value = f)%>%
-  filter(type != "sigma",
-         parameter == "speaker_optimality")%>%
-  mutate(subject = factor(subject))%>%
-  group_by(subject)%>%
-  summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  mutate(model = "competence")
-
-sd <- data%>%
-  filter(task == "mutual_exclusivity")%>%
-    mutate(subject = factor(subid))%>%
-    group_by(subject)%>%
-    summarise(data_mean = mean(correct))%>%
-  filter(!is.na(data_mean))
-
-bind_rows(
-  sgm%>%left_join(sd),
-  scm%>%left_join(sd)
-)%>%
-  ggplot(aes(x = mode, y = data_mean))+
-  geom_point(alpha = .5)+
-  stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = mode, y = data_mean, label = paste(..r.label..)), inherit.aes = F, size = 4, r.accuracy = 0.01, cor.coef.name = "r")+
-  facet_grid(~model)+
-  theme_minimal()+
-  geom_smooth(method = "lm", se = F, col = "black")+
-  ylim(0,1)
-```
-
-### Semantic knowledge and comprehension / production data
-
-Note that the model estimates also take in the ME data
-
-```{r}
-semgm <- gauss_model%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         !is.na(value),
-         parameter == "semantic_knowledge")%>%
-  mutate(subject = factor(subject))%>%
-  group_by(familiar, subject)%>%
-  summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  mutate(model = "gaussian")
-
-semcm <- comp_model%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         !is.na(value),
-         parameter == "semantic_knowledge")%>%
-  mutate(subject = factor(subject))%>%
-  group_by(familiar, subject)%>%
-  summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  mutate(model = "competence")
-
-semd <- data%>%
-  filter(task == "comprehension" | task == "production" 
-         #| task == "mutual_exclusivity"
-         )%>%
-    mutate(subject = factor(subid))%>%
-    group_by(familiar,subject)%>%
-    summarise(data_mean = mean(correct))
-
-bind_rows(
-  semgm%>%left_join(semd),
-  semcm%>%left_join(semd)
-)%>%
-  ggplot(aes(x = mode, y = data_mean))+
-    geom_abline(intercept = 0, slope = 1, lty = 2, alpha = .5)+
-  geom_point(alpha = .5)+
-  stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = mode, y = data_mean, label = paste(..r.label..)), inherit.aes = F, size = 4, r.accuracy = 0.01, cor.coef.name = "r")+
-  facet_grid(~model)+
-  theme_minimal()+
-  ylim(0,1)+
-  xlim(0,1)
-```
-
-### Prior
-
-Here we have a pretty good 1:1 correspondence and should see high correlations. 
-
-```{r}
-pgm <- gauss_model%>%
-  rename(parameter = c, 
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(subject),
-         parameter == "prior")%>%
-  mutate(subject = factor(subject))%>%
-  group_by(subject)%>%
-  summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  mutate(model = "gaussian")
-
-pcm <- comp_model%>%
-  rename(parameter = c, 
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(subject),
-         parameter == "prior")%>%
-  mutate(subject = factor(subject))%>%
-  group_by(subject)%>%
-  summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  mutate(model = "competence")
-
-pd <- data%>%
-    filter(task == "novelty")%>%
-    mutate(subject = factor(subid))%>%
-    group_by(subject)%>%
-    summarise(data_mean = mean(correct))%>%
-  filter(!is.na(data_mean))
-
-bind_rows(
-  pgm%>%left_join(pd),
-  pcm%>%left_join(pd)
-)%>%
-  ggplot(aes(x = mode, y = data_mean))+
-  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = .5)+
-  geom_point(alpha = .5)+
-  stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = mode, y = data_mean, label = paste(..r.label..)), inherit.aes = F, size = 4, r.accuracy = 0.01, cor.coef.name = "r")+
-  facet_grid(~model)+
-  theme_minimal()+
-  ylim(0,1)+
-  xlim(0,1)
-    
 ```
 

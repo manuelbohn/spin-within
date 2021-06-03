@@ -104,14 +104,14 @@ var model = function() {
 
     var speakerOptimalityParameters = {
         intercept: uniformDrift({
-            a: 0,
+            a: -3,
             b: 3,
-            width: 0.1
+            width: 0.5
         }),
         slope: uniformDrift({
             a: 0,
-            b: 3,
-            width: 0.1
+            b: 4,
+            width: 0.5
         })
     }
 
@@ -167,7 +167,7 @@ var model = function() {
 
     //display(all_item_parameters)
 
-    var subject_sigma = uniformDrift({ a: 0, b: 1, width: 0.1 })
+    var subject_sigma = uniformDrift({ a: 0, b: 2, width: 0.1 })
 
     var sampleLinguisticCompetence = function(age) {
         return gaussianDrift({ mu: age, sigma: subject_sigma, width: 0.1 })
@@ -176,7 +176,7 @@ var model = function() {
 
     var speakerOptSigma = uniformDrift({
         a: 0,
-        b: 1,
+        b: 2,
         width: 0.1
     })
 
@@ -371,9 +371,9 @@ var model = function() {
 
 var header = "iteration,chain,a,b,c,d,e,f,g"
 
-var lag = 4
+var lag = 5
 
-var samples = 20000;
+var samples = 25000;
 
 var burn = 100000;
 
