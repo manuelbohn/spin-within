@@ -43,9 +43,10 @@ data <- read_csv("../data/merged_data.csv")
 ```{r}
 model <-  bind_rows(
   fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain1.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain2.csv")
+  fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain2.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain3.csv")
 )%>%
-  mutate(chain = as.character(chain))#%>%saveRDS("../model/output/comb_model.rds")
+  mutate(chain = as.character(chain))%>%saveRDS("../model/output/comb_model.rds")
 
 #model <- readRDS("../model/output/comb_model.rds")
 ```
