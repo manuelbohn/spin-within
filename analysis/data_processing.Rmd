@@ -90,7 +90,6 @@ data%>%
             combination = sum(task == "combination"),
             comp = sum(task == "comprehension"),
             prod = sum(task == "production"))
-
 ```
 # Single tasks
 

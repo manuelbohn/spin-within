@@ -155,7 +155,7 @@ stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean,
   xlab("Model")+
   ylab("Data")+
   theme_few() + 
-  scale_colour_ptol(name ="Condition")
+  scale_colour_ptol(name ="Age")
 
 ```
 
@@ -244,7 +244,7 @@ model%>%
          familiar == "lock")%>%
   ggplot(., aes(x = value, fill = chain))+
   geom_density(alpha = .5)+
-  ggtitle("Seamntic knowledge for 'lock'")+
+  ggtitle("Semantic knowledge for 'lock'")+
   facet_wrap(subject~., scales = "free_y")+
   scale_fill_colorblind()+
   theme_minimal()
