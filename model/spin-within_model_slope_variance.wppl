@@ -84,17 +84,17 @@ var model = function() {
     ////////////// Prior ////////////////////////
 
     var prior_slope = uniformDrift({
-        a: -2,
-        b: 2,
+        a: -3,
+        b: 3,
         width: 0.1
     })
     var prior_int = uniformDrift({
-        a: -2,
-        b: 2,
+        a: -3,
+        b: 3,
         width: 0.1
     })
 
-    var priorSigma = uniformDrift({ a: 0, b: 2, width: 0.1 })
+    var priorSigma = uniformDrift({ a: 0, b: 4, width: 0.1 })
 
     var samplePrior = function(prior) {
         return gaussianDrift({ mu: prior, sigma: priorSigma, width: 0.1 })
