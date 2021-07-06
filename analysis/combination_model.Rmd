@@ -43,9 +43,11 @@ data <- read_csv("../data/merged_data.csv")
 
 ```{r}
 model <-  bind_rows(
-  fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain1.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain2.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-2000_burn2000_lag0_chain3.csv")
+  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain1.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain2.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain3.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain4.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain5.csv")
 )%>%
   mutate(chain = as.character(chain))%>%saveRDS("../model/output/comb_model.rds")
 
@@ -96,19 +98,20 @@ chance <- model %>%
   summarise(model_pred = estimate_mode(pred),
             model_lci = hdi_lower(pred),
             model_uci = hdi_upper(pred))%>%
-  left_join(data %>% select(condition,familiar,subid, correct))%>%
+  left_join(data %>% select(condition,familiar,subid, subage, correct))%>%
   ungroup()%>%
   mutate(bin_pred = round(model_pred),
          match = ifelse(bin_pred == correct, 1, 0))%>%
-  group_by(chain)%>%
+  group_by(subage)%>%
   tidyboot_mean(col = match)
 
-ggplot(chance, aes(x = chain, y = mean))+
+ggplot(chance, aes(x = factor(subage), y = mean))+
   geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper))+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = factor(subage)))+
   ylim(0,1)+
+  labs(x = "Age Group", y = "Proportion Match")+
+  scale_color_ptol()+
   theme_minimal()
-
 
 ```
 
@@ -137,7 +140,7 @@ model_binned <- model %>%
   left_join(data %>% select(condition,familiar,subid,subage))%>%
   mutate(subage = factor(subage))%>%
   group_by(subage, condition, familiar)%>%
-  summarise(model_mean = estimate_mode(pred),
+  summarise(model_mean = mean(pred),
             model_ci_lower = hdi_lower(pred),
             model_ci_upper = hdi_upper(pred))
 
