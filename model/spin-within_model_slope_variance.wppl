@@ -336,11 +336,25 @@ var model = function() {
 
             var combCond = (_.includes(familiarCongruent, familiar)) ? "congruent" : "incongruent"
 
-            //display(familiar + " condition: " + combCond + " prior: " + priorComb)
-
             var combPred = pragmaticListener({ label: "novel_word" }, priorComb)
 
-            query.add([chain, "prediction", "prediction", combCond, familiar, subject], Math.exp(combPred.score(1)))
+            var flatPriorPred = pragmaticListener({ label: "novel_word" }, [.5, .5])
+
+            var priorOnlyPrior = [priorReg, 1 - priorReg]
+
+            //display(familiar + " condition: " + combCond + " prior: " + priorComb + "prior only prior" + priorOnlyPrior)
+
+            var priorOnlyPred = Infer({
+                method: "enumerate",
+                model: function() {
+                    var obj = sample(Categorical({ vs: all_objects, ps: priorOnlyPrior }));
+                    return obj.shape == "novel_object" ? 1 : 0
+                }
+            })
+
+            query.add([chain, "prediction", "combination", combCond, familiar, subject], Math.exp(combPred.score(1)))
+            query.add([chain, "prediction", "flatPrior", combCond, familiar, subject], Math.exp(flatPriorPred.score(1)))
+            query.add([chain, "prediction", "priorOnly", combCond, familiar, subject], Math.exp(priorOnlyPred.score(1)))
 
         }, familiars)
 
