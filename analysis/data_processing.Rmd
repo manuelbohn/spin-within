@@ -166,4 +166,19 @@ ggplot()+
   theme_few()
 ```
 
+```{r}
+data%>%
+  filter(task == "mutual_exclusivity" | task == "combination")%>%
+  group_by(task,familiar)%>%
+  summarise(correct = mean(correct))%>%
+  pivot_wider(names_from = "task", values_from = "correct")%>%
+  left_join(data%>%filter(task =="combination")%>%select(familiar,condition)%>%distinct())%>%
+  ggplot(., aes(x = mutual_exclusivity, y = combination))+
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = .5)+
+  geom_point(aes(col = familiar), alpha = .75)+
+  stat_cor()+
+  theme_minimal()+
+  xlim(0,1)+ ylim(0,1)+
+  facet_grid(~condition)
+```
 
