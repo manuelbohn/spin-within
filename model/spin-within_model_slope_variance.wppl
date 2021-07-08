@@ -116,7 +116,7 @@ var model = function() {
     }
 
     //var successfulProductionProbability = uniformDrift({a:0.5, b:1, width: 0.1})
-    var successfulProductionProbability = beta({ a: 10, b: 1 })
+    var successfulProductionProbability = 1 //beta({ a: 10, b: 1 })
         //var successfulProductionProbability = 1
     var randomProductionProbability = 0 // uniformDrift({a:0, b:0.2, width: 0.05})
     var successfulSelectionProbability = 1 // could also be a parameter like successfulProductionProbability
@@ -340,14 +340,12 @@ var model = function() {
 
             var flatPriorPred = pragmaticListener({ label: "novel_word" }, [.5, .5])
 
-            var priorOnlyPrior = [priorReg, 1 - priorReg]
-
-            //display(familiar + " condition: " + combCond + " prior: " + priorComb + "prior only prior" + priorOnlyPrior)
+            display(familiar + " condition: " + combCond + " prior: " + priorComb)
 
             var priorOnlyPred = Infer({
                 method: "enumerate",
                 model: function() {
-                    var obj = sample(Categorical({ vs: all_objects, ps: priorOnlyPrior }));
+                    var obj = sample(Categorical({ vs: all_objects, ps: priorComb }));
                     return obj.shape == "novel_object" ? 1 : 0
                 }
             })
@@ -385,11 +383,11 @@ var model = function() {
 
 var header = "iteration,chain,a,b,c,d,e,f,g"
 
-var lag = 9
+var lag = 4
 
 var samples = 25000;
 
-var burn = 200000;
+var burn = 50000;
 
 var output_file = 'output/spin-within_model_slope_variance_prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
