@@ -60,11 +60,12 @@ model <- readRDS("../model/output/comb_model.rds")
 prediction <- model %>%
   filter(a == "prediction")%>%
   select(-a,-b, -g)%>%
-  rename(condition = c,
+  rename(model = b,
+         condition = c,
          familiar = d, 
          subid = e,
          pred = f)%>%
-  group_by(condition,familiar, subid)%>%
+  group_by(model, condition,familiar, subid)%>%
   summarise(model_pred = estimate_mode(pred),
             model_lci = hdi_lower(pred),
             model_uci = hdi_upper(pred))%>%
@@ -74,7 +75,7 @@ prediction <- model %>%
          match = ifelse(bin_pred == correct, 1, 0))%>%
   group_by(correct, bin_pred)%>%
   summarise(freq = n())%>%
-  group_by(correct)%>%
+  group_by(model,correct)%>%
   mutate(corrects = sum(freq),
          hit_rate = freq/corrects)
   
@@ -89,12 +90,13 @@ ggplot(prediction, aes(x = factor(correct), y = factor(bin_pred), fill = hit_rat
 ```{r}
 chance <- model %>%
   filter(a == "prediction")%>%
-  select(-a,-b, -g)%>%
-  rename(condition = c,
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
          familiar = d, 
          subid = e,
          pred = f)%>%
-  group_by(chain,condition,familiar, subid)%>%
+  group_by(model,condition,familiar, subid)%>%
   summarise(model_pred = estimate_mode(pred),
             model_lci = hdi_lower(pred),
             model_uci = hdi_upper(pred))%>%
@@ -102,12 +104,12 @@ chance <- model %>%
   ungroup()%>%
   mutate(bin_pred = round(model_pred),
          match = ifelse(bin_pred == correct, 1, 0))%>%
-  group_by(subage)%>%
+  group_by(model,subage)%>%
   tidyboot_mean(col = match)
 
 ggplot(chance, aes(x = factor(subage), y = mean))+
   geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = factor(subage)))+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model))+
   ylim(0,1)+
   labs(x = "Age Group", y = "Proportion Match")+
   scale_color_ptol()+
