@@ -51,14 +51,17 @@ model <-  bind_rows(
 )%>%
   mutate(chain = as.character(chain))%>%saveRDS("../model/output/comb_model.rds")
 
-model <- readRDS("../model/output/comb_model.rds")
+model_predictions <- readRDS("../model/output/comb_model.rds")%>%
+    filter(a == "prediction")
+
+model <- readRDS("../model/output/comb_model.rds")%>%
+    filter(a != "prediction")
 ```
 
 ## Combination prediction
 
 ```{r}
-prediction <- model %>%
-  filter(a == "prediction")%>%
+prediction <- model_predictions %>%
   select(-a,-b, -g)%>%
   rename(condition = c,
          familiar = d, 
@@ -86,9 +89,10 @@ ggplot(prediction, aes(x = factor(correct), y = factor(bin_pred), fill = hit_rat
 
 ```
 
+### comparison to chance
+
 ```{r}
-chance <- model %>%
-  filter(a == "prediction")%>%
+chance <- model_predictions%>%
   select(-a,-b, -g)%>%
   rename(condition = c,
          familiar = d, 
@@ -129,8 +133,7 @@ data_binned <- data%>%
   select(-a,-b,-n,-k)
 
 
-model_binned <- model %>%
-  filter(a == "prediction")%>%
+model_binned <- model_predictions%>%
   select(-a,-b, -g)%>%
   rename(condition = c,
          familiar = d, 
@@ -162,6 +165,27 @@ stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean,
 
 ```
 
+
+### Individual predictions
+
+```{r}
+idm <- model_predictions%>%
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
+         familiar = d,
+         subid = e,
+         pred = f)
+```
+
+
+```{r}
+idd <- data%>%
+  filter(subid == 65507, task == "combination")
+
+
+
+```
 
 ## Production probability
 
