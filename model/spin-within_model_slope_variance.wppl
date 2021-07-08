@@ -340,7 +340,7 @@ var model = function() {
 
             var flatPriorPred = pragmaticListener({ label: "novel_word" }, [.5, .5])
 
-            display(familiar + " condition: " + combCond + " prior: " + priorComb)
+            //display(familiar + " condition: " + combCond + " prior: " + priorComb)
 
             var priorOnlyPred = Infer({
                 method: "enumerate",
