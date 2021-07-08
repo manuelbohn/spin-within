@@ -77,26 +77,27 @@ data <- read_csv("../data/merged_data.csv")%>%
   mutate(subage = factor(subage))#%>%
   #filter(subid != "89475")
 
-# ex_id <- data%>%
-#   group_by(subid)%>%
-#   summarise(me = sum(task == "mutual_exclusivity"),
-#             novelty = sum(task == "novelty"),
-#             combination = sum(task == "combination"),
-#             comp = sum(task == "comprehension"),
-#             prod = sum(task == "production"))%>%
-#   filter(combination < 16 | prod < 16)%>%
-#   pull(subid)
+ex_id <- data%>%
+  group_by(subid)%>%
+  summarise(me = sum(task == "mutual_exclusivity"),
+            novelty = sum(task == "novelty"),
+            combination = sum(task == "combination"),
+            comp = sum(task == "comprehension"),
+            prod = sum(task == "production"))%>%
+  filter(combination < 16 | prod < 16)%>%
+  pull(subid)
 # 
-# mdata <- data%>%
-#   filter(!subid %in% ex_id)
+mdata <- data%>%
+  filter(!subid %in% ex_id)%>%
+  mutate(age = age - min(age))
 # 
-# write(toJSON(mdata), file = "../data//merged_data.json")
+write(toJSON(mdata), file = "../data//merged_data.json")
 
 ```
 
 # Sample
 ```{r}
-data%>%
+mdata%>%
   group_by(subid)%>%
   summarise(me = sum(task == "mutual_exclusivity"),
             novelty = sum(task == "novelty"),
