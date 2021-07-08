@@ -15,6 +15,7 @@ library(tidyboot)
 library(coda)
 library(data.table)
 library(ggpubr)
+library(ggridges)
 
 
 estimate_mode <- function(s) {
@@ -42,24 +43,30 @@ data <- read_csv("../data/merged_data.csv")
 # Base Model
 
 ```{r}
-model <-  bind_rows(
+model <- bind_rows(
   fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain1.csv"),
   fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain2.csv"),
   fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain3.csv"),
   fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain4.csv"),
   fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain5.csv")
 )%>%
-  mutate(chain = as.character(chain))%>%saveRDS("../model/output/comb_model.rds")
+  mutate(chain = as.character(chain))
 
-model_predictions <- readRDS("../model/output/comb_model.rds")%>%
-    filter(a == "prediction")
+#model <- readRDS("../model/output/comb_model.rds")
 
-model <- readRDS("../model/output/comb_model.rds")%>%
-    filter(a != "prediction")
+model %>% filter(a == "prediction")%>%saveRDS("../model/output/comb_model_predictions.rds")
+
+model %>% filter(a != "prediction")%>%saveRDS("../model/output/comb_model_parameters.rds")
+```
+
+
+```{r}
+model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+
+model <- readRDS("../model/output/comb_model_parameters.rds")
 ```
 
 ## Combination prediction
-
 ```{r}
 prediction <- model_predictions %>%
   select(-a,-b, -g)%>%
@@ -177,16 +184,21 @@ idm <- model_predictions%>%
          condition = c,
          familiar = d,
          subid = e,
-         pred = f)
+         pred = f)%>%
+  filter(subid == 21223)
 ```
-
 
 ```{r}
 idd <- data%>%
-  filter(subid == 65507, task == "combination")
+  filter(subid == 21223, task == "combination")
 
-
-
+idm %>%
+  ggplot(aes(x = pred, y = familiar, fill = model))+
+  geom_density_ridges(alpha = .5)+
+  geom_point(data =idd, aes(x = correct, y = familiar), size = 3, stroke = 1, fill = "darkgreen",  col = "darkgreen", pch = 4)+
+  facet_grid(condition~., scales = "free_y")+
+  scale_fill_ptol()+
+  theme_few()
 ```
 
 ## Production probability
