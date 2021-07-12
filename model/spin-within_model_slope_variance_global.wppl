@@ -1,4 +1,4 @@
-// example call: time webppl spin-within_model_slope_variance.wppl --require webppl-json --require webppl-sample-writer 1
+// example call: time webppl spin-within_model_slope_variance_global.wppl --require webppl-json --require webppl-sample-writer 1
 
 var chain = last(process.argv)
 
@@ -94,11 +94,11 @@ var model = function() {
         width: 0.1
     })
 
-    var priorSigma = uniformDrift({ a: 0, b: 4, width: 0.1 })
+    // var priorSigma = uniformDrift({ a: 0, b: 4, width: 0.1 })
 
-    var samplePrior = function(prior) {
-        return gaussianDrift({ mu: prior, sigma: priorSigma, width: 0.1 })
-    }
+    // var samplePrior = function(prior) {
+    //     return gaussianDrift({ mu: prior, sigma: priorSigma, width: 0.1 })
+    // }
 
     //////////////// Semantic knowledge and speaker optimality ////////////////////////
 
@@ -167,22 +167,22 @@ var model = function() {
 
     //display(all_item_parameters)
 
-    var subject_sigma = uniformDrift({ a: 0, b: 2, width: 0.1 })
+    // var subject_sigma = uniformDrift({ a: 0, b: 2, width: 0.1 })
 
-    var sampleLinguisticCompetence = function(age) {
-        return gaussianDrift({ mu: age, sigma: subject_sigma, width: 0.1 })
-    }
+    // var sampleLinguisticCompetence = function(age) {
+    //     return gaussianDrift({ mu: age, sigma: subject_sigma, width: 0.1 })
+    // }
 
 
-    var speakerOptSigma = uniformDrift({
-        a: 0,
-        b: 2,
-        width: 0.1
-    })
+    // var speakerOptSigma = uniformDrift({
+    //     a: 0,
+    //     b: 2,
+    //     width: 0.1
+    // })
 
-    var sampleSpeakerOptimality = function(so) {
-        return gaussianDrift({ mu: so, sigma: speakerOptSigma, width: 0.1 })
-    }
+    // var sampleSpeakerOptimality = function(so) {
+    //     return gaussianDrift({ mu: so, sigma: speakerOptSigma, width: 0.1 })
+    // }
 
     foreach(function(subject) {
 
@@ -192,9 +192,9 @@ var model = function() {
 
         var priorSubjectData_correct = _.map(priorSubjectData, "correct")
 
-        var priorSample = samplePrior(priorSubjectData[0].age)
+        //var priorSample = samplePrior(priorSubjectData[0].age)
 
-        var priorReg = logistic(prior_int + prior_slope * priorSample)
+        var priorReg = logistic(prior_int + prior_slope * priorSubjectData[0].age)
 
         var prior = [priorReg, 1 - priorReg]
 
@@ -211,7 +211,7 @@ var model = function() {
             observe(priorModel, d);
         })
 
-        query.add([chain, "parameter", "parameters", "prior", "NA", subject], priorReg)
+        //query.add([chain, "parameter", "parameters", "prior", "NA", subject], priorReg)
 
         // Semantic knowledge
 
@@ -219,10 +219,10 @@ var model = function() {
         var comprehensionSubData = _.filter(comprehensionData, { subid: subject })
         var prodSubData = _.filter(prodData, { subid: subject })
 
-        var speakerOptimalitySample = sampleSpeakerOptimality(meSubData[0].age)
-        var speakerOptimality = speakerOptimalityParameters.intercept + speakerOptimalityParameters.slope * speakerOptimalitySample
+        //var speakerOptimalitySample = sampleSpeakerOptimality(meSubData[0].age)
+        var speakerOptimality = speakerOptimalityParameters.intercept + speakerOptimalityParameters.slope * meSubData[0].age
 
-        var subj_linguistic_competence = sampleLinguisticCompetence(meSubData[0].age)
+        //var subj_linguistic_competence = sampleLinguisticCompetence(meSubData[0].age)
 
         //display("subject age = " + meSubData[0].age + " speak_opt_comp = " + speakerOptimalitySample + " speak_opt = " + speakerOptimality)
 
@@ -237,7 +237,7 @@ var model = function() {
             //display("subject = " + subject + ", familiar = " + familiar + ", params = " + itemLineParameters.intercept + ";" + itemLineParameters.slope)
 
             var sem_knowledge = logistic(itemLineParameters.intercept +
-                itemLineParameters.slope * subj_linguistic_competence)
+                itemLineParameters.slope * meSubData[0].age)
 
 
             //display("subject = " + subject + ", sem_knowledge = " + sem_knowledge + ", familiar = " + familiar)
@@ -326,7 +326,7 @@ var model = function() {
 
             observe(meModel, meSubItemData[0]["correct"])
 
-            query.add([chain, "parameter", "parameters", "semantic_knowledge", familiar, subject], sem_knowledge)
+            //query.add([chain, "parameter", "parameters", "semantic_knowledge", familiar, subject], sem_knowledge)
 
 
             // Combinations
@@ -356,20 +356,20 @@ var model = function() {
 
         }, familiars)
 
-        query.add([chain, "parameter", "parameters", "speaker_optimality", "NA", subject], speakerOptimality)
+        //query.add([chain, "parameter", "parameters", "speaker_optimality", "NA", subject], speakerOptimality)
 
     }, subjects)
 
 
-    query.add([chain, "parameter", "sigma", "prior", "subject", "NA"], priorSigma)
+    //query.add([chain, "parameter", "sigma", "prior", "subject", "NA"], priorSigma)
     query.add([chain, "parameter", "intercept", "prior", "NA", "NA"], prior_int)
     query.add([chain, "parameter", "slope", "prior", "NA", "NA"], prior_slope)
 
-    query.add([chain, "parameter", "sigma", "speaker_optimality", "subject", "NA"], speakerOptSigma)
+    // query.add([chain, "parameter", "sigma", "speaker_optimality", "subject", "NA"], speakerOptSigma)
     query.add([chain, "parameter", "intercept", "speaker_optimality", "NA", "NA"], speakerOptimalityParameters.intercept)
     query.add([chain, "parameter", "slope", "speaker_optimality", "NA", "NA"], speakerOptimalityParameters.slope)
 
-    query.add([chain, "parameter", "sigma", "semantic_knowledge", "subject", "NA"], subject_sigma)
+    //query.add([chain, "parameter", "sigma", "semantic_knowledge", "subject", "NA"], subject_sigma)
     query.add([chain, "parameter", "intercept", "semantic_knowledge", "NA", "NA"], globalLineParameters.intercept)
     query.add([chain, "parameter", "slope", "semantic_knowledge", "NA", "NA"], globalLineParameters.slope)
     query.add([chain, "parameter", "sigma", "semantic_knowledge", "intercept", "NA"], itemVariability.intercept)
@@ -389,7 +389,7 @@ var samples = 25000;
 
 var burn = 200000;
 
-var output_file = 'output/spin-within_model_slope_variance_prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
+var output_file = 'output/spin-within_model_slope_variance_prediction_global-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
 
 var output = Infer({
