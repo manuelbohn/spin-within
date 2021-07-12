@@ -18,6 +18,7 @@ library(ggpubr)
 library(ggridges)
 
 
+
 estimate_mode <- function(s) {
   d <- density(s)
   return(d$x[which.max(d$y)])
@@ -34,6 +35,15 @@ hdi_lower<- function(s){
 }
 
 ```
+
+
+```{r}
+flip <- function(x){
+  coin <- sample(c(0,1), size = 1, replace = TRUE, prob = c(1 - x,x))
+  return(coin)
+}
+```
+
 
 
 ```{r}
@@ -69,32 +79,21 @@ model <- readRDS("../model/output/comb_model_parameters.rds")
 ## Combination prediction
 ```{r}
 prediction <- model_predictions %>%
-  select(-a,-b, -g)%>%
+  select(-a, -g)%>%
   rename(model = b,
          condition = c,
          familiar = d, 
          subid = e,
          pred = f)%>%
-  group_by(model, condition,familiar, subid)%>%
-  summarise(model_pred = estimate_mode(pred),
-            model_lci = hdi_lower(pred),
-            model_uci = hdi_upper(pred))%>%
-  left_join(data %>% select(condition,familiar,subid, correct))%>%
-  ungroup()%>%
-  mutate(bin_pred = round(model_pred),
-         match = ifelse(bin_pred == correct, 1, 0))%>%
-  group_by(correct, bin_pred)%>%
-  summarise(freq = n())%>%
-  group_by(model,correct)%>%
-  mutate(corrects = sum(freq),
-         hit_rate = freq/corrects)
-  
-ggplot(prediction, aes(x = factor(correct), y = factor(bin_pred), fill = hit_rate))+
-  geom_tile(aes(width=1, height=1),alpha = .75, col = "black", size = 1)+
-  labs(x = "Data", y= "Model")+
-  theme_minimal()+
-  scale_fill_viridis_c(begin = 0, end = 1, name = "Frequency")
+  group_by(model)#%>%sample_n(10000)
 
+prediction%>%left_join(data %>% select(condition,familiar,subid, correct))%>%
+  rowwise()%>%
+  mutate(bin_pred = flip(pred),
+         match = ifelse(bin_pred == correct, 1, 0))%>%
+  group_by(model)%>%
+  summarise(match = mean(match))
+  
 ```
 
 ### comparison to chance
@@ -125,7 +124,6 @@ ggplot(chance, aes(x = factor(subage), y = mean))+
   labs(x = "Age Group", y = "Proportion Match")+
   scale_color_ptol()+
   theme_minimal()
-
 ```
 
 ```{r}
