@@ -245,7 +245,7 @@ var model = function() {
             var productionModel = Infer({
                 method: "enumerate",
                 model: function() {
-                    var knowsWord = flip(sem_knowledge)
+                    var knowsWord = flip(sem_knowledge) ? true : flip()
                     var correctWord = knowsWord ?
                         flip(successfulProductionProbability) : // could be 1
                         flip(randomProductionProbability) // very small
@@ -263,7 +263,7 @@ var model = function() {
             var comprehensionModel = Infer({
                 method: "enumerate",
                 model: function() {
-                    var knowsWord = flip(sem_knowledge)
+                    var knowsWord = flip(sem_knowledge) ? true : flip()
                     var correctRef = knowsWord ?
                         flip(successfulSelectionProbability) : // could be 1
                         flip(1 / 6)
