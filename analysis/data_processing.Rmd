@@ -41,11 +41,11 @@ log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xls
          test_day_1 = as.Date(test_day_1, format = "%d.%m.%Y"),
          test_day_2 = as.Date(test_day_2, format = "%d.%m.%Y"),
          age_num = as.numeric(difftime(test_day_1, birthday, units = "days"))/365.25,
-         age_month = as.numeric(difftime(test_day_1, birthday, units = "month"))/12)%>%
+         age_month = round(lubridate::time_length(difftime(test_day_1, birthday),"month"))/12)%>%
   rename(subid = ID,
          subage = age,
          age = age_num)%>%
-  select(subid, subage,age, status)
+  select(subid, subage,age,age_month, status)
 
 log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>%
   filter(task == "production")%>%
@@ -90,16 +90,17 @@ ex_id <- data%>%
 # 
 mdata <- data%>%
   filter(!subid %in% ex_id)%>%
+  filter(!is.na(familiar))%>%
+  select(-`...5`)%>%
   mutate(age = age - min(age),
-         age_month = age_month - mean(age_month))
+         age_month = age_month - min(age_month))
 # 
 write(toJSON(mdata), file = "../data//merged_data.json")
-
 ```
 
 # Sample
 ```{r}
-data%>%
+mdata%>%
   group_by(subid)%>%
   summarise(me = sum(task == "mutual_exclusivity"),
             novelty = sum(task == "novelty"),

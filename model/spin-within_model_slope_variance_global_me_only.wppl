@@ -1,0 +1,315 @@
+// example call: time webppl spin-within_model_slope_variance_global_me_only.wppl --require webppl-json --require webppl-sample-writer 1
+
+var chain = last(process.argv)
+
+var all_objects = [
+    { shape: "novel_object" },
+    { shape: "familiar_object" }
+]
+
+var labels = ["novel_word", "familiar_word"]
+
+
+var lexicon1 = function(utterance, obj, sem_knowledge) {
+    utterance.label == "novel_word" ? obj.shape == "novel_object" :
+        utterance.label == "familiar_word" ? flip(sem_knowledge) ?
+        obj.shape == "familiar_object" :
+        flip() ? obj.shape == "familiar_object" : obj.shape == "novel_object" :
+        true
+}
+
+var lexicon2 = function(utterance, obj, sem_knowledge) {
+    utterance.label == "novel_word" ? obj.shape == "familiar_object" :
+        utterance.label == "familiar_word" ? flip(sem_knowledge) ?
+        obj.shape == "familiar_object" :
+        flip() ? obj.shape == "familiar_object" : obj.shape == "novel_object" :
+        true
+}
+
+var lexiconObjects = {
+    "novel_word = novel_object": {
+        novel_object: "novel_word",
+        familiar_object: "familiar_word"
+    },
+    "novel_word = familiar_object": {
+        novel_object: "familiar_word",
+        familiar_object: "familiar_word"
+    },
+}
+
+var lexiconObject = {
+    "novel_word = novel_object": lexicon1,
+    "novel_word = familiar_object": lexicon2
+}
+
+var utterancePrior = function() { return uniformDraw([{ label: "novel_word" }, { label: "familiar_word" }]) }
+
+var LexiconPrior = Categorical({ vs: ["novel_word = novel_object", "novel_word = familiar_object"], ps: [1, 1] })
+
+var foreach = function(fn, lst) {
+    var foreach_ = function(i) {
+        if (i < lst.length) {
+            fn(lst[i]);
+            foreach_(i + 1);
+        }
+    };
+    foreach_(0);
+};
+
+var logistic = function(x) { 1 / (1 + Math.exp(-x)) }
+
+var levels = function(df, label) {
+    return _.uniq(_.map(df, label));
+}
+
+//////////////// Inferring parameters //////////////
+
+var data = json.read('../data/merged_data.json');
+
+var meData = _.filter(data, { task: "mutual_exclusivity" })
+var priorData = _.filter(data, { task: "novelty" })
+
+var familiars = levels(data, "familiar")
+var familiarsAges = sort(levels(data, "age_month"))
+
+var subjects = levels(data, "subid")
+
+var familiarCongruent = ["duck", "rasp", "hanger", "corkscrew", "thermo", "mic", "pincer", "sieve"]
+
+var priorProbs = [.5, .5]
+
+var model = function() {
+
+    ////////////// Prior ////////////////////////
+
+    var prior_slope = uniformDrift({
+        a: -2,
+        b: 2,
+        width: 0.4
+    })
+    var prior_int = uniformDrift({
+        a: -2,
+        b: 2,
+        width: 0.4
+    })
+
+
+    var speakerOptimalityParameters = {
+        intercept: uniformDrift({
+            a: -3,
+            b: 3,
+            width: 0.5
+        }),
+        slope: uniformDrift({
+            a: 0,
+            b: 4,
+            width: 0.5
+        })
+    }
+
+    var globalLineParameters = {
+        intercept: uniformDrift({
+            a: -3,
+            b: 3,
+            width: 0.5
+        }),
+        slope: uniformDrift({
+            a: 0,
+            b: 2,
+            width: 0.5
+        })
+    }
+
+    var itemVariability = {
+        intercept: uniformDrift({
+            a: 0,
+            b: 2,
+            width: 0.2
+        }),
+        slope: uniformDrift({
+            a: 0,
+            b: 1,
+            width: 0.2
+        })
+    }
+
+    var sampleItemParameters = function(itemName) {
+        return [itemName, {
+            intercept: gaussianDrift({
+                mu: globalLineParameters.intercept,
+                sigma: itemVariability.intercept,
+                width: 0.5
+            }),
+            slope: gaussianDrift({
+                mu: globalLineParameters.slope,
+                sigma: itemVariability.slope,
+                width: 0.5
+            })
+        }]
+    }
+
+    var all_item_parameters = _.fromPairs(map(sampleItemParameters, familiars))
+
+
+
+    var subject_sigma = uniformDrift({
+        a: 0,
+        b: 1,
+        width: 0.1
+    })
+
+    foreach(function(age_month) {
+
+        //display(age_month)
+
+        var priorSubjectDataByAge = _.filter(priorData, { age_month: age_month })
+
+        var priorSubjectDataByAge_correct = _.map(priorSubjectDataByAge, "correct")
+
+        var priorReg = logistic(prior_int + prior_slope * age_month)
+        var prior = [priorReg, 1 - priorReg]
+
+        var modelPredictions = Infer({
+            method: "enumerate",
+            model: function() {
+                var obj = sample(Categorical({ vs: all_objects, ps: prior }));
+                return obj.shape == "novel_object" ? 1 : 0
+            }
+        })
+
+        mapData({ data: priorSubjectDataByAge_correct }, function(d) {
+            observe(modelPredictions, d);
+        })
+
+
+
+        //////////////// Semantic knowledge and speaker optimality ////////////////////////
+
+        var subjectData_byAge = _.filter(meData, { age_month: age_month })
+
+        var speakerOptimality = speakerOptimalityParameters.intercept + speakerOptimalityParameters.slope * age_month
+
+        foreach(function(familiar) {
+            var subjectData_byAgeItem = _.filter(subjectData_byAge, { familiar: familiar })
+            var subjectDataByAgeItem_correct = _.map(subjectData_byAgeItem, "correct")
+
+            var itemLineParameters = all_item_parameters[familiar]
+
+            var sem_knowledge = logistic(itemLineParameters.intercept +
+                itemLineParameters.slope * age_month)
+
+            var literalListener = cache(function(utterance) {
+                Infer({
+                    method: "enumerate",
+                    model: function() {
+                        var lexiconName = sample(LexiconPrior);
+                        var lexicon = lexiconObject[lexiconName];
+                        var obj = sample(Categorical({ vs: all_objects, ps: [.5, .5] }));
+                        if ("label" in utterance) {
+                            var truthValue = lexicon(utterance, obj, sem_knowledge);
+                            condition(truthValue)
+                        }
+                        return obj.shape
+                    }
+                })
+            }, 10000)
+
+            var speaker = cache(function(obj, lexiconName) {
+                Infer({
+                    method: "enumerate",
+                    model: function() {
+                        var utterance = utterancePrior();
+                        var L0 = literalListener(utterance);
+                        factor(speakerOptimality * L0.score(obj.shape))
+                        return utterance
+                    }
+                })
+            }, 10000)
+
+            var pragmaticListener = function(utterance, priorProbs) {
+                Infer({
+                    method: "enumerate",
+                    model: function() {
+                        var lexiconName = sample(LexiconPrior);
+                        var obj = sample(Categorical({ vs: all_objects, ps: priorProbs }));
+                        var S1 = speaker(obj, lexiconName);
+                        observe(S1, utterance)
+                        return obj.shape == "novel_object" ? 1 : 0
+                    }
+                })
+            }
+
+            var meModel = pragmaticListener({ label: "novel_word" }, [.5, .5])
+
+            mapData({ data: subjectDataByAgeItem_correct }, function(d) {
+                observe(meModel, d)
+            })
+
+            var priorComb = (_.includes(familiarCongruent, familiar)) ? [priorReg, 1 - priorReg] : [1 - priorReg, priorReg]
+
+            var combCond = (_.includes(familiarCongruent, familiar)) ? "congruent" : "incongruent"
+
+            var combPred = pragmaticListener({ label: "novel_word" }, priorComb)
+
+            var flatPriorPred = pragmaticListener({ label: "novel_word" }, [.5, .5])
+
+            //display(familiar + " condition: " + combCond + " prior: " + priorComb)
+
+            var priorOnlyPred = Infer({
+                method: "enumerate",
+                model: function() {
+                    var obj = sample(Categorical({ vs: all_objects, ps: priorComb }));
+                    return obj.shape == "novel_object" ? 1 : 0
+                }
+            })
+
+            query.add([chain, "prediction", "combination", combCond, familiar, age_month], Math.exp(combPred.score(1)))
+            query.add([chain, "prediction", "flatPrior", combCond, familiar, age_month], Math.exp(flatPriorPred.score(1)))
+            query.add([chain, "prediction", "priorOnly", combCond, familiar, age_month], Math.exp(priorOnlyPred.score(1)))
+
+
+        }, familiars)
+
+    }, familiarsAges)
+
+    foreach(function(familiar) {
+        var itemLineParameters = all_item_parameters[familiar]
+        query.add([chain, "parameter", "items", familiar, "intercept", "NA", "NA"], itemLineParameters.intercept)
+        query.add([chain, "parameter", "items", familiar, "slope", "NA", "NA"], itemLineParameters.slope)
+    }, familiars)
+
+    query.add([chain, "parameter", "parameters", "prior", "intercept", "NA", "NA"], prior_int)
+    query.add([chain, "parameter", "parameters", "prior", "slope", "NA", "NA"], prior_slope)
+    query.add([chain, "parameter", "parameters", "speaker_optimality", "intercept", "NA", "NA"], speakerOptimalityParameters.intercept)
+    query.add([chain, "parameter", "parameters", "speaker_optimality", "slope", "NA", "NA"], speakerOptimalityParameters.slope)
+    query.add([chain, "parameter", "parameters", "global_sem", "intercept", "NA", "NA"], globalLineParameters.intercept)
+    query.add([chain, "parameter", "parameters", "global_sem", "slope", "NA", "NA"], globalLineParameters.slope)
+    query.add([chain, "parameter", "sigma", "global_sem_sigmas", "intercept", "NA", "NA"], itemVariability.intercept)
+    query.add([chain, "parameter", "sigma", "global_sem_sigmas", "slope", "NA", "NA"], itemVariability.slope)
+    return query
+}
+
+
+var header = "iteration,chain,a,b,c,d,e,f,g"
+
+var lag = 9
+
+var samples = 25000;
+
+var burn = 100000;
+
+var output_file = 'output/spin-within_model_slope_variance_prediction_global-me-only' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
+var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
+
+var output = Infer({
+    model,
+    samples: samples,
+    burn: burn,
+    lag: lag,
+    verbose: true,
+    method: 'MCMC',
+    onlyMAP: true,
+    callbacks: [callback]
+});
+
+'output written to ' + output_file
