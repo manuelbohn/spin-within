@@ -3,6 +3,8 @@
 
 model/output/*.csv
 
+model/old_models/*
+
 experiments/.DS_Store
 
 # History files

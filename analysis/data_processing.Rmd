@@ -12,6 +12,7 @@ library(jsonlite)
 library(readxl)
 library(tidyboot)
 library(GGally)
+library(ggpubr)
 
 
 ```
@@ -26,15 +27,38 @@ library(GGally)
 
 files <- dir("~/Work/Local/Spin-within/raw_data", pattern = ".json")
 
-raw_data <- tibble()
+raw_data1 <- tibble()
 for (f in files) {
   jf <- paste("~/Work/Local/Spin-within/raw_data/",f,sep="")
   jd <- jsonlite::fromJSON(paste(readLines(jf), collapse=""))
   date <- str_sub(jf,47,str_length(jf)-11)
   id <- as_tibble(jd$data$data) %>% mutate(test_date = date,
                                               trial = as.character(trial))
-  raw_data <- bind_rows(raw_data, id)
+  raw_data1 <- bind_rows(raw_data1, id)
 }
+
+hand_code_data <- read_csv("../../../../Cloud/spin-within/11890_combination_data.csv")%>%
+  mutate(status = "keep",
+         subid = as.character(subid),
+         subage = as.character(subage),
+         trial = as.character(trial),
+         test_date = as.character(test_date))%>%
+  select(-age, -age_month, -`...5`, -status)
+
+raw_data <- bind_rows(
+  raw_data1,
+  hand_code_data
+)
+
+invalid_trials <- read_excel("../../../../Cloud/spin-within/invalid_trials.xlsx")%>%
+  mutate(subid = as.character(subid),
+         subage = as.character(subage),
+         trial = as.character(trial))
+
+valid_data <- raw_data %>%
+  left_join(invalid_trials)%>%
+  filter(is.na(valid))%>%
+  select(-valid)
 
 log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xlsx")%>%
   mutate(birthday = as.Date(birthday, format = "%d.%m.%Y"),
@@ -49,64 +73,81 @@ log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xls
 
 log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>%
   filter(task == "production")%>%
+  #select(-`...5`)%>%
   rename(subid = ID,
          familiar = object,
          correct = performance)%>%
+ filter(correct != "NA")%>%
   mutate(subid = as.character(subid), 
          correct = as.numeric(correct))
 
 # add filtering of invalid trials
 
-data <-  raw_data%>%
+data <-  valid_data%>%
   mutate(subage = ifelse(subage == "4 ", "4", subage),
          familiar = ifelse(task == "comprehension", target, familiar), 
          subage = ifelse(subid == "79783", "4", subage),
          subid = ifelse(subage == "89475", "89475",subid),
-         subage = ifelse(subid == "89475",3,subage ))%>%
+         subid = ifelse(subid == "41433", "41423",subid),
+         subage = ifelse(subid == "89475","3",subage ))%>%
   left_join(log_id)%>%
   bind_rows(log_prod%>%left_join(log_id))%>%
   filter(status == "keep", 
          !grepl("train",trial))%>%
   select(-target)%>%
-  mutate(age = age - min(age))
-
-write_csv(data,"../data/merged_data.csv")
-
-# Für Louisa ab hier: 
-data <- read_csv("../data/merged_data.csv")%>%
-  arrange(test_date)%>%
-  mutate(subage = factor(subage))#%>%
-  #filter(subid != "89475")
-
-ex_id <- data%>%
-  group_by(subid)%>%
-  summarise(me = sum(task == "mutual_exclusivity"),
-            novelty = sum(task == "novelty"),
-            combination = sum(task == "combination"),
-            comp = sum(task == "comprehension"),
-            prod = sum(task == "production"))%>%
-  filter(combination < 16 | prod < 16)%>%
-  pull(subid)
-# 
-mdata <- data%>%
-  filter(!subid %in% ex_id)%>%
-  select(-`...5`)%>%
   mutate(age = age - min(age),
-         age_month = age_month - min(age_month))
+         condition = ifelse(task == "combination", ifelse(
+           familiar == "rasp" | familiar == "hanger" | familiar == "mic" | familiar == "pincer", "incongruent",
+           ifelse(familiar == "lock" | familiar == "opener" | familiar == "bread" | familiar == "tweezers", "congruent", condition)
+         ), condition))
+
+# write_csv(data,"../data/merged_data.csv")
 # 
-write(toJSON(mdata), file = "../data//merged_data.json")
+# # Für Louisa ab hier: 
+# data <- read_csv("../data/merged_data.csv")%>%
+#   arrange(test_date)%>%
+#   mutate(subage = factor(subage))#%>%
+#   #filter(subid != "89475")
+# 
+# ex_id <- data%>%
+#   group_by(subid)%>%
+#   summarise(me = sum(task == "mutual_exclusivity"),
+#             novelty = sum(task == "novelty"),
+#             combination = sum(task == "combination"),
+#             comp = sum(task == "comprehension"),
+#             prod = sum(task == "production"))%>%
+#   filter(combination < 16 | prod < 16)%>%
+#   pull(subid)
+# # 
+# mdata <- data%>%
+#   filter(!subid %in% ex_id)%>%
+#   select(-`...5`)%>%
+#   mutate(age = age - min(age),
+#          age_month = age_month - min(age_month))
+# # 
+# write(toJSON(mdata), file = "../data//merged_data.json")
 ```
 
 # Sample
 ```{r}
-mdata%>%
+data%>%
   group_by(subid)%>%
   summarise(me = sum(task == "mutual_exclusivity"),
             novelty = sum(task == "novelty"),
             combination = sum(task == "combination"),
             comp = sum(task == "comprehension"),
             prod = sum(task == "production"))
+
+
 ```
+```{r}
+raw_data%>%
+  filter(subid == "37855")
+
+length(unique(data$subid))
+```
+
+
 # Single tasks
 
 ```{r}
@@ -172,7 +213,7 @@ pc <- data %>%
   filter(task == "combination")%>%
   filter(!grepl("train",trial)) %>%
   group_by(subage,task,familiar,condition) %>%
-  tidyboot_mean(column = correct)
+  tidyboot_mean(column = correct, na.rm = T)
 
 
 ggplot()+
@@ -180,7 +221,7 @@ ggplot()+
   #geom_smooth(data = p1, aes(x = subage, y = mean), method = "lm", col = "black", size = 1)+
   #geom_jitter(data = pc, aes(x = subage, y = mean), alpha = .5, width = .05, height = .01)+
   geom_pointrange(data = pc, aes(x = subage, y = mean, ymin = ci_lower, ymax = ci_upper, col = condition))+
-  facet_wrap(~familiar)+
+  facet_wrap(familiar~condition)+
   labs(x = "Age Group", y = "Proportion unfamiliar object chosen") +
   scale_color_colorblind(name = "Condition") +
   ylim(-0.05, 1.05)+
@@ -191,7 +232,7 @@ ggplot()+
 data%>%
   filter(task == "mutual_exclusivity" | task == "combination")%>%
   group_by(task,familiar)%>%
-  summarise(correct = mean(correct))%>%
+  summarise(correct = mean(correct, na.rm = T))%>%
   pivot_wider(names_from = "task", values_from = "correct")%>%
   left_join(data%>%filter(task =="combination")%>%select(familiar,condition)%>%distinct())%>%
   ggplot(., aes(x = mutual_exclusivity, y = combination))+
@@ -201,5 +242,19 @@ data%>%
   theme_minimal()+
   xlim(0,1)+ ylim(0,1)+
   facet_grid(~condition)
+```
+
+```{r}
+data%>%
+  filter(task == "mutual_exclusivity" | task == "combination")%>%
+  group_by(subage,task,familiar)%>%
+  summarise(correct = mean(correct, na.rm = T))%>%
+  left_join(data%>%filter(task =="combination")%>%select(familiar,condition)%>%distinct())%>%
+  ggplot(., aes(x = task, y = correct, col = familiar))+
+  geom_line(aes(group = familiar))+
+  geom_point(alpha = .75)+
+  theme_few()+
+  ylim(0,1)+
+  facet_grid(subage~condition)
 ```
 

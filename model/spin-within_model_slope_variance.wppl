@@ -73,7 +73,7 @@ var prodData = _.filter(data, { task: "production" })
 
 //var combData = json.read('../data/combination.json');
 
-var familiarCongruent = ["duck", "rasp", "hanger", "corkscrew", "thermo", "mic", "pincer", "sieve"]
+var familiarCongruent = ["duck", "lock", "opener", "corkscrew", "thermo", "bread", "tweezers", "sieve"]
 
 var familiars = levels(meData, "familiar")
 
