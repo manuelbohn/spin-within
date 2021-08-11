@@ -152,14 +152,6 @@ data%>%
 data%>%
   filter(is.na(co))
 ```
-```{r}
-raw_data%>%
-  filter(subid == "84944")
-
-length(unique(data$subid))
-```
-
-
 # Single tasks
 
 ```{r}
@@ -209,7 +201,7 @@ data %>%
 cor <- data %>% 
   filter(task == "mutual_exclusivity" | task == "comprehension" | task == "production")%>%
   group_by(subid,subage, task)%>%
-  summarise(mean = mean(correct))%>%
+  summarise(mean = mean(correct, na.rm = T))%>%
   pivot_wider(names_from = "task", values_from = "mean")%>%
   ungroup()
 
@@ -232,12 +224,14 @@ ggplot()+
   #geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
   #geom_smooth(data = p1, aes(x = subage, y = mean), method = "lm", col = "black", size = 1)+
   #geom_jitter(data = pc, aes(x = subage, y = mean), alpha = .5, width = .05, height = .01)+
-  geom_pointrange(data = pc, aes(x = subage, y = mean, ymin = ci_lower, ymax = ci_upper, col = condition))+
-  facet_wrap(familiar~condition)+
+  geom_pointrange(data = pc, aes(x = familiar, y = mean, ymin = ci_lower, ymax = ci_upper, col = subage), position = position_dodge(width = .9))+
+  facet_grid(~condition, scales = "free_x")+
   labs(x = "Age Group", y = "Proportion unfamiliar object chosen") +
   scale_color_colorblind(name = "Condition") +
   ylim(-0.05, 1.05)+
-  theme_few()
+  theme_few()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 ```
 
 ```{r}
