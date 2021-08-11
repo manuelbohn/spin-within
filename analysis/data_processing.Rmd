@@ -147,10 +147,6 @@ data%>%
             comp = sum(task == "comprehension"),
             prod = sum(task == "production"))
 
-
-
-data%>%
-  filter(is.na(co))
 ```
 # Single tasks
 
