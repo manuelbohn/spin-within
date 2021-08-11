@@ -258,6 +258,8 @@ var model = function() {
             // display(familiar)
             //display("production for subject = " + subject + " familiar = " + familiar + " score = " + productionModel.score(prodSubItemData[0]["correct"]))
 
+            //display(prodSubItemData[0]["correct"])
+
             observe(productionModel, prodSubItemData[0]["correct"])
 
             var comprehensionModel = Infer({
@@ -274,6 +276,7 @@ var model = function() {
             // display(JSON.stringify(comprehensionModel))
             // display(comprehensionSubItemData)
             //display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
+
 
             observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
 
@@ -323,6 +326,8 @@ var model = function() {
             var meModel = pragmaticListener({ label: "novel_word" }, priorEst)
 
             //display("ME for subject = " + subject + " familiar = " + familiar + " score = " + meModel.score(meSubItemData[0]["correct"]))
+
+            //display(meSubItemData[0]["correct"])
 
             observe(meModel, meSubItemData[0]["correct"])
 
@@ -383,11 +388,11 @@ var model = function() {
 
 var header = "iteration,chain,a,b,c,d,e,f,g"
 
-var lag = 9
+var lag = 0 //9
 
-var samples = 25000;
+var samples = 1 //25000;
 
-var burn = 200000;
+var burn = 0 //200000;
 
 var output_file = 'output/spin-within_model_slope_variance_prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);

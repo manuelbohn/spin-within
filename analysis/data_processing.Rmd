@@ -53,12 +53,20 @@ raw_data <- bind_rows(
 invalid_trials <- read_excel("../../../../Cloud/spin-within/invalid_trials.xlsx")%>%
   mutate(subid = as.character(subid),
          subage = as.character(subage),
-         trial = as.character(trial))
+         trial = as.character(trial))%>%
+  right_join(raw_data)%>%
+  filter(valid == "no")%>%
+  mutate(correct = NA)%>%
+  select(-valid)
 
 valid_data <- raw_data %>%
-  left_join(invalid_trials)%>%
+  left_join(read_excel("../../../../Cloud/spin-within/invalid_trials.xlsx")%>%
+  mutate(subid = as.character(subid),
+         subage = as.character(subage),
+         trial = as.character(trial)))%>%
   filter(is.na(valid))%>%
-  select(-valid)
+  select(-valid)%>%
+  bind_rows(invalid_trials)
 
 log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xlsx")%>%
   mutate(birthday = as.Date(birthday, format = "%d.%m.%Y"),
@@ -77,7 +85,7 @@ log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>
   rename(subid = ID,
          familiar = object,
          correct = performance)%>%
- filter(correct != "NA")%>%
+ #filter(correct != "NA")%>%
   mutate(subid = as.character(subid), 
          correct = as.numeric(correct))
 
@@ -110,23 +118,23 @@ data <- read_csv("../data/merged_data.csv")%>%
   mutate(subage = factor(subage))
 # 
 # Das folgende kannst ignorieren, Louisa. 
-# ex_id <- data%>%
-#   group_by(subid)%>%
-#   summarise(me = sum(task == "mutual_exclusivity"),
-#             novelty = sum(task == "novelty"),
-#             combination = sum(task == "combination"),
-#             comp = sum(task == "comprehension"),
-#             prod = sum(task == "production"))%>%
-#   filter(combination < 16 | prod < 16)%>%
-#   pull(subid)
+ex_id <- data%>%
+  group_by(subid)%>%
+  summarise(me = sum(task == "mutual_exclusivity"),
+            novelty = sum(task == "novelty"),
+            combination = sum(task == "combination"),
+            comp = sum(task == "comprehension"),
+            prod = sum(task == "production"))%>%
+  filter(prod < 16)%>%
+  pull(subid)
 # # 
-# mdata <- data%>%
-#   filter(!subid %in% ex_id)%>%
-#   select(-`...5`)%>%
-#   mutate(age = age - min(age),
-#          age_month = age_month - min(age_month))
+mdata <- data%>%
+  filter(!subid %in% ex_id)%>%
+  mutate(age = age - min(age),
+         age_month = age_month - min(age_month))
 # # 
-# write(toJSON(mdata), file = "../data//merged_data.json")
+write(toJSON(data), file = "../data//merged_data.json")
+
 ```
 
 # Sample
@@ -140,6 +148,9 @@ data%>%
             prod = sum(task == "production"))
 
 
+
+data%>%
+  filter(is.na(co))
 ```
 ```{r}
 raw_data%>%
