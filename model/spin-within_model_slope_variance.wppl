@@ -260,7 +260,11 @@ var model = function() {
 
             //display(prodSubItemData[0]["correct"])
 
-            observe(productionModel, prodSubItemData[0]["correct"])
+            if (productionModel.score(prodSubItemData[0]["correct"]) != -Infinity) {
+                observe(productionModel, prodSubItemData[0]["correct"])
+            }
+
+
 
             var comprehensionModel = Infer({
                 method: "enumerate",
@@ -277,8 +281,10 @@ var model = function() {
             // display(comprehensionSubItemData)
             //display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
 
+            if (comprehensionModel.score(comprehensionSubItemData[0]["correct"]) != -Infinity) {
+                observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
+            }
 
-            observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
 
             var literalListener = cache(function(utterance) {
                 Infer({
@@ -327,9 +333,9 @@ var model = function() {
 
             //display("ME for subject = " + subject + " familiar = " + familiar + " score = " + meModel.score(meSubItemData[0]["correct"]))
 
-            //display(meSubItemData[0]["correct"])
-
-            observe(meModel, meSubItemData[0]["correct"])
+            if (meModel.score(meSubItemData[0]["correct"]) != -Infinity) {
+                observe(meModel, meSubItemData[0]["correct"])
+            }
 
             query.add([chain, "parameter", "parameters", "semantic_knowledge", familiar, subject], sem_knowledge)
 
