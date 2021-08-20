@@ -290,7 +290,23 @@ var model = function() {
 
             var combPred = pragmaticListener({ label: "novel_word" }, priorComb)
 
-            query.add([chain, "prediction", "prediction", combCond, familiar, subject], Math.exp(combPred.score(1)))
+            var priorFlat = [0.5, 0.5]
+
+            var flatPriorPred = pragmaticListener({ label: "novel_word" }, priorFlat)
+
+            //display(familiar + " condition: " + combCond + " prior: " + priorComb)
+
+            var priorOnlyPred = Infer({
+                method: "enumerate",
+                model: function() {
+                    var obj = sample(Categorical({ vs: all_objects, ps: priorComb }));
+                    return obj.shape == "novel_object" ? 1 : 0
+                }
+            })
+
+            query.add([chain, "prediction", "combination", combCond, familiar, subject], Math.exp(combPred.score(1)))
+            query.add([chain, "prediction", "flatPrior", combCond, familiar, subject], Math.exp(flatPriorPred.score(1)))
+            query.add([chain, "prediction", "priorOnly", combCond, familiar, subject], Math.exp(priorOnlyPred.score(1)))
 
         }, familiars)
 
