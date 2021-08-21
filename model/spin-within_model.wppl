@@ -84,13 +84,13 @@ var model = function() {
     ////////////// Prior ////////////////////////
 
     var prior_slope = uniformDrift({
-        a: -2,
-        b: 2,
+        a: -3,
+        b: 3,
         width: 0.1
     })
     var prior_int = uniformDrift({
-        a: -2,
-        b: 2,
+        a: -3,
+        b: 3,
         width: 0.1
     })
 
@@ -131,12 +131,12 @@ var model = function() {
 
 
     var sem_know_slope = uniformDrift({
-        a: 0,
-        b: 2,
+        a: -3,
+        b: 3,
         width: 0.1
     })
     var sem_know_int = uniformDrift({
-        a: -2,
+        a: 0,
         b: 2,
         width: 0.1
     })
