@@ -84,13 +84,13 @@ var model = function() {
     ////////////// Prior ////////////////////////
 
     var prior_slope = uniformDrift({
-        a: -3,
-        b: 3,
+        a: -2,
+        b: 2,
         width: 0.1
     })
     var prior_int = uniformDrift({
-        a: -3,
-        b: 3,
+        a: -2,
+        b: 2,
         width: 0.1
     })
 
