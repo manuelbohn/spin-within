@@ -239,7 +239,6 @@ var model = function() {
             var sem_knowledge = logistic(itemLineParameters.intercept +
                 itemLineParameters.slope * subj_linguistic_competence)
 
-
             //display("subject = " + subject + ", sem_knowledge = " + sem_knowledge + ", familiar = " + familiar)
 
             var productionModel = Infer({
@@ -286,7 +285,7 @@ var model = function() {
             }
 
 
-            var literalListener = cache(function(utterance) {
+            var literalListener = cache(function(utterance, semknow) {
                 Infer({
                     method: "enumerate",
                     model: function() {
@@ -294,7 +293,7 @@ var model = function() {
                         var lexicon = lexiconObject[lexiconName];
                         var obj = sample(Categorical({ vs: all_objects, ps: [.5, .5] }));
                         if ("label" in utterance) {
-                            var truthValue = lexicon(utterance, obj, sem_knowledge);
+                            var truthValue = lexicon(utterance, obj, semknow);
                             condition(truthValue)
                         }
                         return obj.shape
@@ -302,12 +301,12 @@ var model = function() {
                 })
             }, 10000)
 
-            var speaker = cache(function(obj, lexiconName) {
+            var speaker = cache(function(obj, lexiconName, semknow) {
                 Infer({
                     method: "enumerate",
                     model: function() {
                         var utterance = utterancePrior();
-                        var L0 = literalListener(utterance);
+                        var L0 = literalListener(utterance, semknow);
                         factor(speakerOptimality * L0.score(obj.shape))
                         return utterance
                     }
@@ -316,13 +315,13 @@ var model = function() {
 
             var priorEst = [.5, .5]
 
-            var pragmaticListener = function(utterance, priorProbs) {
+            var pragmaticListener = function(utterance, priorProbs, semknow) {
                 Infer({
                     method: "enumerate",
                     model: function() {
                         var lexiconName = sample(LexiconPrior);
                         var obj = sample(Categorical({ vs: all_objects, ps: priorProbs }));
-                        var S1 = speaker(obj, lexiconName);
+                        var S1 = speaker(obj, lexiconName, semknow);
                         observe(S1, utterance)
                         return obj.shape == "novel_object" ? 1 : 0
                     }
@@ -342,14 +341,13 @@ var model = function() {
 
             // Combinations
 
-
             var priorComb = (_.includes(familiarCongruent, familiar)) ? [priorReg, 1 - priorReg] : [1 - priorReg, priorReg]
 
             var combCond = (_.includes(familiarCongruent, familiar)) ? "congruent" : "incongruent"
 
-            var combPred = pragmaticListener({ label: "novel_word" }, priorComb)
+            var combPred = pragmaticListener({ label: "novel_word" }, priorComb, sem_knowledge)
 
-            var flatPriorPred = pragmaticListener({ label: "novel_word" }, [.5, .5])
+            var flatPriorPred = pragmaticListener({ label: "novel_word" }, [.5, .5], sem_knowledge)
 
             //display(familiar + " condition: " + combCond + " prior: " + priorComb)
 
@@ -364,6 +362,19 @@ var model = function() {
             query.add([chain, "prediction", "combination", combCond, familiar, subject], Math.exp(combPred.score(1)))
             query.add([chain, "prediction", "flatPrior", combCond, familiar, subject], Math.exp(flatPriorPred.score(1)))
             query.add([chain, "prediction", "priorOnly", combCond, familiar, subject], Math.exp(priorOnlyPred.score(1)))
+
+            // Combinations global
+
+            var sem_knowledge_global = logistic(itemLineParameters.intercept +
+                itemLineParameters.slope * meSubItemData[0].age)
+
+            var priorRegGlobal = logistic(prior_int + prior_slope * meSubItemData[0].age)
+
+            var priorCombGlobal = (_.includes(familiarCongruent, familiar)) ? [priorRegGlobal, 1 - priorRegGlobal] : [1 - priorRegGlobal, priorRegGlobal]
+
+            var combPred = pragmaticListener({ label: "novel_word" }, priorComb, sem_knowledge)
+
+
 
         }, familiars)
 
@@ -396,9 +407,9 @@ var header = "iteration,chain,a,b,c,d,e,f,g"
 
 var lag = 9
 
-var samples = 25000;
+var samples = 50000;
 
-var burn = 200000;
+var burn = 250000;
 
 var output_file = 'output/spin-within_model_slope_variance_prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);

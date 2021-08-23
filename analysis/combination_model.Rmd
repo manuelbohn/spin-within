@@ -125,7 +125,8 @@ chance_id <- mpred%>%
   mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
          match = ifelse(pred == correct, 1, 0))%>%
   group_by(subid, subage,model)%>%
-  summarise(mean = mean(match, na.rm = T))
+  summarise(mean = mean(match, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
 
 chance <- mpred%>%
   left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
@@ -137,7 +138,8 @@ chance <- mpred%>%
   mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
          match = ifelse(pred == correct, 1, 0))%>%
   group_by(subage,model)%>%
-  tidyboot_mean(col = match, na.rm = T)
+  tidyboot_mean(col = match, na.rm = T)%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
 
 
 ggplot(chance, aes(x = model, y = mean))+
@@ -147,12 +149,20 @@ ggplot(chance, aes(x = model, y = mean))+
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
   ylim(0,1)+
   facet_grid(~subage)+
-  labs(x = "Model", y = "Proportion Correct Predictions")+
-  scale_color_ptol()+
-  scale_fill_ptol()+
-  guides(col = F)+
-  theme_minimal()
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme_few()+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+  
+
 ```
+```{r}
+ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
+```
+
 
 ```{r}
 mpred%>%
@@ -240,24 +250,34 @@ model_binned <- model_predictions%>%
 cor_plot <-  bind_rows(model_binned %>% left_join(data_binned)
                        #flat_model_binned %>% left_join(data_binned)%>%mutate(type = "RE_flat"),
                        #global_model_binned %>% left_join(data_binned)%>%mutate(type = "global")
-                       )
+                       )%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))%>%
+  ungroup()%>%
+  add_row(model = "combination", subage = "2-year-olds")
 
-ggplot(data = cor_plot,aes(x = model_mean, y = data_mean, col = subage)) +
+cor_plot%>%
+  filter(model == "combination")%>%
+ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
   geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
   geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
   geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
   geom_point(size = 1.5, stroke = 1, pch = 5)+
   coord_fixed()+
-  facet_grid(~model)+
+  #facet_grid(~model)+
 stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
   xlim(0,1)+ylim(0,1)+
-  xlab("Model")+
-  ylab("Data")+
+    xlab("Model predictions")+
+  ylab("Child inference data\n(proportion novel object chosen)")+
   theme_few() + 
-  scale_colour_ptol()
+  scale_colour_ptol(name = "")+
+  theme(legend.position = c(.78, .2))+
+  scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
+  scale_y_continuous(limits = c(0,1), breaks = c(0,1))
 
 ```
-
+```{r}
+ggsave("../graphs/comb_cor.png", width = 6, height = 4, scale = 1)
+```
 
 ### Individual predictions
 
@@ -285,24 +305,68 @@ idm %>%
 ```
 
 ```{r}
-idm <- model_predictions%>%
+idsk <- model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subid = e, 
+         value = f)%>%
+  filter(!is.na(familiar),
+         parameter == "semantic_knowledge", 
+         familiar == "rasp",
+         subid == 13028)
+
+idp <- model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subid = e, 
+         value = f)%>%
+  filter(parameter == "prior", 
+         subid == 13028)
+
+idso <- model%>%
+  rename(parameter = c,
+         familiar = d, 
+         subid = e, 
+         value = f)%>%
+  filter(parameter == "speaker_optimality", 
+         subid == 13028)
+
+idc <- model_predictions%>%
   select(-a, -g)%>%
   rename(model = b,
          condition = c,
          familiar = d,
          subid = e,
          pred = f)%>%
-  filter(model == "combination", familiar == "lock")
+  filter(model == "combination", familiar == "rasp", subid == 13028, condition == "incongruent")
 
-idm %>%
-  ggplot(aes(x = pred, y = familiar, fill = factor(chain)))+
-  geom_density_ridges(alpha = .5)+
-  #geom_point(data =idd, aes(x = correct, y = familiar), size = 3, stroke = 1, fill = "darkgreen",  col = "darkgreen", pch = 4)+
-  facet_wrap(~subid, scales = "free_y")+
+
+idf <- model_predictions%>%
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
+         familiar = d,
+         subid = e,
+         pred = f)%>%
+  filter(model == "flatPrior", familiar == "rasp", subid == 13028, condition == "incongruent")
+#6e1423
+
+idf %>%
+  ggplot(aes(x = pred))+
+  #geom_density(alpha = .25, fill = "#6a994e")+
+  geom_density(alpha = .25, fill = "#6e1423")+
   scale_fill_ptol()+
-  theme_few()
+  theme_few()+
+  #labs(x = "Propability novel object", y = "")+
+  labs(x = "Probability novel object", y = "")+
+  xlim(0,1)+
+  theme(axis.ticks.y = element_blank(), axis.text.y = element_blank())
 
 ```
+```{r}
+ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
+```
+
 # Model parameters
 
 ## Production probability
