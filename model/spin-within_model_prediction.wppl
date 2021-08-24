@@ -1,4 +1,4 @@
-// example call: time webppl spin-within_model_slope_variance.wppl --require webppl-json --require webppl-sample-writer 1
+// example call: time webppl spin-within_model_prediction.wppl --require webppl-json --require webppl-sample-writer 1
 
 var chain = last(process.argv)
 
@@ -365,14 +365,14 @@ var model = function() {
 
             // Combinations global
 
-            var sem_knowledge_global = logistic(itemLineParameters.intercept +
-                itemLineParameters.slope * meSubItemData[0].age)
+            // var sem_knowledge_global = logistic(itemLineParameters.intercept +
+            //     itemLineParameters.slope * meSubItemData[0].age)
 
-            var priorRegGlobal = logistic(prior_int + prior_slope * meSubItemData[0].age)
+            // var priorRegGlobal = logistic(prior_int + prior_slope * meSubItemData[0].age)
 
-            var priorCombGlobal = (_.includes(familiarCongruent, familiar)) ? [priorRegGlobal, 1 - priorRegGlobal] : [1 - priorRegGlobal, priorRegGlobal]
+            // var priorCombGlobal = (_.includes(familiarCongruent, familiar)) ? [priorRegGlobal, 1 - priorRegGlobal] : [1 - priorRegGlobal, priorRegGlobal]
 
-            var combPred = pragmaticListener({ label: "novel_word" }, priorComb, sem_knowledge)
+            // var combPred = pragmaticListener({ label: "novel_word" }, priorComb, sem_knowledge)
 
 
 
@@ -411,7 +411,7 @@ var samples = 50000;
 
 var burn = 250000;
 
-var output_file = 'output/spin-within_model_slope_variance_prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
+var output_file = 'output/spin-within_model _prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
 
 var output = Infer({

@@ -117,24 +117,28 @@ data <- read_csv("../data/merged_data.csv")%>%
   arrange(test_date)%>%
   mutate(subage = factor(subage))
 # 
-# Das folgende kannst ignorieren, Louisa. 
-ex_id <- data%>%
-  group_by(subid)%>%
-  summarise(me = sum(task == "mutual_exclusivity"),
-            novelty = sum(task == "novelty"),
-            combination = sum(task == "combination"),
-            comp = sum(task == "comprehension"),
-            prod = sum(task == "production"))%>%
-  filter(prod < 16)%>%
-  pull(subid)
-# # 
-mdata <- data%>%
-  filter(!subid %in% ex_id)%>%
-  mutate(age = age - min(age),
-         age_month = age_month - min(age_month))
-# # 
-write(toJSON(data), file = "../data//merged_data.json")
+## add missing combination data for 40105 (correct = NA)
+missing_data_40105 <-  data%>%
+  filter(subid == "65507", task == "combination")%>%
+  filter(trial >8)%>%
+  select(subid, task, familiar, correct, condition)%>%
+  mutate(subid = 40105, 
+         age = data%>%filter(subid == 40105, task == "combination")%>%pull(age)%>%unique(),
+         correct = NA)
 
+## add missing combination data for 55747 (correct = NA)
+missing_data_55747 <-  data%>%
+  filter(subid == "65507", task == "combination")%>%
+  filter(trial >8)%>%
+  select(subid, task, familiar, correct, condition)%>%
+  mutate(subid = 55747, 
+         age = data%>%filter(subid == 55747, task == "combination")%>%pull(age)%>%unique(),
+         correct = NA)
+
+# # 
+data_model <- bind_rows(data, missing_data_40105,missing_data_55747)
+# # 
+write(toJSON(data_model), file = "../data//merged_data.json")
 ```
 
 # Sample
