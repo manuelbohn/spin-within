@@ -55,12 +55,15 @@ data <- read_csv("../data/merged_data.csv")
 # Samples
 
 ```{r}
-model <- bind_rows(
-  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain1.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain2.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain3.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-25000_burn200000_lag9_chain4.csv")
-)
+model <- rbindlist(
+  list(
+  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain1.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain2.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain3.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain4.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain5.csv"),
+  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain6.csv")
+), use.names=TRUE)
 
 #model <- readRDS("../model/output/comb_model.rds")
 

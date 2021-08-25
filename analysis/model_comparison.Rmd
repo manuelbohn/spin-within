@@ -1,0 +1,110 @@
+---
+title: "Spin-within model comparison"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+
+library(tidyverse)
+library(ggthemes)
+library(jsonlite)
+library(readxl)
+library(tidyboot)
+library(coda)
+library(data.table)
+library(matrixStats)
+
+estimate_mode <- function(s) {
+  d <- density(s)
+  return(d$x[which.max(d$y)])
+}
+
+hdi_upper<- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","upper"])
+}
+
+hdi_lower<- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","lower"])
+}
+
+```
+
+# Output
+
+```{r}
+model_comp <-  bind_rows(
+  fread("../model/output/spin-within_model_comparison-chain1.csv"),
+  fread("../model/output/spin-within_model_comparison-chain2.csv"),
+  fread("../model/output/spin-within_model_comparison-chain3.csv"),
+  fread("../model/output/spin-within_model_comparison-chain4.csv"),
+  fread("../model/output/spin-within_model_comparison-chain5.csv"),
+  fread("../model/output/spin-within_model_comparison-chain6.csv"),
+  fread("../model/output/spin-within_model_comparison-chain7.csv"),
+  fread("../model/output/spin-within_model_comparison-chain8.csv"),
+  fread("../model/output/spin-within_model_comparison-chain9.csv"),
+  fread("../model/output/spin-within_model_comparison-chain10.csv")
+)
+```
+
+# Model comparison
+
+## by chain
+
+```{r}
+model_comp %>%
+  group_by(model,chain)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)
+```
+
+## overall (log Bayes Factor)
+
+```{r}
+model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)%>%
+  summarise(bf_comb_flat = combination - flatPrior, 
+            bf_comb = combination - priorOnly)
+```
+
+## Plot for log-likelihood
+
+### Distribution
+
+```{r}
+model_comp%>%
+  ggplot(aes(x= loglike, fill = model))+
+  facet_wrap(~chain, scales = "free")+
+  geom_density(alpha = .5)+
+  scale_fill_colorblind()+
+  theme_minimal()
+```
+
+### Expected value
+
+```{r}
+model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  ggplot(aes(x = model, y = margllh, col = model))+
+  geom_segment( aes(x=model, xend=model, y=margllh, yend=-400), col = "black", size = 1)+
+  geom_point(size = 7)+
+  theme_few()+ 
+  xlab("")+
+  ylab("Log-likelihood")+
+  theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))+
+  guides()+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#a71e34","#da1e37","#0582ca","#003554"))+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+```
+```{r}
+ggsave("../graphs/like_plot_full.png", width = 4, height = 3, scale = 1.5)
+```
+
