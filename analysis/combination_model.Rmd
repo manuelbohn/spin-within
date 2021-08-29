@@ -76,7 +76,7 @@ model <- model %>% filter(a != "prediction")%>%saveRDS("../model/output/comb_mod
 ```{r}
 model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
 
-model <- readRDS("../model/output/comb_model_parameters.rds")
+model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
 ```
 
 # Model predictions
@@ -105,17 +105,41 @@ prediction%>%left_join(data %>% select(condition,familiar,subid,subage, correct)
 ### comparison to chance
 
 ```{r}
-mpred <- model_predictions%>%
+mpred_all <- model_predictions%>%
   select(-a, -g)%>%
   rename(model = b,
          condition = c,
          familiar = d,
          subid = e,
-         pred = f)%>%
+         pred = f)
+
+mpred_comb <- mpred_all%>%
+  filter(model == "combination")%>%
   group_by(model, condition,familiar,subid)%>%
   summarise(model_mean = estimate_mode(pred),
             model_ci_lower = hdi_lower(pred),
             model_ci_upper = hdi_upper(pred))
+
+mpred_flat <- mpred_all%>%
+  filter(model == "flatPrior")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+mpred_prior <- mpred_all%>%
+  filter(model == "priorOnly")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+
+mpred <- bind_rows(
+  mpred_comb,
+  mpred_flat,
+  mpred_prior
+)
 
 
 chance_id <- mpred%>%
@@ -159,9 +183,9 @@ ggplot(chance, aes(x = model, y = mean))+
                     values= c("#6a994e","#6e1423","#a71e34"))+
   theme_few()+
   theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
-  
-
+  tail(model_predictions)
 ```
+
 ```{r}
 ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
 ```
@@ -308,7 +332,7 @@ idm %>%
 ```
 
 ```{r}
-idsk <- model%>%
+idsk <- model_parameters%>%
   rename(parameter = c,
          familiar = d, 
          subid = e, 
@@ -318,7 +342,7 @@ idsk <- model%>%
          familiar == "rasp",
          subid == 13028)
 
-idp <- model%>%
+idp <- model_parameters%>%
   rename(parameter = c,
          familiar = d, 
          subid = e, 
@@ -326,7 +350,7 @@ idp <- model%>%
   filter(parameter == "prior", 
          subid == 13028)
 
-idso <- model%>%
+idso <- model_parameters%>%
   rename(parameter = c,
          familiar = d, 
          subid = e, 
@@ -366,6 +390,7 @@ idf %>%
   theme(axis.ticks.y = element_blank(), axis.text.y = element_blank())
 
 ```
+
 ```{r}
 ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
 ```
@@ -375,7 +400,7 @@ ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
 ## Production probability
 
 ```{r}
-model%>%
+model_parameters%>%
   filter(c == "successful_production_probability")%>%
   rename(value = f)%>%
   ggplot(., aes(x = value, fill = factor(chain)))+
@@ -390,7 +415,7 @@ model%>%
 ### overall intercept, slope and sigma
 
 ```{r}
-model%>%
+model_parameters%>%
   filter(c == "speaker_optimality", 
          b != "parameters")%>%
   rename(parameter = b,
@@ -408,7 +433,7 @@ model%>%
 ### by subject
 
 ```{r}
-model%>%
+model_parameters%>%
   rename(type = b,
          parameter = c,
          subject = e, 
@@ -429,7 +454,7 @@ model%>%
 ### overall intercept, slope and sigma
 
 ```{r}
-model%>%
+model_parameters%>%
   filter(c == "semantic_knowledge", 
          b != "parameters")%>%
   rename(parameter = b,
@@ -446,7 +471,7 @@ model%>%
 ### by subject
 
 ```{r}
-model%>%
+model_parameters%>%
   rename(parameter = c,
          familiar = d, 
          subject = e, 
@@ -465,7 +490,7 @@ model%>%
 ### by item
 
 ```{r}
-model%>%
+model_parameters%>%
   rename(parameter = c,
          familiar = d, 
          subject = e, 
@@ -490,7 +515,7 @@ model%>%
 ### overall intercept, slope and sigma
 
 ```{r}
-model%>%
+model_parameters%>%
   filter(c == "prior", 
          b != "parameters")%>%
   rename(parameter = b,
@@ -507,7 +532,7 @@ model%>%
 ### by subject
 
 ```{r}
-model%>%
+model_parameters%>%
   rename(parameter = c, 
          familiar = d, 
          subject = e, 

@@ -47,6 +47,8 @@ model_comp <-  bind_rows(
   fread("../model/output/spin-within_model_comparison-chain9.csv"),
   fread("../model/output/spin-within_model_comparison-chain10.csv")
 )
+
+saveRDS(model_comp, "../model/output/model_comparison.rds")
 ```
 
 # Model comparison
@@ -105,6 +107,6 @@ model_comp %>%
   theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
 ```
 ```{r}
-ggsave("../graphs/like_plot_full.png", width = 4, height = 3, scale = 1.5)
+ggsave("../graphs/like_plot_full.png", width = 5, height = 3, scale = 1.5)
 ```
 
