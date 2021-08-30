@@ -1,4 +1,4 @@
-// example call: time webppl spin-within_model_prediction.wppl --require webppl-json --require webppl-sample-writer 1
+// example call: time webppl spin-within_model_prediction_group_level.wppl --require webppl-json --require webppl-sample-writer 1
 
 var chain = last(process.argv)
 
@@ -339,7 +339,7 @@ var model = function() {
             query.add([chain, "parameter", "parameters", "semantic_knowledge", familiar, subject], sem_knowledge)
 
 
-            // Combinations
+            // Individual predictions
 
             var priorComb = (_.includes(familiarCongruent, familiar)) ? [priorReg, 1 - priorReg] : [1 - priorReg, priorReg]
 
@@ -363,7 +363,34 @@ var model = function() {
             query.add([chain, "prediction", "flatPrior", combCond, familiar, subject], Math.exp(flatPriorPred.score(1)))
             query.add([chain, "prediction", "priorOnly", combCond, familiar, subject], Math.exp(priorOnlyPred.score(1)))
 
+            // Global predictions
 
+            var sem_knowledge_global = logistic(itemLineParameters.intercept +
+                itemLineParameters.slope * meSubItemData[0].age)
+
+            var priorRegGlobal = logistic(prior_int + prior_slope * meSubItemData[0].age)
+
+            var priorCombGlobal = (_.includes(familiarCongruent, familiar)) ? [priorRegGlobal, 1 - priorRegGlobal] : [1 - priorRegGlobal, priorRegGlobal]
+
+            var combPredGlobal = pragmaticListener({ label: "novel_word" }, priorCombGlobal, sem_knowledge_global)
+
+            var flatPriorPredGLobal = pragmaticListener({ label: "novel_word" }, [.5, .5], sem_knowledge_global)
+
+            //display(familiar + " condition: " + combCond + " prior: " + priorComb)
+
+            var priorOnlyPredGLobal = Infer({
+                method: "enumerate",
+                model: function() {
+                    var obj = sample(Categorical({ vs: all_objects, ps: priorCombGlobal }));
+                    return obj.shape == "novel_object" ? 1 : 0
+                }
+            })
+
+            //display(familiar + " condition: " + combCond + " prior: " + priorComb)
+
+            query.add([chain, "globalPrediction", "combination", combCond, familiar, subject], Math.exp(combPredGlobal.score(1)))
+            query.add([chain, "globalPrediction", "flatPrior", combCond, familiar, subject], Math.exp(flatPriorPredGLobal.score(1)))
+            query.add([chain, "globalPrediction", "priorOnly", combCond, familiar, subject], Math.exp(priorOnlyPredGLobal.score(1)))
 
         }, familiars)
 
@@ -394,13 +421,13 @@ var model = function() {
 
 var header = "iteration,chain,a,b,c,d,e,f,g"
 
-var lag = 9
+var lag = 0 //9
 
-var samples = 50000;
+var samples = 1 //25000;
 
-var burn = 250000;
+var burn = 0 //250000;
 
-var output_file = 'output/spin-within_model _prediction-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
+var output_file = 'output/spin-within-model-prediction-group-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
 
 var output = Infer({
