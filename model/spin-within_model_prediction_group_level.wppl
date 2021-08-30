@@ -421,11 +421,11 @@ var model = function() {
 
 var header = "iteration,chain,a,b,c,d,e,f,g"
 
-var lag = 0 //9
+var lag = 9
 
-var samples = 1 //25000;
+var samples = 25000;
 
-var burn = 0 //250000;
+var burn = 250000;
 
 var output_file = 'output/spin-within-model-prediction-group-' + samples + '_burn' + burn + '_lag' + lag + '_chain' + chain + '.csv'
 var callback = webpplSampleWriter.streamQueryCSV(output_file, header);
