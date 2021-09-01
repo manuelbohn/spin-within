@@ -210,7 +210,7 @@ mpred%>%
   facet_grid(~model)+
   coord_fixed()+
   theme_few()+
-  scale_fill_gradient(low = "#FDE1C4", high = "#40798C", limit = c(0,1), name="Proportion")
+  scale_fill_gradient(low = "#FDE1C4", high = "dodgerblue", limit = c(0,1), name="Proportion")
 ```
 
 
@@ -237,6 +237,7 @@ model_binned <- model_predictions%>%
          familiar = d,
          subid = e,
          pred = f)%>%
+  filter(model == "combination")%>%
   left_join(data %>% select(condition,familiar,subid,subage))%>%
   filter(!is.na(subid), !is.na(subage))%>%
   mutate(subage = factor(subage))%>%
