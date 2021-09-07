@@ -72,11 +72,54 @@ model_predictions <- model %>%filter(a == "prediction")%>%saveRDS("../model/outp
 model <- model %>% filter(a != "prediction")%>%saveRDS("../model/output/comb_model_parameters.rds")
 ```
 
+```{r}
+chains = c(1,2,3,4,5)
+
+for(i in chains){
+    filepath <- paste("../model/output/spin-within-model-prediction-group-25000_burn250000_lag9_chain",i,".csv",sep="")
+    
+    a <- fread(filepath)
+    
+    a %>%filter(a == "prediction")%>%saveRDS(paste("../model/output/comb_model_predictions_",i,".rds",sep=""))
+    
+    a %>%filter(a == "globalPrediction")%>%saveRDS(paste("../model/output/comb_model_global_predictions_",i,".rds",sep=""))
+    
+    a %>%filter(a == "parameter")%>%saveRDS(paste("../model/output/comb_model_parameters_",i,".rds",sep=""))
+
+}
+
+rm(a)
+```
+
 
 ```{r}
-model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+#model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+#model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
 
-model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
+model_predictions <- bind_rows(
+  readRDS("../model/output/comb_model_predictions_1.rds"),
+  readRDS("../model/output/comb_model_predictions_2.rds"),
+  readRDS("../model/output/comb_model_predictions_3.rds"),
+  readRDS("../model/output/comb_model_predictions_4.rds"),
+  readRDS("../model/output/comb_model_predictions_5.rds")
+  )
+
+model_predictions_global <- bind_rows(
+  readRDS("../model/output/comb_model_global_predictions_1.rds"),
+  readRDS("../model/output/comb_model_global_predictions_2.rds"),
+  readRDS("../model/output/comb_model_global_predictions_3.rds"),
+  readRDS("../model/output/comb_model_global_predictions_4.rds"),
+  readRDS("../model/output/comb_model_global_predictions_5.rds")
+  )
+
+model_parameters <- bind_rows(
+  readRDS("../model/output/comb_model_parameters_1.rds"),
+  readRDS("../model/output/comb_model_parameters_2.rds"),
+  readRDS("../model/output/comb_model_parameters_3.rds"),
+  readRDS("../model/output/comb_model_parameters_4.rds"),
+  readRDS("../model/output/comb_model_parameters_5.rds")
+  )
+
 ```
 
 # Model predictions
@@ -104,8 +147,11 @@ prediction%>%left_join(data %>% select(condition,familiar,subid,subage, correct)
 
 ### comparison to chance
 
+#### ID model 
+
 ```{r}
 mpred_all <- model_predictions%>%
+  filter(chain != 2)%>%
   select(-a, -g)%>%
   rename(model = b,
          condition = c,
@@ -190,6 +236,117 @@ ggplot(chance, aes(x = model, y = mean))+
 ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
 ```
 
+#### Group model 
+
+```{r}
+mpred_all_global <- model_predictions_global%>%
+  filter(chain != 2)%>%
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
+         familiar = d,
+         subid = e,
+         pred = f)
+
+mpred_comb_global <- mpred_all_global%>%
+  filter(model == "combination")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+mpred_flat_global <- mpred_all_global%>%
+  filter(model == "flatPrior")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+mpred_prior_global <- mpred_all_global%>%
+  filter(model == "priorOnly")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+
+mpred_global <- bind_rows(
+  mpred_comb_global,
+  mpred_flat_global,
+  mpred_prior_global
+)
+
+
+chance_id_global <- mpred_global%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subid, subage,model)%>%
+  summarise(mean = mean(match, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+chance_global <- mpred_global%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subage,model)%>%
+  tidyboot_mean(col = match, na.rm = T)%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+
+ggplot(chance_global, aes(x = model, y = mean))+
+  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
+  geom_dotplot(data = chance_id_global, binaxis='y', stackdir='center',
+               stackratio=1.5, dotsize=.5, alpha = .2)+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
+  ylim(0,1)+
+  facet_grid(~subage)+
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme_few()+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+  tail(model_predictions)
+```
+
+#### Comparison ID vs. Group model 
+
+```{r}
+
+chance_id_comp <- bind_rows(
+  chance_id_global%>%mutate(type = "group"),
+  chance_id%>%mutate(type = "ID") 
+  
+  )
+
+chance_comp <- bind_rows(
+  chance_global%>%mutate(type = "group"),
+  chance%>%mutate(type = "ID")
+)
+
+
+ggplot(chance_comp, aes(x = model, y = mean))+
+  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
+  geom_point(data = chance_id_comp,aes(x = model, y = mean, col = type), alpha = .2, position = position_dodge(width = .9))+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = type), size = 0.6, position = position_dodge(width = .9))+
+  ylim(0,1)+
+  facet_grid(~subage)+
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_ptol(name = "Model Type")+
+  theme_few()
+```
 
 ```{r}
 mpred%>%
@@ -457,7 +614,8 @@ model_parameters%>%
 ```{r}
 model_parameters%>%
   filter(c == "semantic_knowledge", 
-         b != "parameters")%>%
+         b != "parameters", 
+         chain != 2)%>%
   rename(parameter = b,
          value = f)%>%
   mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
@@ -518,7 +676,8 @@ model_parameters%>%
 ```{r}
 model_parameters%>%
   filter(c == "prior", 
-         b != "parameters")%>%
+         b != "parameters", 
+         chain != 2)%>%
   rename(parameter = b,
          value = f)%>%
   mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
