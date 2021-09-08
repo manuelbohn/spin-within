@@ -11,6 +11,7 @@ library(ggthemes)
 library(jsonlite)
 library(readxl)
 library(tidyboot)
+library(matrixStats)
 #library(GGally)
 library(coda)
 library(data.table)
@@ -49,144 +50,92 @@ flip <- function(x){
 
 ```{r}
 data <- read_csv("../data/merged_data.csv")
-
 ```
 
 # Samples
 
 ```{r}
-model <- rbindlist(
-  list(
-  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain1.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain2.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain3.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain4.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain5.csv"),
-  fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain6.csv")
-), use.names=TRUE)
+# model <- rbindlist(
+#   list(
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain1.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain2.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain3.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain4.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain5.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain6.csv")
+# ), use.names=TRUE)
 
-#model <- readRDS("../model/output/comb_model.rds")
-
-model_predictions <- model %>%filter(a == "prediction")%>%saveRDS("../model/output/comb_model_predictions.rds")
-
-model <- model %>% filter(a != "prediction")%>%saveRDS("../model/output/comb_model_parameters.rds")
-```
-
-```{r}
-chains = c(1,2,3,4,5)
-
-for(i in chains){
-    filepath <- paste("../model/output/spin-within-model-prediction-group-25000_burn250000_lag9_chain",i,".csv",sep="")
-    
-    a <- fread(filepath)
-    
-    a %>%filter(a == "prediction")%>%saveRDS(paste("../model/output/comb_model_predictions_",i,".rds",sep=""))
-    
-    a %>%filter(a == "globalPrediction")%>%saveRDS(paste("../model/output/comb_model_global_predictions_",i,".rds",sep=""))
-    
-    a %>%filter(a == "parameter")%>%saveRDS(paste("../model/output/comb_model_parameters_",i,".rds",sep=""))
-
-}
-
-rm(a)
+# model %>%filter(a == "prediction")%>%saveRDS("../model/output/comb_model_predictions.rds")
+# 
+# model %>% filter(a != "prediction")%>%saveRDS("../model/output/comb_model_parameters.rds")
 ```
 
 
 ```{r}
-#model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
-#model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
-
-model_predictions <- bind_rows(
-  readRDS("../model/output/comb_model_predictions_1.rds"),
-  readRDS("../model/output/comb_model_predictions_2.rds"),
-  readRDS("../model/output/comb_model_predictions_3.rds"),
-  readRDS("../model/output/comb_model_predictions_4.rds"),
-  readRDS("../model/output/comb_model_predictions_5.rds")
-  )
-
-model_predictions_global <- bind_rows(
-  readRDS("../model/output/comb_model_global_predictions_1.rds"),
-  readRDS("../model/output/comb_model_global_predictions_2.rds"),
-  readRDS("../model/output/comb_model_global_predictions_3.rds"),
-  readRDS("../model/output/comb_model_global_predictions_4.rds"),
-  readRDS("../model/output/comb_model_global_predictions_5.rds")
-  )
-
-model_parameters <- bind_rows(
-  readRDS("../model/output/comb_model_parameters_1.rds"),
-  readRDS("../model/output/comb_model_parameters_2.rds"),
-  readRDS("../model/output/comb_model_parameters_3.rds"),
-  readRDS("../model/output/comb_model_parameters_4.rds"),
-  readRDS("../model/output/comb_model_parameters_5.rds")
-  )
-
+model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
 ```
 
 # Model predictions
 
-## Combination prediction
+## Comparison to chance
 
 ```{r}
-prediction <- model_predictions %>%
-  select(-a, -g)%>%
-  rename(model = b,
-         condition = c,
-         familiar = d, 
-         subid = e,
-         pred = f)%>%
-  group_by(model)%>%sample_n(1000)
+# mpred_comb <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "combination",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# mpred_flat <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "flatPrior",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# mpred_prior <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "priorOnly",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# 
+# mpred <- bind_rows(
+#   mpred_comb,
+#   mpred_flat,
+#   mpred_prior
+# )
+#  
+# saveRDS(mpred, "saves/id_model_pred.rds")
 
-prediction%>%left_join(data %>% select(condition,familiar,subid,subage, correct))%>%
-  rowwise()%>%
-  mutate(bin_pred = flip(pred),
-         match = ifelse(bin_pred == correct, 1, 0))%>%
-  group_by(model, subage)%>%
-  summarise(match = mean(match, na.rm = T))
-  
-```
-
-### comparison to chance
-
-#### ID model 
-
-```{r}
-mpred_all <- model_predictions%>%
-  filter(chain != 2)%>%
-  select(-a, -g)%>%
-  rename(model = b,
-         condition = c,
-         familiar = d,
-         subid = e,
-         pred = f)
-
-mpred_comb <- mpred_all%>%
-  filter(model == "combination")%>%
-  group_by(model, condition,familiar,subid)%>%
-  summarise(model_mean = estimate_mode(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-mpred_flat <- mpred_all%>%
-  filter(model == "flatPrior")%>%
-  group_by(model, condition,familiar,subid)%>%
-  summarise(model_mean = estimate_mode(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-mpred_prior <- mpred_all%>%
-  filter(model == "priorOnly")%>%
-  group_by(model, condition,familiar,subid)%>%
-  summarise(model_mean = estimate_mode(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-
-mpred <- bind_rows(
-  mpred_comb,
-  mpred_flat,
-  mpred_prior
-)
-
+mpred <- readRDS("saves/id_model_pred.rds")
 
 chance_id <- mpred%>%
   left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
@@ -201,18 +150,9 @@ chance_id <- mpred%>%
   summarise(mean = mean(match, na.rm = T))%>%
   mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
 
-chance <- mpred%>%
-  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
-  filter(!is.na(subage))%>%
-  #ungroup()%>%
-  rowwise()%>%
-  mutate(pred = flip(model_mean))%>%
-  ungroup()%>%
-  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
-         match = ifelse(pred == correct, 1, 0))%>%
+chance <- chance_id%>%
   group_by(subage,model)%>%
-  tidyboot_mean(col = match, na.rm = T)%>%
-  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+  tidyboot_mean(col = mean)
 
 
 ggplot(chance, aes(x = model, y = mean))+
@@ -229,124 +169,13 @@ ggplot(chance, aes(x = model, y = mean))+
                     values= c("#6a994e","#6e1423","#a71e34"))+
   theme_few()+
   theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
-  tail(model_predictions)
-```
 
+```
 ```{r}
-ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
+#ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
 ```
 
-#### Group model 
-
-```{r}
-mpred_all_global <- model_predictions_global%>%
-  filter(chain != 2)%>%
-  select(-a, -g)%>%
-  rename(model = b,
-         condition = c,
-         familiar = d,
-         subid = e,
-         pred = f)
-
-mpred_comb_global <- mpred_all_global%>%
-  filter(model == "combination")%>%
-  group_by(model, condition,familiar,subid)%>%
-  summarise(model_mean = estimate_mode(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-mpred_flat_global <- mpred_all_global%>%
-  filter(model == "flatPrior")%>%
-  group_by(model, condition,familiar,subid)%>%
-  summarise(model_mean = estimate_mode(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-mpred_prior_global <- mpred_all_global%>%
-  filter(model == "priorOnly")%>%
-  group_by(model, condition,familiar,subid)%>%
-  summarise(model_mean = estimate_mode(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-
-mpred_global <- bind_rows(
-  mpred_comb_global,
-  mpred_flat_global,
-  mpred_prior_global
-)
-
-
-chance_id_global <- mpred_global%>%
-  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
-  filter(!is.na(subage))%>%
-  #ungroup()%>%
-  rowwise()%>%
-  mutate(pred = flip(model_mean))%>%
-  ungroup()%>%
-  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
-         match = ifelse(pred == correct, 1, 0))%>%
-  group_by(subid, subage,model)%>%
-  summarise(mean = mean(match, na.rm = T))%>%
-  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
-
-chance_global <- mpred_global%>%
-  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
-  filter(!is.na(subage))%>%
-  #ungroup()%>%
-  rowwise()%>%
-  mutate(pred = flip(model_mean))%>%
-  ungroup()%>%
-  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
-         match = ifelse(pred == correct, 1, 0))%>%
-  group_by(subage,model)%>%
-  tidyboot_mean(col = match, na.rm = T)%>%
-  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
-
-
-ggplot(chance_global, aes(x = model, y = mean))+
-  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
-  geom_dotplot(data = chance_id_global, binaxis='y', stackdir='center',
-               stackratio=1.5, dotsize=.5, alpha = .2)+
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
-  ylim(0,1)+
-  facet_grid(~subage)+
-  labs(x = "", y = "Proportion correct predictions")+
-  scale_color_manual(name = "Model",
-                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
-                     
-                    values= c("#6a994e","#6e1423","#a71e34"))+
-  theme_few()+
-  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
-  tail(model_predictions)
-```
-
-#### Comparison ID vs. Group model 
-
-```{r}
-
-chance_id_comp <- bind_rows(
-  chance_id_global%>%mutate(type = "group"),
-  chance_id%>%mutate(type = "ID") 
-  
-  )
-
-chance_comp <- bind_rows(
-  chance_global%>%mutate(type = "group"),
-  chance%>%mutate(type = "ID")
-)
-
-
-ggplot(chance_comp, aes(x = model, y = mean))+
-  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
-  geom_point(data = chance_id_comp,aes(x = model, y = mean, col = type), alpha = .2, position = position_dodge(width = .9))+
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = type), size = 0.6, position = position_dodge(width = .9))+
-  ylim(0,1)+
-  facet_grid(~subage)+
-  labs(x = "", y = "Proportion correct predictions")+
-  scale_color_ptol(name = "Model Type")+
-  theme_few()
-```
+## Hits per response category
 
 ```{r}
 mpred%>%
@@ -360,9 +189,10 @@ mpred%>%
   summarise(n= n())%>%
   group_by(model,correct)%>%
   mutate(prop = n / (sum(n)),
-         data = factor(correct, levels = c(0,1), labels = c("0", "1")),
-         prediction = factor(pred, levels = c(0,1), labels = c("0", "1")))%>%
-  ggplot(aes(x = prediction, y = data, fill = prop))+
+         Data = factor(correct, levels = c(0,1), labels = c("0", "1")),
+         Prediction = factor(pred, levels = c(0,1), labels = c("0", "1")))%>%
+  mutate(model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))%>%
+  ggplot(aes(x = Prediction, y = Data, fill = prop))+
   geom_tile(colour="black",size=0.5)+
   facet_grid(~model)+
   coord_fixed()+
@@ -371,98 +201,176 @@ mpred%>%
 ```
 
 
+
+# Model Comparison
+
+## Correlation
+
 ```{r}
-data_binned <- data%>%
-  filter(task == "combination")%>%
-  group_by(subage, condition,familiar)%>%
-  summarize(k = sum(correct, na.rm = T), n = n())%>%
-  ungroup() %>%
-  mutate(a = 1 + k,
-         b = 1 + n - k,
-         data_mean = (a-1)/(a+b-2),
-         data_ci_lower  = qbeta(.025, a, b),
-         data_ci_upper = qbeta(.975, a, b),
-         subage = factor(subage)
-         )%>%
-  select(-a,-b,-n,-k)#%>%
-
-
-model_binned <- model_predictions%>%
-  select(-a, -g)%>%
-  rename(model = b,
-         condition = c,
-         familiar = d,
-         subid = e,
-         pred = f)%>%
-  filter(model == "combination")%>%
-  left_join(data %>% select(condition,familiar,subid,subage))%>%
-  filter(!is.na(subid), !is.na(subage))%>%
-  mutate(subage = factor(subage))%>%
-  group_by(model,subage, condition, familiar)%>%
-  summarise(model_mean = mean(pred),
-            model_ci_lower = hdi_lower(pred),
-            model_ci_upper = hdi_upper(pred))
-
-# flat_model_binned <- flat_model_predictions%>%
+# data_binned <- data%>%
+#   filter(task == "combination")%>%
+#   group_by(subage, condition,familiar)%>%
+#   summarize(k = sum(correct, na.rm = T), n = n())%>%
+#   ungroup() %>%
+#   mutate(a = 1 + k,
+#          b = 1 + n - k,
+#          data_mean = (a-1)/(a+b-2),
+#          data_ci_lower  = qbeta(.025, a, b),
+#          data_ci_upper = qbeta(.975, a, b),
+#          subage = factor(subage)
+#          )%>%
+#   select(-a,-b,-n,-k)#%>%
+# 
+# 
+# model_binned_comb <- model_predictions%>%
 #   select(-a, -g)%>%
 #   rename(model = b,
 #          condition = c,
 #          familiar = d,
 #          subid = e,
 #          pred = f)%>%
-#   #left_join(data %>% select(condition,familiar,subid,subage))%>%
-#   #filter(!is.na(subid), !is.na(subage))%>%
-#   #mutate(subage = factor(subage))%>%
-#   group_by(model, familiar)%>%
+#   filter(model == "combination",
+#          chain != 1, 
+#          chain != 2)%>%
+#   left_join(data %>% select(condition,familiar,subid,subage))%>%
+#   filter(!is.na(subid), !is.na(subage))%>%
+#   mutate(subage = factor(subage))%>%
+#   group_by(model,subage, condition, familiar)%>%
 #   summarise(model_mean = mean(pred),
 #             model_ci_lower = hdi_lower(pred),
 #             model_ci_upper = hdi_upper(pred))
-
-# global_model_binned <- global_model_predictions%>%
+# 
+# model_binned_flat <- model_predictions%>%
 #   select(-a, -g)%>%
 #   rename(model = b,
 #          condition = c,
 #          familiar = d,
-#          age_month = e,
+#          subid = e,
 #          pred = f)%>%
-#   mutate(subage = factor(ifelse(age_month < 1, "3", "4")))%>%
-#   group_by(model, subage, condition, familiar)%>%
+#   filter(model == "flatPrior",
+#          chain != 1, 
+#          chain != 2)%>%
+#   left_join(data %>% select(condition,familiar,subid,subage))%>%
+#   filter(!is.na(subid), !is.na(subage))%>%
+#   mutate(subage = factor(subage))%>%
+#   group_by(model,subage, condition, familiar)%>%
 #   summarise(model_mean = mean(pred),
 #             model_ci_lower = hdi_lower(pred),
 #             model_ci_upper = hdi_upper(pred))
+# 
+# model_binned_prior <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "priorOnly",
+#          chain != 1, 
+#          chain != 2)%>%
+#   left_join(data %>% select(condition,familiar,subid,subage))%>%
+#   filter(!is.na(subid), !is.na(subage))%>%
+#   mutate(subage = factor(subage))%>%
+#   group_by(model,subage, condition, familiar)%>%
+#   summarise(model_mean = mean(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# model_binned <- bind_rows(
+#   model_binned_comb,
+#   model_binned_flat,
+#   model_binned_prior
+# )
+# 
+# saveRDS(model_binned, "saves/cor_model_pred.rds")
 
+model_binned <- readRDS("saves/cor_model_pred.rds")
 
 cor_plot <-  bind_rows(model_binned %>% left_join(data_binned)
-                       #flat_model_binned %>% left_join(data_binned)%>%mutate(type = "RE_flat"),
-                       #global_model_binned %>% left_join(data_binned)%>%mutate(type = "global")
                        )%>%
-  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))%>%
-  ungroup()%>%
-  add_row(model = "combination", subage = "2-year-olds")
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"),
+         model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))
 
-cor_plot%>%
-  filter(model == "combination")%>%
+cor_plot1 <- cor_plot%>%
+  filter(model == "Integration")%>%
 ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
   geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
   geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
   geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
   geom_point(size = 1.5, stroke = 1, pch = 5)+
   coord_fixed()+
-  #facet_grid(~model)+
+  facet_grid(~model)+
 stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
-  xlim(0,1)+ylim(0,1)+
-    xlab("Model predictions")+
+  xlab("Model predictions")+
   ylab("Child inference data\n(proportion novel object chosen)")+
   theme_few() + 
-  scale_colour_ptol(name = "")+
-  theme(legend.position = c(.78, .2))+
+  scale_colour_ptol(name = "Age group")+
+  scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
+  scale_y_continuous(limits = c(0,1), breaks = c(0,1))
+
+cor_plot2 <- cor_plot%>%
+  filter(model != "Integration")%>%
+ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
+  geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
+  geom_point(size = 1.5, stroke = 1, pch = 5)+
+  coord_fixed()+
+  facet_grid(model~.)+
+stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
+  xlab("")+
+  ylab("")+
+  theme_few() + 
+  scale_colour_ptol(name = "Age group")+
   scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
   scale_y_continuous(limits = c(0,1), breaks = c(0,1))
 
 ```
+
 ```{r}
-ggsave("../graphs/comb_cor.png", width = 6, height = 4, scale = 1)
+ggarrange(cor_plot1, cor_plot2, common.legend = T, legend = "right", widths = c(1.5,1))
 ```
+
+
+```{r}
+#ggsave("../graphs/comb_cor.png", width = 6, height = 4, scale = 1)
+```
+
+```{r}
+model_comp <- readRDS("../model/output/model_comparison.rds")
+```
+
+## Log-likelihood
+
+```{r}
+logbf <- model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)%>%
+  summarise(bf_comb_flat = combination - flatPrior, 
+            bf_comb = combination - priorOnly)
+```
+
+
+```{r}
+lp <- model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  ggplot(aes(x = model, y = margllh, col = model))+
+  geom_segment( aes(x=model, xend=model, y=margllh, yend=-400), col = "black", size = 1)+
+  geom_point(size = 7)+
+  theme_few()+ 
+  xlab("")+
+  ylab("Log-likelihood")+
+  theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))+
+  guides()+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+```
+
 
 ### Individual predictions
 
@@ -553,76 +461,82 @@ idf %>%
 ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
 ```
 
-# Model parameters
-
-## Production probability
-
-```{r}
-model_parameters%>%
-  filter(c == "successful_production_probability")%>%
-  rename(value = f)%>%
-  ggplot(., aes(x = value, fill = factor(chain)))+
-  geom_density(alpha = .5)+
-  scale_fill_colorblind()+
-  xlim(0,1)+
-  theme_minimal()
-```
+# Appendix 1: Model parameters
 
 ## Speaker optimality
 
 ### overall intercept, slope and sigma
 
 ```{r}
-model_parameters%>%
+speak_opt <- model_parameters%>%
   filter(c == "speaker_optimality", 
-         b != "parameters")%>%
+         b != "parameters",
+         chain != 1, 
+         chain != 2)%>%
   rename(parameter = b,
          value = f)%>%
-  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
-  ggplot(., aes(x = value, fill = factor(chain)))+
+  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))
+
+p_speak_opt <- ggplot(speak_opt, aes(x = value, fill = factor(chain)))+
   geom_density(alpha = .5)+
   facet_grid(~parameter)+
-  scale_fill_colorblind()+
+  scale_fill_colorblind(name = "Chain")+
+  xlab("Parameter estimate")+
+  ylab("")+
+  #ggtitle("Speaker informativeness (hyper parameters)")+
   xlim(-4,4)+
   theme_minimal()
 ```
 
-
 ### by subject
 
 ```{r}
-model_parameters%>%
+speak_opt_id <- model_parameters%>%
   rename(type = b,
          parameter = c,
          subject = e, 
-         speaker_optimality = f,)%>%
+         speaker_optimality = f)%>%
   filter(type != "sigma",
          parameter == "speaker_optimality",
-         )%>%
-  ggplot(., aes(x = speaker_optimality, fill = chain))+
+         chain != 1, 
+         chain != 2)%>%
+  mutate(subject = factor(subject))%>%
+  filter(subject %in% sample(levels(subject),5))
+
+p_speak_opt_id <- ggplot(speak_opt_id, aes(x = speaker_optimality, fill = factor(subject)))+
   geom_density(alpha = .5)+
-  facet_wrap(subject~., scales = "free_y")+
-  scale_fill_colorblind()+
+  #ggtitle("Speaker informativeness for 5 randomly selected individuals")+
+  #facet_grid(~subject, scales = "free_y")+
+  ylab("")+
+  xlab("Speaker informativeness expectation")+
+  scale_fill_viridis_d(name = "Participant ID")+
   theme_minimal()
 ```
 
+```{r}
+ggarrange(p_speak_opt, p_speak_opt_id, common.legend = F, nrow = 1, labels = c("A","B"))
+```
 
 ## Semantic knowledge
 
 ### overall intercept, slope and sigma
 
 ```{r}
-model_parameters%>%
+sem_know <- model_parameters%>%
   filter(c == "semantic_knowledge", 
-         b != "parameters", 
+         b != "parameters",
+         chain != 1, 
          chain != 2)%>%
   rename(parameter = b,
          value = f)%>%
-  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
-  ggplot(., aes(x = value, fill = factor(chain)))+
+  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))
+
+p_sem_know <- ggplot(sem_know, aes(x = value, fill = factor(chain)))+
   geom_density(alpha = .5)+
   facet_grid(~parameter)+
-  scale_fill_colorblind()+
+  scale_fill_colorblind(name = "Chain")+
+  ylab("")+
+  xlab("Parameter estimate")+
   xlim(-4,4)+
   theme_minimal()
 ```
@@ -630,43 +544,55 @@ model_parameters%>%
 ### by subject
 
 ```{r}
-model_parameters%>%
+sem_know_id <- model_parameters%>%
   rename(parameter = c,
          familiar = d, 
          subject = e, 
          value = f)%>%
   filter(!is.na(familiar),
          parameter == "semantic_knowledge", 
-         familiar == "lock")%>%
-  ggplot(., aes(x = value, fill = factor(chain)))+
+         familiar == "duck" | familiar == "thermo",
+         chain != 1, 
+         chain != 2)%>%
+  mutate(subject = factor(subject))%>%
+  filter(subject %in% sample(levels(subject),5))
+
+p_sem_know_id <- ggplot(sem_know_id, aes(x = value, fill = factor(subject)))+
   geom_density(alpha = .5)+
-  ggtitle("Semantic knowledge for 'lock'")+
-  facet_wrap(subject~., scales = "free_y")+
-  scale_fill_colorblind()+
+  #ggtitle("Semantic knowledge for 'lock'")+
+  facet_grid(~familiar, scales = "free_y")+
+  ylab("")+
+  xlab("Semantic knowledge")+
+  scale_fill_viridis_d(name = "Participant ID")+
   theme_minimal()
 ```
 
-### by item
+```{r}
+ggarrange(p_sem_know, p_sem_know_id, common.legend = F, nrow = 1, labels = c("A","B"))
+```
 
 ```{r}
-model_parameters%>%
-  rename(parameter = c,
-         familiar = d, 
-         subject = e, 
-         value = f)%>%
-  filter(!is.na(familiar),
-         !is.na(value),
-         !is.na(subject),
-         parameter == "semantic_knowledge")%>%
-  group_by(subject, familiar,chain)%>%
-    summarise(mode = estimate_mode(value),
-            lci = hdi_lower(value),
-            uci = hdi_upper(value))%>%
-  ggplot(., aes(x = factor(subject), y= mode, col = chain))+
-  geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
-  scale_color_colorblind()+
-  facet_grid(familiar~.)+
-  theme_few()
+# ### by item
+# model_parameters%>%
+#   rename(parameter = c,
+#          familiar = d, 
+#          subject = e, 
+#          value = f)%>%
+#   filter(!is.na(familiar),
+#          !is.na(value),
+#          !is.na(subject),
+#          parameter == "semantic_knowledge",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(subject, familiar,chain)%>%
+#     summarise(mode = estimate_mode(value),
+#             lci = hdi_lower(value),
+#             uci = hdi_upper(value))%>%
+#   ggplot(., aes(x = factor(subject), y= mode, col = chain))+
+#   geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
+#   scale_color_colorblind()+
+#   facet_grid(familiar~.)+
+#   theme_few()
 ```
 
 ## Prior sensitivity
@@ -674,17 +600,23 @@ model_parameters%>%
 ### overall intercept, slope and sigma
 
 ```{r}
-model_parameters%>%
+cg <- model_parameters%>%
   filter(c == "prior", 
-         b != "parameters", 
+         b != "parameters",
+         chain != 1, 
          chain != 2)%>%
   rename(parameter = b,
          value = f)%>%
-  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))%>%
-  ggplot(., aes(x = value, fill = factor(chain)))+
+  mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))
+
+p_cg <- ggplot(cg, aes(x = value, fill = factor(chain)))+
   geom_density(alpha = .5)+
+  ylab("")+
+  #ggtitle("Sensitivity to common ground (hyper parameter)")+
   facet_grid(~parameter)+
-  scale_fill_colorblind()+
+  ylab("")+
+  xlab("Parameter estimate")+
+  scale_fill_colorblind(name = "Chain")+
   xlim(-4,4)+
   theme_minimal()
 ```
@@ -692,19 +624,147 @@ model_parameters%>%
 ### by subject
 
 ```{r}
-model_parameters%>%
+cg_id <- model_parameters%>%
   rename(parameter = c, 
          familiar = d, 
          subject = e, 
          value = f)%>%
   filter(!is.na(subject),
-         parameter == "prior")%>%
-  ggplot(., aes(x = value, fill = factor(chain)))+
+         parameter == "prior",
+         chain != 1, 
+         chain != 2)%>%
+  mutate(subject = factor(subject))%>%
+  filter(subject %in% sample(levels(subject),5))
+
+p_cg_id <- ggplot(cg_id, aes(x = value, fill = factor(subject)))+
   geom_density(alpha = .5)+
-  facet_wrap(subject~., scales = "free_y")+
-  scale_fill_colorblind()+
+  #ggtitle("Sensitivity to common ground for 5 randomly selected individuals")+
+  #facet_grid(~subject, scales = "free_y")+
+  ylab("")+
+  xlab("Sensitivity to common ground")+
+  scale_fill_viridis_d(name = "Participant ID")+
   xlim(0,1)+
   theme_minimal()
 
+```
+
+```{r}
+ggarrange(p_cg, p_cg_id, common.legend = F, nrow = 1, labels = c("A","B"))
+```
+
+## Production probability
+
+```{r}
+pod_prob <- model_parameters%>%
+  filter(c == "successful_production_probability",
+         chain != 1, 
+         chain != 2)%>%
+  rename(value = f)
+
+p_pod_prob <- ggplot(pod_prob, aes(x = value, fill = factor(chain)))+
+  geom_density(alpha = .5)+
+  ylab("")+
+  ggtitle("Production Probability")+
+  scale_fill_colorblind()+
+  xlim(0,1)+
+  theme_minimal()
+```
+
+# Appendix 2: Group model 
+
+```{r}
+model_predictions_global <- bind_rows(
+  readRDS("../model/output/comb_model_global_predictions_1.rds"),
+  readRDS("../model/output/comb_model_global_predictions_2.rds"),
+  readRDS("../model/output/comb_model_global_predictions_3.rds"),
+  readRDS("../model/output/comb_model_global_predictions_4.rds"),
+  readRDS("../model/output/comb_model_global_predictions_5.rds")
+  )
+```
+
+```{r}
+mpred_all_global <- model_predictions_global%>%
+  filter(chain != 2)%>%
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
+         familiar = d,
+         subid = e,
+         pred = f)
+
+mpred_comb_global <- mpred_all_global%>%
+  filter(model == "combination")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+mpred_flat_global <- mpred_all_global%>%
+  filter(model == "flatPrior")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+mpred_prior_global <- mpred_all_global%>%
+  filter(model == "priorOnly")%>%
+  group_by(model, condition,familiar,subid)%>%
+  summarise(model_mean = estimate_mode(pred),
+            model_ci_lower = hdi_lower(pred),
+            model_ci_upper = hdi_upper(pred))
+
+
+mpred_global <- bind_rows(
+  mpred_comb_global,
+  mpred_flat_global,
+  mpred_prior_global
+)
+
+saveRDS(mpred_global, "saves/id_model_pred_global.rds")
+
+mpred_global <- readRDS("saves/id_model_pred_global.rds")
+
+chance_id_global <- mpred_global%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subid, subage,model)%>%
+  summarise(mean = mean(match, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+chance_global <- chance_id_global%>%
+  group_by(subage,model)%>%
+  tidyboot_mean(col = mean)
+```
+
+## Comparison ID vs. Group model 
+
+```{r}
+
+chance_id_comp <- bind_rows(
+  chance_id_global%>%mutate(type = "group"),
+  chance_id%>%mutate(type = "ID") 
+  )
+
+chance_comp <- bind_rows(
+  chance_global%>%mutate(type = "group"),
+  chance%>%mutate(type = "ID")
+)
+
+
+ggplot(chance_comp, aes(x = model, y = mean))+
+  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
+  geom_point(data = chance_id_comp,aes(x = model, y = mean, col = type), alpha = .2, position = position_dodge(width = .9))+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = type), size = 0.6, position = position_dodge(width = .9))+
+  ylim(0,1)+
+  facet_grid(~subage)+
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_brewer(name = "Model Type")+
+  theme_few()
 ```
 
