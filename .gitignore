@@ -5,6 +5,10 @@ model/output/*.csv
 
 model/old_models/*
 
+analysis/rsconnect/*
+analysis/supplementary_material_files/*
+
+
 experiments/.DS_Store
 
 # History files

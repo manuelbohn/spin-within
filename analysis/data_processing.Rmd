@@ -76,8 +76,9 @@ log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xls
          age_month = round(lubridate::time_length(difftime(test_day_1, birthday),"month"))/12)%>%
   rename(subid = ID,
          subage = age,
-         age = age_num)%>%
-  select(subid, subage,age,age_month, status)
+         age = age_num, 
+         sex = gender)%>%
+  select(subid, subage,age,age_month, sex,status)
 
 log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>%
   filter(task == "production")%>%

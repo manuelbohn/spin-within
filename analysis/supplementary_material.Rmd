@@ -1,0 +1,1008 @@
+---
+title: "... tbd ..."
+subtitle: "Supplementary material"
+author: "Manuel Bohn, Louisa Schmidt, Cornelia Schulze, Michael C. Frank and Michael Henry Tessler"
+output: 
+  bookdown::html_document2:
+    toc: yes
+    toc_float: true
+    fig_caption: yes
+    #code_folding: hide
+    number_sections: false
+  bookdown::pdf_document2:
+    toc: yes 
+    number_sections: false    
+#bibliography: library.bib
+#csl: pnas.csl
+#header-includes:
+#  \usepackage{caption}
+#  \renewcommand{\figurename}{Supplementary Figure}
+#  \renewcommand{\tablename}{Supplementary Table}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, size="small")
+
+library(tidyverse)
+library(ggthemes)
+library(jsonlite)
+library(readxl)
+library(tidyboot)
+library(matrixStats)
+#library(GGally)
+library(coda)
+library(data.table)
+library(ggpubr)
+library(ggridges)
+library(knitr)
+
+
+
+estimate_mode <- function(s) {
+  d <- density(s)
+  return(d$x[which.max(d$y)])
+}
+
+hdi_upper<- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","upper"])
+}
+
+hdi_lower<- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","lower"])
+}
+
+```
+
+
+```{r}
+flip <- function(x){
+  coin <- sample(c(0,1), size = 1, replace = TRUE, prob = c(1 - x,x))
+  return(coin)
+}
+
+```
+
+# Overview
+
+The goal of the study was to predict information integration in children on a trial-by-trial basis. That is, we measured children's sensitivity to different information sources and then used an RSA model to generate how the same children should behave when these information sources need to be integrated. 
+
+# Empirical studies
+
+```{r}
+data <- read_csv("../data/merged_data.csv")
+```
+
+## Sample size
+
+Table \@ref(tab:parttab) gives an overview of the participants. All 60 participants participated in all tasks (4 tasks to measure sensitivity to information sources and the combination task).
+
+```{r parttab}
+t1 <- data%>%
+  group_by(subage, sex)%>%
+  summarise(n = length(unique(subid)))
+
+knitr::kable(t1, caption = "Sample size and demographic information.", digits = 2, align = "l")
+```
+
+## Sensitivity experiments
+
+### Tasks
+
+We use the same tasks as in Bohn, Tessler, Merrick and Frank (2021) to measure children's sensitivity to the different information sources, that is:
+ 
+* Mutual Exclusivity
+* Novelty
+
+In addition, we had two new vocabulary tasks:
+
+* Production
+* Comprehension
+
+Across all tasks (except novelty of course) we used a total of 16 familiar objects. There was one trial for each familiar object in mutual exclusivity, production and comprehension.
+
+The production and the comprehension task were run after the other three tasks
+
+#### Production task
+
+For the production task, the experimenter showed the child a picture of an object (the same as is used in the other experiments) and asked:"Can you tell me what this is?" The trial was coded as correct, if the child said the correct word (or a word from a pre-specified list of synonyms). The experimenter went through each of the 16 objects one by one.
+
+Picture below shows an example.The pictures were the same as the ones used in the mutual exclusivity task and the comprehension task. 
+
+```{r out.width="30%", fig.cap = "Example stimulus for the production task."}
+knitr::include_graphics("../documentation/production_task_example_pic.png")
+```
+
+#### Comprehension task
+
+The child was shown 6 objects on a screen, 4 of which were objects that appeared in the rest of the study and 2 were distractors The experimenter asked the child to pick out an object (e.g. "can you point to the lock?") and the child responded by touching one of the objects. 
+
+We coded as correct if the child clickeds on the correct object OR if they named the object during production.
+
+The experimenter went through all 16 familiar objects on a total of 4 slides (each showing 6 objects, including 2 distractors).
+
+Picture below shows an example (familiar objects from the study: rasp, lock, apple, hanger; distractors: dog toy and hydrant).
+
+```{r, out.width="80%", fig.cap = "Example for layout of a trial in the comprehension task."}
+knitr::include_graphics("../documentation/comprehension_task_example_pic.png")
+```
+
+### Results
+
+```{r, cache = T}
+p1 <- data %>%
+  filter(task != "combination")%>%
+  group_by(subage,age,task, subid) %>%
+  filter(!grepl("train",trial)) %>%
+  summarise(mean = mean(correct, na.rm = T))%>%
+  mutate(age = age+3)
+
+p2 <- p1 %>%
+  group_by(subage,task) %>%
+  tidyboot_mean(column = mean, na.rm = T)%>%
+  mutate(chance = ifelse(task == "mutual_exclusivity" | task == "novelty", 1/2,
+                         ifelse(task == "comprehension", 1/6, NA)))
+
+po <- ggplot()+
+  geom_hline(data = p2, aes(yintercept =chance), lty = 2, alpha = .5)+
+  geom_smooth(data = p1, aes(x = age, y = mean), method = "lm", col = "black", size = 1)+
+  geom_point(data = p1, aes(x = age, y = mean), alpha = .25)+
+  geom_pointrange(data = p2, aes(x = subage+.5, y = mean, ymin = ci_lower, ymax = ci_upper, col = factor(subage)), position = position_dodge(width = .5))+
+  facet_wrap(~task, nrow = 2)+
+  labs(x = "Age", y = "Proportion Correct") +
+  scale_color_ptol(name = "Age group", labels = c("3-year-olds", "4-year-olds"))+
+  ylim(-0.02, 1.02)+
+  theme_few()
+```
+
+Figure \@ref(fig:exp)A shows the results for the four sensitivity experiments designed to measure children's sensitivity to individual information sources. In all cases, children of all ages children were sensitive to the respective information sources (i.e. performance above chance or above 0) For comprehension and mutual exclusivity and production we see an increase of performance with age whereas for novelty, performance was stable across development.
+
+Furthermore, the three tasks measuring children's semantic knowledge was positively correlated (Figure \@ref(fig:exp)B). However, the correlation was not perfect, suggesting that the tasks were not redundant. 
+
+```{r}
+cpid1<- data%>%
+  filter(task == "mutual_exclusivity" | task == "comprehension" | task == "production")%>%
+  group_by(subid,subage, task)%>%
+  summarise(mean = mean(correct, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+cpid <- data%>%
+  filter(task == "mutual_exclusivity" | task == "comprehension" | task == "production")%>%
+  group_by(subid,subage, task)%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))%>%
+  summarise(mean_task1 = mean(correct, na.rm = T))%>%
+  left_join(cpid1 %>% rename(task2 = task, mean_task2 = mean),by = c("subid","subage"))%>%
+  filter(task != task2)%>%
+  rowwise()%>%
+  mutate(ex = paste(sort(c(task, task2)), collapse = " - "))%>%
+  distinct(ex, .keep_all = T)
+  
+
+skexp <- ggplot(cpid, aes(x = mean_task1, y = mean_task2, col = subage))+
+  geom_count( alpha = .5)+
+  geom_abline(intercept = 0 , slope = 1, lty = 2, alpha = .4)+
+  facet_grid(task2~task)+
+  theme_few()+
+  geom_smooth(method = lm,inherit.aes = F, aes(x = mean_task1, y = mean_task2), col = "black", size = 0.75)+
+  labs(x = "", y = "")+
+  guides(size = F)+
+  scale_color_ptol(name = "Age group") +
+  stat_cor(method = "pearson",inherit.aes = F, aes(x = mean_task1, y = mean_task2),size = 3, r.accuracy = 0.01, p.accuracy = 0.01, cor.coef.name = "r")+
+  scale_x_continuous(limits = c(-0.01,1.01),breaks = c(0,1))+
+  scale_y_continuous(limits = c(-0.01,1.01),breaks = c(0,1))
+
+```
+
+```{r exp, fig.cap = "A) Results of individual experiments. Colored points show means (with 95\\% CI) for data binned by year, light black dots show participant means. Dotted line shows level of performance expected by chance. B) Correlation between the three tasks measuring semantic knowledge.",fig.height = 5, fig.width= 10, out.width="100%"}
+ggarrange(po, skexp, common.legend = T, labels = c("A","B"), legend = "right")
+```
+
+## Combination experiment
+
+There were also 16 trials in combination, half of which were in the congruent condition and the other half were in the incongruent condition. The familiar objects from the mutual exclusivity experiment were therefore split across the two conditions.
+
+The combination of condition (congruent/incongruent) and familiar object was the same for all children and so was the order of trials and side counterbalancing.
+
+### Results
+
+Since there is no clear right or wrong answer it is difficult to evaluate the combination experiment on its own. Figure \@ref(fig:compexp) below gives some kind of sanity check, namely that in the congruent case, children should be more likely to choose the unfamiliar object compared to the mutual exclusivity experiment whereas in the incongruent condition they should be less likely to do so. This is generally what we see. 
+
+```{r}
+p_c <- data%>%
+  filter(task == "mutual_exclusivity" | task == "combination")%>%
+  group_by(subage,task,familiar)%>%
+  summarise(correct = mean(correct, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))%>%
+  left_join(data%>%filter(task =="combination")%>%select(familiar,condition)%>%distinct())%>%
+  ggplot(., aes(x = task, y = correct, col = familiar))+
+  geom_line(aes(group = familiar))+
+  geom_point(alpha = .75)+
+  ylab("Proportion unfamiliar object chosen")+
+  xlab("Task")+
+  theme_few()+
+  scale_color_discrete(name = "Familiar object")+
+  ylim(0,1)+
+  facet_grid(subage~condition)
+```
+
+```{r compexp, fig.cap = "Average proportion with which the unfamiliar object was chosen in the mututal exclusivity task and the combination experiment depending on the familiar object. Congruent and incongruent refers to the condition in which the familiar object appeared in the combination experiment.",fig.height = 6, fig.width= 10, out.width="100%"}
+p_c
+```
+# Model
+
+## Model parameters
+
+We used the data from the sensitivity experiments to estimate participant specific parameters representing a) their expectations about speaker informativeness (based on the mutual exclusivity task), b) their object specific semantic knowledge (based on the mutual exclusivity, comprehension and production tasks) and c) their sensitivity to common ground (based on discourse novelty task). The paramters for each participant were estimated as a hierarchical model, that is, participant-specific parameters were estimated as deviations from an age specific hyper-parameter (computed based on an intercept and a slope). The [Appendix](#appendix-2-model-parameters) shows some examples of these distributions. 
+
+## Model predicitons
+
+Based on the parameters, we generated model predictions that were specific to each participant and trial. To evaluate the model fit, we first replicate the results of our previous study showing that a) the model predictions are highly correlated with the data and b) the *Integration* model makes better predictions compared to alternative, lesioned models (*No Common Ground* and *No Speaker Informativeness* models).
+
+### Correlation between model predictions and data
+
+```{r, cache=T}
+data_binned <- data%>%
+  filter(task == "combination")%>%
+  group_by(subage, condition,familiar)%>%
+  summarize(k = sum(correct, na.rm = T), n = n())%>%
+  ungroup() %>%
+  mutate(a = 1 + k,
+         b = 1 + n - k,
+         data_mean = (a-1)/(a+b-2),
+         data_ci_lower  = qbeta(.025, a, b),
+         data_ci_upper = qbeta(.975, a, b),
+         subage = factor(subage)
+         )%>%
+  select(-a,-b,-n,-k)#%>%
+# 
+# 
+# model_binned_comb <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "combination",
+#          chain != 1, 
+#          chain != 2)%>%
+#   left_join(data %>% select(condition,familiar,subid,subage))%>%
+#   filter(!is.na(subid), !is.na(subage))%>%
+#   mutate(subage = factor(subage))%>%
+#   group_by(model,subage, condition, familiar)%>%
+#   summarise(model_mean = mean(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# model_binned_flat <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "flatPrior",
+#          chain != 1, 
+#          chain != 2)%>%
+#   left_join(data %>% select(condition,familiar,subid,subage))%>%
+#   filter(!is.na(subid), !is.na(subage))%>%
+#   mutate(subage = factor(subage))%>%
+#   group_by(model,subage, condition, familiar)%>%
+#   summarise(model_mean = mean(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# model_binned_prior <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "priorOnly",
+#          chain != 1, 
+#          chain != 2)%>%
+#   left_join(data %>% select(condition,familiar,subid,subage))%>%
+#   filter(!is.na(subid), !is.na(subage))%>%
+#   mutate(subage = factor(subage))%>%
+#   group_by(model,subage, condition, familiar)%>%
+#   summarise(model_mean = mean(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# model_binned <- bind_rows(
+#   model_binned_comb,
+#   model_binned_flat,
+#   model_binned_prior
+# )
+# 
+# saveRDS(model_binned, "saves/cor_model_pred.rds")
+
+model_binned <- readRDS("saves/cor_model_pred.rds")
+
+cor_plot <-  bind_rows(model_binned %>% left_join(data_binned)
+                       )%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"),
+         model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))
+
+cor_plot1 <- cor_plot%>%
+  filter(model == "Integration")%>%
+ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
+  geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
+  geom_point(size = 1.5, stroke = 1, pch = 5)+
+  coord_fixed()+
+  facet_grid(~model)+
+stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
+  xlab("Model predictions")+
+  ylab("Child inference data\n(proportion novel object chosen)")+
+  theme_few() + 
+  scale_colour_ptol(name = "Age group")+
+  scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
+  scale_y_continuous(limits = c(0,1), breaks = c(0,1))
+
+cor_plot2 <- cor_plot%>%
+  filter(model != "Integration")%>%
+ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
+  geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
+  geom_point(size = 1.5, stroke = 1, pch = 5)+
+  coord_fixed()+
+  facet_grid(model~.)+
+stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
+  xlab("")+
+  ylab("")+
+  theme_few() + 
+  scale_colour_ptol(name = "Age group")+
+  scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
+  scale_y_continuous(limits = c(0,1), breaks = c(0,1))
+
+```
+
+```{r corplot, fig.cap = "Schematic experimental procedure with screenshots from the experiments.",fig.height = 4, fig.width= 10, out.width="100%"}
+ggarrange(cor_plot1, cor_plot2, common.legend = T, legend = "right", widths = c(1.5,1))
+```
+
+Figure \@ref(fig:corplot) shows a strong correlation between model predictions and the data -- comparable in size to what we found in the previous study. The correlation was also higher for the Integration compared to the lesioned models. Furthermore, when we compared the three models via the marginal likelihood of the data, we also saw that the Integration model fit the data best (Figure \@ref(fig:loglikeplot))
+
+```{r}
+#ggsave("../graphs/comb_cor.png", width = 6, height = 4, scale = 1)
+```
+
+### Log-likelihood
+
+```{r}
+model_comp <- readRDS("../model/output/model_comparison.rds")
+```
+
+```{r}
+logbf <- model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)%>%
+  summarise(bf_comb_flat = combination - flatPrior, 
+            bf_comb = combination - priorOnly)
+```
+
+
+```{r}
+lp <- model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  ggplot(aes(x = model, y = margllh, col = model))+
+  geom_segment( aes(x=model, xend=model, y=margllh, yend=-400), col = "black", size = 1)+
+  geom_point(size = 7)+
+  theme_few()+ 
+  xlab("")+
+  ylab("Log-likelihood")+
+  theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))+
+  guides()+
+  ylim(-650,-400)+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+```
+
+```{r loglikeplot, fig.cap = "Schematic experimental procedure with screenshots from the experiments.",fig.height = 2.5, fig.width= 10, out.width="100%"}
+lp
+```
+## Participant-specific model predictions
+
+The analysis above evaluated the model(s) as a whole or by age group. The main focus of this study, however, was to see how well we can predict the behavior of individual children on individual trials.
+
+```{r}
+# model <- rbindlist(
+#   list(
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain1.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain2.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain3.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain4.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain5.csv"),
+#   fread("../model/output/spin-within_model_slope_variance_prediction-50000_burn250000_lag9_chain6.csv")
+# ), use.names=TRUE)
+
+# model %>%filter(a == "prediction")%>%saveRDS("../model/output/comb_model_predictions.rds")
+# 
+# model %>% filter(a != "prediction")%>%saveRDS("../model/output/comb_model_parameters.rds")
+```
+
+
+```{r}
+# model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+# model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
+```
+
+The participant and familiar object specific parameters allowed us to generate predictions for every single trial for each participant. However, when we pass the distribution of participant specific parameters through the model, for each trial, we get a probability distribution indicating how likely the participant is to choose the unfamiliar object. The data we collected, however, is binary. To convert the continuous model predictions into a binary prediction, for each trial, we first took the MAP of the predictive distribution and then flipped a coin with the MAP as its weight. Figure \@ref(fig:genfig) gives a schematic overview of this process.
+
+```{r genfig, out.width="100%", fig.cap = "Schematic overview of how participant and trial specific model predictions were generated."}
+knitr::include_graphics("../graphs/model_pred.png")
+```
+
+We then compared the model'S prediction to the data by simply asking whether the two match (coded as `1`) or not (coded as `0`). We then evaluated the number of matches (correct predictions) in three ways. 
+
+First, we compared the proportion of correct predictions to chance to see if the model predictions were better than random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows that the Integration model made correct predictions above chance for both age groups (roughly correct in 70% of cases). In a second step, we compared the predictions made by the Integration model to those of the lesioned models. Again, we see that the Integration model was more likely to make correct predictions compared to the alternative models. 
+
+```{r cache=T}
+# mpred_comb <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "combination",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# mpred_flat <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "flatPrior",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# mpred_prior <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "priorOnly",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# 
+# mpred <- bind_rows(
+#   mpred_comb,
+#   mpred_flat,
+#   mpred_prior
+# )
+#  
+# saveRDS(mpred, "saves/id_model_pred.rds")
+
+mpred <- readRDS("saves/id_model_pred.rds")
+
+chance_id <- mpred%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subid, subage,model)%>%
+  summarise(mean = mean(match, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+chance <- chance_id%>%
+  group_by(subage,model)%>%
+  tidyboot_mean(col = mean)
+
+
+p_chance <- ggplot(chance, aes(x = model, y = mean))+
+  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
+  geom_dotplot(data = chance_id, binaxis='y', stackdir='center',
+               stackratio=1.5, dotsize=.5, alpha = .2)+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
+  ylim(0,1)+
+  facet_grid(~subage)+
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme_few()+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+
+```
+
+```{r}
+#ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
+```
+
+```{r chanceplot, fig.cap = "Proportion of correct model predictions for the three models. Colored dots show mean for each model (with 95\\% CI) and light grey dots show participant means.",fig.height = 3.5, fig.width= 10, out.width="100%"}
+p_chance
+```
+
+Finally, we looked at the hits and misses, that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) shows that the Integration model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in only 50% of cases.  
+
+```{r}
+hp <- mpred%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  group_by(model, correct, pred)%>%
+  filter(!is.na(correct))%>%
+  summarise(n= n())%>%
+  group_by(model,correct)%>%
+  mutate(prop = n / (sum(n)),
+         Data = factor(correct, levels = c(0,1), labels = c("0", "1")),
+         Prediction = factor(pred, levels = c(0,1), labels = c("0", "1")))%>%
+  mutate(model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))%>%
+  ggplot(aes(x = Prediction, y = Data, fill = prop))+
+  geom_tile(colour="black",size=0.5, aes(size = n))+
+  facet_grid(~model)+
+  #coord_fixed()+
+  theme_few()+
+  scale_fill_gradient(low = "#FDE1C4", high = "dodgerblue", limit = c(0,1), name="Proportion")
+```
+
+```{r hitplot, fig.cap = "Proportion of correct predicitons by model for the two possible outcomes in the data.",fig.height = 3.5, fig.width= 10, out.width="100%"}
+hp
+```
+
+```{r}
+### Individual predictions
+
+#idm <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(subid == 13028)
+# 
+# idd <- data%>%
+#   filter(subid == 13028 ,task == "combination")
+# 
+# idm %>%
+#   ggplot(aes(x = pred, y = familiar, fill = model))+
+#   geom_density_ridges(alpha = .5, scale = 3)+
+#   geom_point(data =idd, aes(x = correct, y = familiar), size = 3, stroke = 1, fill = "darkgreen",  col = "darkgreen", pch = 4)+
+#   facet_wrap(~condition, scales = "free_y")+
+#   scale_fill_ptol()+
+#   theme_few()
+
+```
+
+```{r}
+# idsk <- model_parameters%>%
+#   rename(parameter = c,
+#          familiar = d, 
+#          subid = e, 
+#          value = f)%>%
+#   filter(!is.na(familiar),
+#          parameter == "semantic_knowledge", 
+#          familiar == "rasp",
+#          subid == 13028)
+# 
+# idp <- model_parameters%>%
+#   rename(parameter = c,
+#          familiar = d, 
+#          subid = e, 
+#          value = f)%>%
+#   filter(parameter == "prior", 
+#          subid == 13028)
+# 
+# idso <- model_parameters%>%
+#   rename(parameter = c,
+#          familiar = d, 
+#          subid = e, 
+#          value = f)%>%
+#   filter(parameter == "speaker_optimality", 
+#          subid == 13028)
+# 
+# idc <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "combination", familiar == "rasp", subid == 13028, condition == "incongruent")
+# 
+# 
+# idf <- model_predictions%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)%>%
+#   filter(model == "flatPrior", familiar == "rasp", subid == 13028, condition == "incongruent")
+# #6e1423
+# 
+# idf %>%
+#   ggplot(aes(x = pred))+
+#   #geom_density(alpha = .25, fill = "#6a994e")+
+#   geom_density(alpha = .25, fill = "#6e1423")+
+#   scale_fill_ptol()+
+#   theme_few()+
+#   #labs(x = "Propability novel object", y = "")+
+#   labs(x = "Probability novel object", y = "")+
+#   xlim(0,1)+
+#   theme(axis.ticks.y = element_blank(), axis.text.y = element_blank())
+
+```
+
+```{r}
+#ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
+```
+
+# Appendix 1: Group model 
+
+In addition, we explored an alternative way of generating the participant specific predictions. Instead of using the participant specific parameters, we used the age specific hype parameters. Remember that we estimated the participant specific parameters as deviations from this age specific hyper parameters. This alternative model therefore uses parameters that are one level up in our hierarchical model. The reasoning was that these parameters might actually lead to better predictions, because they are estimated based on more data. 
+
+Figure \@ref(fig:chancecompid) shows that this was not the case. The participant specific model was slightly more likely to make correct predictions. 
+
+```{r}
+# model_predictions_global <- bind_rows(
+#   readRDS("../model/output/comb_model_global_predictions_1.rds"),
+#   readRDS("../model/output/comb_model_global_predictions_2.rds"),
+#   readRDS("../model/output/comb_model_global_predictions_3.rds"),
+#   readRDS("../model/output/comb_model_global_predictions_4.rds"),
+#   readRDS("../model/output/comb_model_global_predictions_5.rds")
+#   )
+```
+
+```{r, cache=T}
+# mpred_all_global <- model_predictions_global%>%
+#   filter(chain != 2)%>%
+#   select(-a, -g)%>%
+#   rename(model = b,
+#          condition = c,
+#          familiar = d,
+#          subid = e,
+#          pred = f)
+# 
+# mpred_comb_global <- mpred_all_global%>%
+#   filter(model == "combination")%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# mpred_flat_global <- mpred_all_global%>%
+#   filter(model == "flatPrior")%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# mpred_prior_global <- mpred_all_global%>%
+#   filter(model == "priorOnly")%>%
+#   group_by(model, condition,familiar,subid)%>%
+#   summarise(model_mean = estimate_mode(pred),
+#             model_ci_lower = hdi_lower(pred),
+#             model_ci_upper = hdi_upper(pred))
+# 
+# 
+# mpred_global <- bind_rows(
+#   mpred_comb_global,
+#   mpred_flat_global,
+#   mpred_prior_global
+# )
+# 
+# saveRDS(mpred_global, "saves/id_model_pred_global.rds")
+
+mpred_global <- readRDS("saves/id_model_pred_global.rds")
+
+chance_id_global <- mpred_global%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subid, subage,model)%>%
+  summarise(mean = mean(match, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+chance_global <- chance_id_global%>%
+  group_by(subage,model)%>%
+  tidyboot_mean(col = mean)
+```
+
+## Comparison ID vs. Group model 
+
+```{r, cache=T}
+chance_id_comp <- bind_rows(
+  chance_id_global%>%mutate(type = "Group"),
+  chance_id%>%mutate(type = "ID") 
+  )%>%
+  mutate(model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))
+
+chance_comp <- bind_rows(
+  chance_global%>%mutate(type = "Group"),
+  chance%>%mutate(type = "ID")
+)%>%
+  mutate(model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))
+
+
+p_comp_id <- ggplot(chance_comp, aes(x = model, y = mean))+
+  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
+  geom_point(data = chance_id_comp,aes(x = model, y = mean, col = type), alpha = .2, position = position_dodge(width = .9))+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = type), size = 0.6, position = position_dodge(width = .9))+
+  ylim(0,1)+
+  facet_grid(~subage)+
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_few(name = "Model type")+
+  theme_few()+
+  scale_x_discrete(guide = guide_axis(n.dodge=3))
+```
+
+```{r chancecompid, cache=T, fig.cap = "Proportion of correct model predictions for the two versions of the integration model. Group refers to predictions based on age specific hyper parameters and ID to predictions based on participant specific parameters. Colored dots show mean for each model (with 95\\% CI) and light colored dots show participant means.",fig.height = 4, fig.width= 10, out.width="100%"}
+p_comp_id
+```
+
+# Appendix 2: Model parameters
+
+## Speaker informativeness
+
+```{r, cache=T}
+# speak_opt <- model_parameters%>%
+#   filter(c == "speaker_optimality", 
+#          b != "parameters",
+#          chain != 1, 
+#          chain != 2)%>%
+#   rename(parameter = b,
+#          value = f)%>%
+#   mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))
+# 
+# saveRDS(speak_opt, "saves/speak_opt_plot.rds")
+
+speak_opt <- readRDS("saves/speak_opt_plot.rds")
+
+p_speak_opt <- ggplot(speak_opt, aes(x = value, fill = factor(chain)))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind(name = "Chain")+
+  xlab("Parameter estimate")+
+  ylab("")+
+  #ggtitle("Speaker informativeness (hyper parameters)")+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+```{r, cache=T}
+# speak_opt_id <- model_parameters%>%
+#   rename(type = b,
+#          parameter = c,
+#          subject = e, 
+#          speaker_optimality = f)%>%
+#   filter(type != "sigma",
+#          parameter == "speaker_optimality",
+#          chain != 1, 
+#          chain != 2)%>%
+#   mutate(subject = factor(subject))%>%
+#   filter(subject %in% sample(levels(subject),5))
+# 
+# saveRDS(speak_opt_id, "saves/speak_opt_id_plot.rds")
+
+speak_opt_id <- readRDS("saves/speak_opt_id_plot.rds")
+
+p_speak_opt_id <- ggplot(speak_opt_id, aes(x = speaker_optimality, fill = factor(subject)))+
+  geom_density(alpha = .5)+
+  #ggtitle("Speaker informativeness for 5 randomly selected individuals")+
+  #facet_grid(~subject, scales = "free_y")+
+  ylab("")+
+  xlab("Speaker informativeness expectation")+
+  scale_fill_viridis_d(name = "Participant ID")+
+  theme_minimal()
+```
+
+```{r speakoptplot, cache=T, fig.cap = "Model parameters for speaker informativeness. A) hyper parameters colored by MCMC chain and B) participant specific parameters for five randomly selected individuals.",fig.height = 3, fig.width= 10, out.width="100%"}
+ggarrange(p_speak_opt, p_speak_opt_id, common.legend = F, nrow = 1, widths = c(1.5,1), labels = c("A","B"))
+```
+
+## Semantic knowledge
+
+```{r, cache=T}
+# sem_know <- model_parameters%>%
+#   filter(c == "semantic_knowledge", 
+#          b != "parameters",
+#          chain != 1, 
+#          chain != 2)%>%
+#   rename(parameter = b,
+#          value = f)%>%
+#   mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))
+# 
+# saveRDS(sem_know, "saves/sem_know_plot.rds")
+
+sem_know <- readRDS("saves/sem_know_plot.rds")
+
+p_sem_know <- ggplot(sem_know, aes(x = value, fill = factor(chain)))+
+  geom_density(alpha = .5)+
+  facet_grid(~parameter)+
+  scale_fill_colorblind(name = "Chain")+
+  ylab("")+
+  xlab("Parameter estimate")+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+```{r, cache=T}
+# sem_know_id <- model_parameters%>%
+#   rename(parameter = c,
+#          familiar = d, 
+#          subject = e, 
+#          value = f)%>%
+#   filter(!is.na(familiar),
+#          parameter == "semantic_knowledge", 
+#          familiar == "duck" | familiar == "thermo",
+#          chain != 1, 
+#          chain != 2)%>%
+#   mutate(subject = factor(subject))%>%
+#   filter(subject %in% sample(levels(subject),5))
+# 
+# saveRDS(sem_know_id, "saves/sem_know_id_plot.rds")
+
+sem_know_id <- readRDS("saves/sem_know_id_plot.rds")
+
+p_sem_know_id <- ggplot(sem_know_id, aes(x = value, fill = factor(subject)))+
+  geom_density(alpha = .5)+
+  #ggtitle("Semantic knowledge for 'lock'")+
+  facet_grid(familiar~., scales = "free_y")+
+  ylab("")+
+  xlab("Semantic knowledge")+
+  scale_fill_viridis_d(name = "Participant ID")+
+  theme_minimal()
+```
+
+```{r semknowplot, cache=T, fig.cap = "Model parameters for semantic knowledge. A) hyper parameters colored by MCMC chain and B) participant specific parameters for five randomly selected individuals for two familiar objects.",fig.height = 3, fig.width= 10, out.width="100%"}
+ggarrange(p_sem_know, p_sem_know_id, common.legend = F, nrow = 1, widths = c(1.5,1), labels = c("A","B"))
+```
+
+```{r}
+# ### by item
+# model_parameters%>%
+#   rename(parameter = c,
+#          familiar = d, 
+#          subject = e, 
+#          value = f)%>%
+#   filter(!is.na(familiar),
+#          !is.na(value),
+#          !is.na(subject),
+#          parameter == "semantic_knowledge",
+#          chain != 1, 
+#          chain != 2)%>%
+#   group_by(subject, familiar,chain)%>%
+#     summarise(mode = estimate_mode(value),
+#             lci = hdi_lower(value),
+#             uci = hdi_upper(value))%>%
+#   ggplot(., aes(x = factor(subject), y= mode, col = chain))+
+#   geom_pointrange(aes(ymin = lci, ymax = uci), position = position_dodge(width = .1), pch = 4)+
+#   scale_color_colorblind()+
+#   facet_grid(familiar~.)+
+#   theme_few()
+```
+
+## Sensitivity to common ground
+
+```{r, cache=T}
+# cg <- model_parameters%>%
+#   filter(c == "prior", 
+#          b != "parameters",
+#          chain != 1, 
+#          chain != 2)%>%
+#   rename(parameter = b,
+#          value = f)%>%
+#   mutate(parameter = factor(parameter, levels = c("intercept", "slope", "sigma")))
+# 
+# saveRDS(cg, "saves/com_ground_plot.rds")
+
+cg <- readRDS("saves/com_ground_plot.rds")
+
+p_cg <- ggplot(cg, aes(x = value, fill = factor(chain)))+
+  geom_density(alpha = .5)+
+  ylab("")+
+  #ggtitle("Sensitivity to common ground (hyper parameter)")+
+  facet_grid(~parameter)+
+  ylab("")+
+  xlab("Parameter estimate")+
+  scale_fill_colorblind(name = "Chain")+
+  xlim(-4,4)+
+  theme_minimal()
+```
+
+```{r, cache=T}
+# cg_id <- model_parameters%>%
+#   rename(parameter = c, 
+#          familiar = d, 
+#          subject = e, 
+#          value = f)%>%
+#   filter(!is.na(subject),
+#          parameter == "prior",
+#          chain != 1, 
+#          chain != 2)%>%
+#   mutate(subject = factor(subject))%>%
+#   filter(subject %in% sample(levels(subject),5))
+# 
+# saveRDS(cg_id, "saves/com_ground_id_plot.rds")
+
+cg_id <- readRDS("saves/com_ground_id_plot.rds")
+
+p_cg_id <- ggplot(cg_id, aes(x = value, fill = factor(subject)))+
+  geom_density(alpha = .5)+
+  #ggtitle("Sensitivity to common ground for 5 randomly selected individuals")+
+  #facet_grid(~subject, scales = "free_y")+
+  ylab("")+
+  xlab("Sensitivity to common ground")+
+  scale_fill_viridis_d(name = "Participant ID")+
+  xlim(0,1)+
+  theme_minimal()
+
+```
+
+```{r cgplot, cache=T, fig.cap = "Model parameters for sensitivity to common ground. A) hyper parameters colored by MCMC chain and B) participant specific parameters for five randomly selected individuals.",fig.height = 3, fig.width= 10, out.width="100%"}
+ggarrange(p_cg, p_cg_id, common.legend = F, nrow = 1, widths = c(1.5,1), labels = c("A","B"))
+```
+## Production probability
+
+This parameter was part of the production model and gives the probability that the child was able to produce a word if their semantic knowledge indicates that they knew it. 
+
+```{r, cache=T}
+# pod_prob <- model_parameters%>%
+#   filter(c == "successful_production_probability",
+#          chain != 1, 
+#          chain != 2)%>%
+#   rename(value = f)
+# 
+# saveRDS(pod_prob, "saves/prod_prob_plot.rds")
+
+pod_prob <- readRDS("saves/prod_prob_plot.rds")
+
+p_pod_prob <- ggplot(pod_prob, aes(x = value, fill = factor(chain)))+
+  geom_density(alpha = .5)+
+  ylab("")+
+  xlab("Successful production probability")+
+  #ggtitle("Production Probability")+
+  scale_fill_colorblind(name = "Chain")+
+  xlim(0,1)+
+  theme_minimal()
+```
+
+
+```{r prodprob, cache=T, fig.cap = "Model parameter for production probability colored by MCMC chain",fig.height = 3, fig.width= 6, out.width="50%"}
+p_pod_prob
+```
+
+
