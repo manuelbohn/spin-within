@@ -547,6 +547,29 @@ p_chance <- ggplot(chance, aes(x = model, y = mean))+
 p_chance
 ```
 
+
+```{r}
+chance_id%>%
+  group_by(subid)%>%
+  filter(mean == max(mean))%>%
+  mutate(row = 1:n())%>%
+  pivot_wider(names_from = row, values_from = model)%>%
+  mutate(win_model = paste(`1`,`2`, sep = " & "),
+         win_model = str_remove(win_model, " & NA"))%>%
+  ungroup()%>%
+  group_by(win_model)%>%
+  summarise(n = n())%>%
+  ggplot(aes(x = win_model, y = n))+
+  geom_bar(stat = "identity")+
+  theme_few()+
+  labs(y = "No. of Individuals (out of 60)", x = "Model(s) with best predictions")+
+  theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
+
+```
+```{r}
+ggsave("../graphs/win_model_id.png", width = 6, height = 4, scale = 1)
+```
+
 Finally, we looked at the hits and misses, that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) shows that the Integration model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in only 50% of cases.  
 
 ```{r}
@@ -664,6 +687,13 @@ hp
 ```{r}
 #ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
 ```
+
+# Participant specific BayesFactors
+
+```{r}
+
+```
+
 
 # Appendix 1: Group model 
 
