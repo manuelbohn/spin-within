@@ -49,6 +49,8 @@ model_comp <-  bind_rows(
 )
 
 saveRDS(model_comp, "../model/output/model_comparison.rds")
+
+model_comp <- readRDS("../model/output/model_comparison.rds")
 ```
 
 # Model comparison
@@ -126,6 +128,25 @@ model_comp_id <-  bind_rows(
   fread("../model/output/spin-within_model_comparison_individual-chain9.csv"),
   fread("../model/output/spin-within_model_comparison_individual-chain10.csv")
 )
+
+#saveRDS(fread("../model/output/spin-within_model_comparison_individual-chain1.csv"), "../model/output/model_comparison_id_1.rds")
+
+# For MH to get an idea of what the output looks like and to reproduce the logSumExp problem
+model_comp_id <- readRDS("../model/output/model_comparison_id_1.rds")
+```
+
+```{r}
+range(model_comp_id$loglike)
+```
+
+## overall
+
+```{r}
+model_comp_id %>%
+  filter(scope == "global")%>%
+  group_by(model,chain)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)
 ```
 
 ## by chain
@@ -135,13 +156,34 @@ model_comp_id %>%
   filter(scope == "id")%>%
   group_by(model,id,chain)%>%
   summarise(margllh = logSumExp(loglike))%>%
-  pivot_wider(names_from = chain, values_from = margllh)
+  pivot_wider(names_from = model, values_from = margllh)
+```
+
+```{r}
+model_comp_id %>%
+  filter(scope == "id")%>%
+  group_by(model,id,chain)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)%>%
+  group_by(id)%>%
+  summarise(comb_min = min(combination), 
+            comb_max = max(combination),
+            flat_min = min(flatPrior), 
+            flat_max = max(flatPrior),
+            prior_min = min(priorOnly), 
+            prior_max = max(priorOnly))
+
+model_comp_id %>%
+  filter(scope == "id")%>%
+  group_by(model,id,chain)%>%
+  summarise(max_loglike = max(loglike),
+            min_loglike = min(loglike))
 ```
 
 ## overall (log Bayes Factor)
 
 ```{r}
-id_bf <- model_comp %>%
+id_bf <- model_comp_id %>%
   filter(scope == "id")%>%
   group_by(model, id)%>%
   summarise(margllh = logSumExp(loglike))%>%
@@ -154,8 +196,14 @@ id_bf <- model_comp %>%
 
 ```{r}
 id_bf%>%
+  group_by(Comparison)%>%
+  summarise(prop_pos_BF = sum(log_BF > 0)/60)
+```
+
+```{r}
+id_bf%>%
   ggplot(aes(x = log_BF, fill = Comparison))+
-  geom_vline(xintercept = c(0,log(5),log(10)), lty = 2, alpha = .75)+
+  geom_vline(xintercept = c(0,log(3),log(10)), lty = 2, alpha = .75)+
   geom_density(alpha = .5)+
   geom_point(aes(y = 0, col = Comparison), pch = "I", size = 5)+
   theme_minimal()+
