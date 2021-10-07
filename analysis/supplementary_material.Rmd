@@ -292,16 +292,17 @@ To estimate the parameter distributions, we collected samples from six independe
 
 We passed the parameter distributions estimated based on the four separate sensitivity experiments through our rational integration model to generate  predictions for how children should behave in the combination experiment. Because our model parameters were specific to each child and familiar object, our model predictions were also specific to each trial in the combination experiment (i.e. unique combination of participant, familiar object and condition).
 
-In the *congruent* condition, the object in the prior social interaction (i.e., the discourse-familiar object) was the familiar object, and hence, both common ground (discourse novelty) and mutual exclusivity are cues to the same referent; in the *incongruent* condition, the object in the prior social interaction was the novel object, and hence, common ground (discourse-novelty) and mutual exclusivity are cues to different referents (see Figure \@ref(fig:fig1)C).  
+Remember that there were two conditions in the combination experiment, depending on how the mutual exclusivity and the discourse novelty manipulations were aligned. In the *congruent* condition, the object in the prior social interaction (i.e., the discourse-familiar object) was the familiar object, and hence, both common ground (discourse novelty) and mutual exclusivity are cues to the same referent; in the *incongruent* condition, the object in the prior social interaction was the novel object, and hence, common ground (discourse-novelty) and mutual exclusivity are cues to different referents (see Figure \@ref(fig:fig1)C).  
 
-
-we generated a probability d then passed them through the model in line with the different ways in which they can be combined and aligned (Figure \@ref(fig:bda)). The resulting predictions come in the form of distributions of developmental trajectories for each familiar object in the congruent and the incongruent condition.
-
-Based on the parameters, we generated model predictions that were specific to each participant and trial. To evaluate the model fit, we first replicate the results of our previous study showing that a) the model predictions are highly correlated with the data and b) the *Integration* model makes better predictions compared to alternative, lesioned models (*No Common Ground* and *No Speaker Informativeness* models).
+To evaluate the model predictions, we first replicated the group--level results of @bohn2021young. The goal was to show that a) the model predictions are highly correlated with the data and b) the *Integration* model makes better predictions compared to alternative, lesioned models. Next, we turn to the focal participant--level analysis and evaluate how well the *Integration* model predicts the trial--by--trail performance, both on an absolute level and in comparison to the alternative models considered. 
 
 ## Model comparison
 
 ### Models
+
+In addition to the *Integration* model, we considered two alternative, lesioned models. Both models represent thy hypothesis that children focus on one type of inference (mutual exclusivity or common ground) whenever multiple inferences are possible. Not that the predictions of these alternative models are generated using the same parameters as the *Integration* model. 
+
+
 
 ### Correlation between model predictions and data
 
@@ -752,7 +753,7 @@ hp
 #ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
 ```
 
-# Participant specific BayesFactors
+## Participant specific BayesFactors
 
 ```{r}
 
