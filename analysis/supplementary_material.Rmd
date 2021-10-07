@@ -53,10 +53,7 @@ hdi_lower<- function(s){
   return(m["var1","lower"])
 }
 
-```
 
-
-```{r}
 flip <- function(x){
   coin <- sample(c(0,1), size = 1, replace = TRUE, prob = c(1 - x,x))
   return(coin)
@@ -451,8 +448,6 @@ As a first step, we correlated the model predictions with the data. To do so, we
 
 ### Pairwise model comparisons
 
-
-
 ```{r}
 model_comp <- readRDS("../model/output/model_comparison.rds")
 ```
@@ -520,15 +515,15 @@ The results in the last section showed that the *integration* model made accurat
 # model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
 ```
 
-The participant and familiar object specific parameters allowed us to generate predictions for every single trial for each participant. These predictions were based on the parameters estimated based on the sensitivity experiments. For each iteration of the model in which we estimated these parameters, we also generated a prediction for the combination experiment based on the parameter values of that iteration. As a consequence, there was not a single prediction for each trial, but a probability distribution indicating how likely the participant is to choose the unfamiliar object. The data we collected, however, was binary because for each trial we coded whether the child picked the unfamiliar object. Thus, to evaluate how well the model predicted the child's behavior on a given trial, we had to convert the continuous model predictions into a binary prediction. To do so, we first computed the Maximum-a-posteriori (MAP) of the predictive distribution for each child and trial and then flipped a coin with the MAP as its weight. Figure \@ref(fig:genfig) gives a schematic overview of this process.
+The participant and familiar object specific parameters allowed us to generate predictions for every single trial for each participant. These predictions were generated via the parameters estimated based on the sensitivity experiments. For each sample of the posterior distribution of these parameters, we generated a prediction for the combination experiment. As a consequence, there was not a single prediction for each trial, but a distribution of predictions. The data we collected, however, was binary because for each trial we coded whether the child picked the unfamiliar object or not. Thus, to evaluate how well the model predicted the child's behavior on a given trial, we had to convert the distribution of continuous model predictions into a binary prediction. To do so, we first computed the Maximum-a-posteriori (MAP) of the predictive distribution for each child and trial and then flipped a coin with the MAP as its weight. Figure \@ref(fig:genfig) gives a schematic overview of this process.
 
 ```{r genfig, out.width="100%", fig.cap = "Schematic overview of how participant and trial specific model predictions were generated."}
 knitr::include_graphics("../graphs/model_pred.png")
 ```
 
-We then compared the model's prediction for a trial to the data by simply asking whether the two matched (coded as `1`) or not (coded as `0`). The number of matches (correct predictions) was then evaluated in three ways: 
+We then compared the model's prediction for a given trial to the data simply by asking whether the two matched (coded as `1`) or not (coded as `0`). The number of matches (correct predictions) was then evaluated in three ways: 
 
-First, we compared the proportion of correct predictions to chance to see if the model predictions were better than random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows that the *integration* model made correct predictions at a level clearly above chance for both age groups (roughly correct in 70% of cases). In a second step, we compared the predictions made by the *integration* model to those of the two lesioned models. For this, we generated trial and child specific model predicitons for each of the lesioned models in the same ways as for the *integration* model. Here we saw that both models made predcitions above chance, confiming that these are valuable alternative models. However, we also saw that the *integration* model was more likely to make correct predictions. 
+First, we averaged across predicitons for each participant and compared the proportion of correct predictions across participants to a level expected by random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows that the *integration* model made correct predictions at a level clearly above chance for both age groups (roughly correct in 70% of cases). In a second step, we compared the predictions made by the *integration* model to those of the two lesioned models. For this, we generated trial and child specific model predictions for each of the lesioned models in the same ways as for the *integration* model. Here we saw that both models made predictions above chance, confirming that these were valuable alternative models. However, we also saw that the *integration* model was more likely to make correct predictions. 
 
 ```{r cache=T}
 # mpred_comb <- model_predictions%>%
@@ -653,7 +648,7 @@ chance_id%>%
 ggsave("../graphs/win_model_id.png", width = 6, height = 4, scale = 1)
 ```
 
-Finally, we looked at the "hits" and "misses", that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) showed that the *integration* model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in only 50% of cases.  
+Finally, we looked at the "hits" and "misses", that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) showed that the *integration* model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in about 50% of cases.  
 
 ```{r}
 hp <- mpred%>%
@@ -771,20 +766,19 @@ hp
 #ggsave("../graphs/id_pred_flat.png", width = 4, height = 4, scale = 1)
 ```
 
-## Participant specific BayesFactors
+### Participant specific Bayes factors
 
-Quantify evidence in favor of the integrtion model on an individual level - compute a Bayes factor for each model comparison for each child. Look at how
+For this final analysis, we repeated the model comparison on an individual level. That is, for each participant, we computed a Bayes factor (BF) in favor of the *integration* model compared to the two lesioned models. Figure \@ref(fig:parytayes) visualizes the distribution of the resulting BFs on the log-scale. Log-BFs larger than 0 correspond to BFs > 1 and thus suggest that the *integration* model fit the data better compared to the other model for this participant. Taken together, `r xx` % of log-BFs were larger than 0 when comparing the *integration* model to the *no common ground* model and `r ` % of log-BFs were larger than 0 when comparing the *integration* model to the *no speaker informativeness* model. this suggests that for the majority of participants, the *integration* model was the best model to predict their behavior in a new situation. 
 
-```{r}
+```{r parytayes, }
 
 ```
 
-
 # Appendix 1: Group model 
 
-In addition, we explored an alternative way of generating the participant specific predictions. Instead of using the participant specific parameters, we used the age specific hype parameters. Remember that we estimated the participant specific parameters as deviations from this age specific hyper parameters. This alternative model therefore uses parameters that are one level up in our hierarchical model. The reasoning was that these parameters might actually lead to better predictions, because they are estimated based on more data. 
+In addition, we explored an alternative way of generating the participant specific predictions. Instead of using the participant specific parameters, we used the age specific hype parameters. In the section on [model parameters](#model-parameters) we described how the participant specific parameters were estimated as deviations from age specific hyper parameters (i.e. values generated by an age sensitive slope and intercept). This alternative model uses parameters that were one level up in our hierarchical model. The reasoning was that these parameters might actually lead to better predictions, because they are estimated based on more data. 
 
-Figure \@ref(fig:chancecompid) shows that this was not the case. The participant specific model was slightly more likely to make correct predictions. 
+Figure \@ref(fig:chancecompid) shows that this was not the case. The participant specific model was slightly more likely to make correct predictions compared to the group-level model. 
 
 ```{r}
 # model_predictions_global <- bind_rows(
@@ -889,6 +883,8 @@ p_comp_id
 ```
 
 # Appendix 2: Model parameters
+
+Below we visualize the posterior distributions for some of the parameters in the model.
 
 ## Speaker informativeness
 
@@ -1090,9 +1086,10 @@ p_cg_id <- ggplot(cg_id, aes(x = value, fill = factor(subject)))+
 ```{r cgplot, cache=T, fig.cap = "Model parameters for sensitivity to common ground. A) hyper parameters colored by MCMC chain and B) participant specific parameters for five randomly selected individuals.",fig.height = 3, fig.width= 10, out.width="100%"}
 ggarrange(p_cg, p_cg_id, common.legend = F, nrow = 1, widths = c(1.5,1), labels = c("A","B"))
 ```
+
 ## Production probability
 
-This parameter was part of the production model and gives the probability that the child was able to produce a word if their semantic knowledge indicates that they knew it. 
+This parameter was part of the production model and gives the probability that the child was able to produce a word if their semantic knowledge indicates that they knew it. This parameter was the same for all participants. 
 
 ```{r, cache=T}
 # pod_prob <- model_parameters%>%
