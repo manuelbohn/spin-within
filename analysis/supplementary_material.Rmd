@@ -233,7 +233,7 @@ p_c
 
 ## Modelling framework
 
-We adopted the modelling framework used by @bohn2021young. A detailed description of that framework can be found in their supplementary material (click [here](https://github.com/manuelbohn/spin/blob/master/paper/supplementary_material.pdf) for direct access to this document). In short, our models are situated in the Rational Speech Act (RSA) framework [@frank2012predicting; @goodman2016pragmatic]. RSA models are models of pragmatic reasoning and treat language understanding as a special case of Bayesian social reasoning. A listener interprets an utterance by assuming it was produced by a cooperative speaker who had the goal to be informative. Being informative is defined as providing messages that increase the probability of the listener inferring the speaker’s intended message. The model, including all data-analytic parameters, is formally defined as: 
+We adopted the modelling framework used by @bohn2021young. A detailed description of that framework can be found in their supplementary material (click [here](https://github.com/manuelbohn/spin/blob/master/paper/supplementary_material.pdf) for direct access to this document). In short, our models are situated in the Rational Speech Act (RSA) framework [@frank2012predicting; @goodman2016pragmatic]. RSA models are models of pragmatic reasoning and treat language understanding as a special case of Bayesian social reasoning. A listener interprets an utterance by assuming it was produced by a cooperative speaker who had the goal to be informative. Being informative is defined as providing messages that increase the probability of the listener inferring the speaker’s intended message. The *integration* model, including all data-analytic parameters, is formally defined as: 
 
 \begin{equation}
 P_{L_1}(r \mid u; \{\rho_i, \alpha_i\, \theta_{ij}\})\propto P_{S_1}(u \mid r; \{\alpha_i, \theta_{ij}\}) \cdot P(r \mid \rho_i)
@@ -290,19 +290,31 @@ To estimate the parameter distributions, we collected samples from six independe
 
 ## Model predicitons
 
-We passed the parameter distributions estimated based on the four separate sensitivity experiments through our rational integration model to generate  predictions for how children should behave in the combination experiment. Because our model parameters were specific to each child and familiar object, our model predictions were also specific to each trial in the combination experiment (i.e. unique combination of participant, familiar object and condition).
+WE used the posterior distributions for the three parameters to generate a-priori model predictions for how the same participants should behave in the combination experiment. That is, we passed the parameter distributions estimated based on the four separate sensitivity experiments through our rational integration model to generate  predictions for how children should behave in the combination experiment. Because our model parameters were specific to each child and familiar object, our model predictions were also specific to each trial in the combination experiment (i.e. unique combination of participant, familiar object and condition).
 
-Remember that there were two conditions in the combination experiment, depending on how the mutual exclusivity and the discourse novelty manipulations were aligned. In the *congruent* condition, the object in the prior social interaction (i.e., the discourse-familiar object) was the familiar object, and hence, both common ground (discourse novelty) and mutual exclusivity are cues to the same referent; in the *incongruent* condition, the object in the prior social interaction was the novel object, and hence, common ground (discourse-novelty) and mutual exclusivity are cues to different referents (see Figure \@ref(fig:fig1)C).  
+Remember that there were two conditions in the combination experiment, depending on how the mutual exclusivity and the common ground manipulations were aligned. In the *congruent* condition, the object in the prior social interaction (i.e., the discourse-familiar object) was the familiar object, and hence, both common ground (discourse novelty) and mutual exclusivity are cues to the same referent; in the *incongruent* condition, the object in the prior social interaction was the novel object, and hence, common ground (discourse-novelty) and mutual exclusivity are cues to different referents.
 
-To evaluate the model predictions, we first replicated the group--level results of @bohn2021young. The goal was to show that a) the model predictions are highly correlated with the data and b) the *Integration* model makes better predictions compared to alternative, lesioned models. Next, we turn to the focal participant--level analysis and evaluate how well the *Integration* model predicts the trial--by--trail performance, both on an absolute level and in comparison to the alternative models considered. 
+## Model evaluation
 
-## Model comparison
+To evaluate the model predictions, we first replicated the group--level results of @bohn2021young. The goal was to show that a) model predictions are highly correlated with the data and b) the *integration* model makes better predictions compared to a set of alternative models. Next, we turned to the focal participant--level analysis and evaluated how well the *integration* model predicted the trial--by--trail performance of each child, both on an absolute level and in comparison to the alternative models. 
 
-### Models
+### Alternative models
 
-In addition to the *Integration* model, we considered two alternative, lesioned models. Both models represent thy hypothesis that children focus on one type of inference (mutual exclusivity or common ground) whenever multiple inferences are possible. Not that the predictions of these alternative models are generated using the same parameters as the *Integration* model. 
+In addition to the *integration* model, we considered two alternative, lesioned models. Both models represent thy hypothesis that children focus on one type of inference (mutual exclusivity or common ground) whenever multiple inferences are possible. The predictions of these alternative models were generated using the same parameters as the *integration* model, the difference lies in which parameters were used. 
 
+The *no speaker informativeness* model assumed that the speaker does not communicate in an informative way. This corresponds to $\alpha_i$ = 0, which causes the likelihood term to always be 1. As a consequence, this model also ignores semantic knowledge (which affects the likelihood term) and the predictions of this model correspond to the prior distribution over objects: 
 
+\begin{equation}
+P^{no\_si}_{L_1}(r \mid u; \{\rho_i\})\propto P(r \mid \rho_i) 
+(\#eq:nome)
+\end{equation}
+
+On the other hand, the *no common ground* model ignores common ground information, $\rho_i$. This model takes in object specific semantic knowledge and speaker informativeness but uses a prior distribution over objects that is constant across alignment conditions and uniform (e.g., [0.5, 0.5]). This model corresponds to a listener who only focuses on the mutual exclusivity inference and ignores the common ground manipulation. As a consequence, the listener does not differentiate between the two common ground alignment conditions.
+
+\begin{equation}
+P^{no\_cg}_{L_1}(r \mid u; \{\alpha_i\, \theta_{ij}\})\propto P_{S_1}(u \mid r; \{\alpha_i, \theta_{ij}\}) \\ 
+(\#eq:nocg)
+\end{equation}
 
 ### Correlation between model predictions and data
 
@@ -431,13 +443,15 @@ stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean,
 ggarrange(cor_plot1, cor_plot2, common.legend = T, legend = "right", widths = c(1.5,1))
 ```
 
-Figure \@ref(fig:corplot) shows a strong correlation between model predictions and the data -- comparable in size to what we found in the previous study. The correlation was also higher for the Integration compared to the lesioned models. Furthermore, when we compared the three models via the marginal likelihood of the data, we also saw that the Integration model fit the data best (Figure \@ref(fig:loglikeplot))
+As a first step, we correlated the model predictions with the data. To do so, we aggregated both the model predictions and the data for each trial (each with a different familiar object, half in the congruent and the other half in the incongruent condition) within each age group. Figure \@ref(fig:corplot) shows a strong correlation between model predictions and the data with the model explaining 74% of the variance int he data. This correlation was comparable in size to that in @bohn2021young. The correlation was also higher for the *integration* compared to the lesioned models.
 
 ```{r}
 #ggsave("../graphs/comb_cor.png", width = 6, height = 4, scale = 1)
 ```
 
-### Log-likelihood
+### Pairwise model comparisons
+
+
 
 ```{r}
 model_comp <- readRDS("../model/output/model_comparison.rds")
@@ -449,7 +463,7 @@ logbf <- model_comp %>%
   summarise(margllh = logSumExp(loglike))%>%
   pivot_wider(names_from = model, values_from = margllh)%>%
   summarise(bf_comb_flat = combination - flatPrior, 
-            bf_comb = combination - priorOnly)
+            bf_comb_prior = combination - priorOnly)
 ```
 
 
@@ -476,9 +490,13 @@ lp <- model_comp %>%
 ```{r loglikeplot, fig.cap = "Schematic experimental procedure with screenshots from the experiments.",fig.height = 2.5, fig.width= 10, out.width="100%"}
 lp
 ```
+
+Furthermore, we compared the three models via the marginal likelihood of the data. Here we also saw that the *integration* model fit the data best (Figure \@ref(fig:loglikeplot)). For pairwise comparisons, we used the marginal likelihoods to compute Bayes factors in favor of the *integration* model. There was overwhelming evidence that the *integration* model outperformed the *no common ground* ($BF_{10}$ = `r format(exp(logbf%>%pull(bf_comb_flat)), digits = 2)`) and the *no speaker informativeness* model ($BF_{10}$ = `r format(exp(logbf%>%pull(bf_comb_prior)), digits = 2)`).
+
 ## Participant-specific model predictions
 
-The analysis above evaluated the model(s) as a whole or by age group. The main focus of this study, however, was to see how well we can predict the behavior of individual children on individual trials.
+The results in the last section showed that the *integration* model made accurately predicted the average performance in each age group. However, the main focus of the present study was to see if this model also made accurate predictions on an individual level. That is, we wanted to see how well we could predict the behavior of individual children on individual trials.
+
 
 ```{r}
 # model <- rbindlist(
@@ -502,15 +520,15 @@ The analysis above evaluated the model(s) as a whole or by age group. The main f
 # model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
 ```
 
-The participant and familiar object specific parameters allowed us to generate predictions for every single trial for each participant. However, when we pass the distribution of participant specific parameters through the model, for each trial, we get a probability distribution indicating how likely the participant is to choose the unfamiliar object. The data we collected, however, is binary. To convert the continuous model predictions into a binary prediction, for each trial, we first took the MAP of the predictive distribution and then flipped a coin with the MAP as its weight. Figure \@ref(fig:genfig) gives a schematic overview of this process.
+The participant and familiar object specific parameters allowed us to generate predictions for every single trial for each participant. These predictions were based on the parameters estimated based on the sensitivity experiments. For each iteration of the model in which we estimated these parameters, we also generated a prediction for the combination experiment based on the parameter values of that iteration. As a consequence, there was not a single prediction for each trial, but a probability distribution indicating how likely the participant is to choose the unfamiliar object. The data we collected, however, was binary because for each trial we coded whether the child picked the unfamiliar object. Thus, to evaluate how well the model predicted the child's behavior on a given trial, we had to convert the continuous model predictions into a binary prediction. To do so, we first computed the Maximum-a-posteriori (MAP) of the predictive distribution for each child and trial and then flipped a coin with the MAP as its weight. Figure \@ref(fig:genfig) gives a schematic overview of this process.
 
 ```{r genfig, out.width="100%", fig.cap = "Schematic overview of how participant and trial specific model predictions were generated."}
 knitr::include_graphics("../graphs/model_pred.png")
 ```
 
-We then compared the model'S prediction to the data by simply asking whether the two match (coded as `1`) or not (coded as `0`). We then evaluated the number of matches (correct predictions) in three ways. 
+We then compared the model's prediction for a trial to the data by simply asking whether the two matched (coded as `1`) or not (coded as `0`). The number of matches (correct predictions) was then evaluated in three ways: 
 
-First, we compared the proportion of correct predictions to chance to see if the model predictions were better than random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows that the Integration model made correct predictions above chance for both age groups (roughly correct in 70% of cases). In a second step, we compared the predictions made by the Integration model to those of the lesioned models. Again, we see that the Integration model was more likely to make correct predictions compared to the alternative models. 
+First, we compared the proportion of correct predictions to chance to see if the model predictions were better than random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows that the *integration* model made correct predictions at a level clearly above chance for both age groups (roughly correct in 70% of cases). In a second step, we compared the predictions made by the *integration* model to those of the two lesioned models. For this, we generated trial and child specific model predicitons for each of the lesioned models in the same ways as for the *integration* model. Here we saw that both models made predcitions above chance, confiming that these are valuable alternative models. However, we also saw that the *integration* model was more likely to make correct predictions. 
 
 ```{r cache=T}
 # mpred_comb <- model_predictions%>%
@@ -635,7 +653,7 @@ chance_id%>%
 ggsave("../graphs/win_model_id.png", width = 6, height = 4, scale = 1)
 ```
 
-Finally, we looked at the hits and misses, that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) shows that the Integration model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in only 50% of cases.  
+Finally, we looked at the "hits" and "misses", that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) showed that the *integration* model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in only 50% of cases.  
 
 ```{r}
 hp <- mpred%>%
@@ -754,6 +772,8 @@ hp
 ```
 
 ## Participant specific BayesFactors
+
+Quantify evidence in favor of the integrtion model on an individual level - compute a Bayes factor for each model comparison for each child. Look at how
 
 ```{r}
 
