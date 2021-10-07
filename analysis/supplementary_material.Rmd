@@ -12,7 +12,7 @@ output:
   bookdown::pdf_document2:
     toc: yes 
     number_sections: false    
-#bibliography: library.bib
+bibliography: ../../../References/library.bib
 #csl: pnas.csl
 #header-includes:
 #  \usepackage{caption}
@@ -229,15 +229,79 @@ p_c <- data%>%
 ```{r compexp, fig.cap = "Average proportion with which the unfamiliar object was chosen in the mututal exclusivity task and the combination experiment depending on the familiar object. Congruent and incongruent refers to the condition in which the familiar object appeared in the combination experiment.",fig.height = 6, fig.width= 10, out.width="100%"}
 p_c
 ```
-# Model
+# Cognitive models
+
+## Modelling framework
+
+We adopted the modelling framework used by @bohn2021young. A detailed description of that framework can be found in their supplementary material (click [here](https://github.com/manuelbohn/spin/blob/master/paper/supplementary_material.pdf) for direct access to this document). In short, our models are situated in the Rational Speech Act (RSA) framework [@frank2012predicting; @goodman2016pragmatic]. RSA models are models of pragmatic reasoning and treat language understanding as a special case of Bayesian social reasoning. A listener interprets an utterance by assuming it was produced by a cooperative speaker who had the goal to be informative. Being informative is defined as providing messages that increase the probability of the listener inferring the speaker’s intended message. The model, including all data-analytic parameters, is formally defined as: 
+
+\begin{equation}
+P_{L_1}(r \mid u; \{\rho_i, \alpha_i\, \theta_{ij}\})\propto P_{S_1}(u \mid r; \{\alpha_i, \theta_{ij}\}) \cdot P(r \mid \rho_i)
+(\#eq:rsafull1)
+\end{equation}
+
+\begin{equation}
+P_{S_1}(u \mid r; \{\alpha_i\, \theta_{ij}\})\propto P_{L_0}(r \mid u; \{\theta_{ij}\}) ^{\alpha_i}
+(\#eq:rsafull2)
+\end{equation}
+
+\begin{equation}
+P_{L_0}(r \mid u; \{\theta_{ij}\}) \propto \mathcal{L}(u, r \mid \theta_{ij})
+(\#eq:rsafull3)
+\end{equation}
+
+Thus, the model describes a listener ($L_1$) reasoning about the intended referent of a speaker's ($S_1$) utterance. This reasoning is contextualized by the prior probability of each referent $P(r \mid \rho_i)$. This prior probability is a function of the common ground $\rho$ shared between speaker and listener in that interacting around the objects changes the probability that they will be referred to later. We assume that children differ in their sensitivity to common ground and each child $i$ is therefore represented by a different parameter value. 
+
+To decide between referents, the listener ($L_1$) reasons about what a rational speaker ($S_1$) would say given an intended referent. This speaker is assumed to compute the informativity for each available utterance and then choose the most informative one. The expectation of speaker informativeness may vary and is captured by the parameter $\alpha$. Again, we assume that children differ in their expectations about how informative the speaker and each child $i$ is therefore represented by a different value of $\alpha$. 
+
+The informativity of each utterance is given by imagining which referent a literal listener ($L_0$), who interprets words according to their lexicon $\mathcal{L}$, would infer upon hearing the utterance. This reasoning depends on what kind of semantic knowledge (word--object mappings) the speaker thinks the literal listener has. We parameterize the listener's knowledge of a word's semantics in terms of a semantic knowledge parameter $\theta$, which varies between 0 and 1. $\theta = 0$ corresponds to the state of knowledge for a completely novel word and results in a semantic interpretation function that chooses randomly between the objects in the scene. For each of the novel words, the literal listener is assumed to have semantic knowledge of 0. For $\theta \in (0, 1)$, the semantic interpretation function will select the familiar referent with probability $\theta + (1 - \theta)\frac{1}{2} = \frac{1 + \theta}{2}$; that is, with probability $\theta$, the listener knows the correct meaning of the word (and picks out the correct referent 100\% of the time); with probability $1 - \theta$, the listener does not know the meaning of the word and must guess, picking out the correct referent 50\% of the time. For familiar objects, we take semantic knowledge to be a function of the degree-of-acquisition of the associated word. We assume that children differ in their semantic knowledge fot the different familiar objects and $\theta$ therefore depends on the word $j$ and the child $i$.
 
 ## Model parameters
 
-We used the data from the sensitivity experiments to estimate participant specific parameters representing a) their expectations about speaker informativeness (based on the mutual exclusivity task), b) their object specific semantic knowledge (based on the mutual exclusivity, comprehension and production tasks) and c) their sensitivity to common ground (based on discourse novelty task). The paramters for each participant were estimated as a hierarchical model, that is, participant-specific parameters were estimated as deviations from an age specific hyper-parameter (computed based on an intercept and a slope). The [Appendix](#appendix-2-model-parameters) shows some examples of these distributions. 
+As mentioned above, each child in our model is represented by their own set of data-analytic parameters ($\rho_i$,$\alpha_i$, and $\theta_{ij}$). This will allow us to later use the model to generate participant-specific model predictions for the integration experiment. We estimated these parameters based on four  sensitivity experiments. All parameters were estimated via hierarchical regression (mixed-effects) models. For each parameter, we estimated an intercept and slope (fixed effects) that best described the developmental trajectory for this parameter based on the available data. Participant-specific parameters values (random effects) were estimated as deviations from the value expected for a participant based on their age.   
+
+### Semantic knowledge
+
+The parameters for semantic knowledge were simultaneously informed by the data from the mutual exclusivity, the comprehension and the production experiments. To leverage the mutual exclusivity data, we adopted the RSA model described above to a situation in which both objects (novel and familiar) had equal prior probability (i.e., no common ground information). In the same model, we also estimated the parameter for speaker informativeness (see below). For the comprehension experiment, we simply assumed that the child was able to select the correct word with probability $\theta_{ij}$. If the child did not know the word, we assumed they would select the correct word at a rate expected by chance (1/6). For the production experiment, we assumed that if the child knew the word (a function of $\theta_{ij}$), they produced the word with probability $\gamma$. This successful-production-probability $\gamma$ was the same for all children and was inferred based on the data. This adjustment reflects the finding that children's receptive vocabulary is larger than the productive. Taken together, for each child $i$ and familiar object $j$ there were three data points to inform $\theta$: one trial from the mutual exclusivity, one from the comprehension and one from the production experiment.
+
+The participant- and object-specific parameter ($\theta_{ij}$) was estimated in the form of a hierarchical regression model: $\theta_{ij} = \text{logistic}(\beta^{\theta}_{0, j} + i \cdot \beta^{\theta}_{1, j})$; each word's lexical development trajectory (the intercept $\beta^{\theta}_{0, j}$  and slope $\beta^{\theta}_{1, j}$ of the regression line for each object) was estimated as a deviation from an overall trajectory of vocabulary development. The intercept and slope for each item were sampled from Gaussian distributions with means $\mu^\theta_0, \mu^\theta_1$ and variances $\sigma^\theta_0, \sigma^\theta_1$: $\beta^{\theta}_{0, j} \sim \mathcal{N}(\mu^\theta_0, \sigma^\theta_0)$ and $\beta^{\theta}_{1, j} \sim \mathcal{N}(\mu^\theta_1, \sigma^\theta_1)$. $\mu^\theta_0$ and $\mu^\theta_1$ represented the overall vocabulary development independent of particular familiar word--object pairings, and $\sigma^\theta_0$ and $\sigma^\theta_1$ represented the overall variability of intercepts and of slopes between items (see Figure \@ref(fig:bda)). 
+
+In this model, the participant specific value for $\theta$ was generated via $i$. Given the structure of the model, it is natural to think of $i$ as the child's age. However, we took $i$ to be the child's "linguistic" age. That is, we assumed that a child's semantic knowledge might be higher (or lower) than what we would expect given the child's numerical age. Thus, we sampled $i$ from a Gaussian distribution with mean $k$ and variance $\sigma^\theta_i$: $i \sim \mathcal{N}(k, \sigma^\theta_i)$. Here $k$ was the child's numerical age and $\sigma^\theta_i$ the overall variability in linguistic age between children. This procedure allowed us to inform the participant specific value for $\theta$ both by the child's responses but also by the overall developmental trajectory in the data.
+
+### Expectations about speaker informativeness
+
+The parameter representing a child's expectations about how informative speakers are, was estimated based on the data from the mutual exclusivity experiment. As mentioned above, this was done jointly with semantic knowledge in a RSA model adopted to a situation with equal prior probability of the two objects (novel and familiar).
+
+To estimate the participant specific parameter, we used the same approach as for semantic knowledge. That is, $\alpha_i$ was estimated via a linear regression -- $\alpha_i = \beta^\alpha_0 + i \cdot \beta^\alpha_1$ -- in which $\beta^\alpha_0$ and $\beta^\alpha_1$ defined a general developmental trajectory. Again, we assumed that children might deviate from their expectations about speaker informativeness based on their numerical age and so we estimated $i$ as a deviation from the child's numerical age $k$: $i \sim \mathcal{N}(k, \sigma^\alpha_i)$.
+
+### Sensitivity to common ground
+
+We estimated children's sensitivity to common ground based on the data from the discourse novelty experiment. We used a logisitc regression model to estimate the average developmental trajectory: $\rho_i = \text{logistic}(\beta^\rho_0 + i \cdot \beta^\rho_1)$. To generate participant specific values for $\rho$ we again estimated $i$ as a deviation from the child's numerical age $k$: $i \sim \mathcal{N}(k, \sigma^\rho_i)$.  
+
+### Parameter estimation
+
+All cognitive models and regression models were implemented in the probabilistic programming language `WebPPL` [@dippl]. The corresponding model code can be found in the associated online repository (file `model/spin-within_model_prediction.wppl`). We used the following prior distributions for model parameters. Intercept and slope for sensitivity to common ground: $\beta^\rho_0 ,\beta^\rho_1 \sim \text{Uniform}(-2,2)$. Variation between participants: $\sigma^\rho_i \sim \text{Uniform}(0,4)$.
+
+Speaker informativeness:  $\beta^\alpha_0 \sim \text{Uniform}(-3,3)$ for the intercept and $\beta^\alpha_1 \sim \text{Uniform}(-0,4)$ for the slope. We restricted the slope to be positive because negative values for speaker informativeness are conceptually implausible: We do not expect sensitivity to speaker informativeness to decrease across our age range. For variation between participants we used: $\sigma^\alpha_i \sim \text{Uniform}(0,2)$.
+
+For the global semantic knowledge parameters, we used $\mu^\theta_0 \sim \text{Uniform}(-3,3)$ for the intercept and $\mu^\theta_1 \sim \text{Uniform}(0,2)$ for the slope, because it is implausible to assume that semantic knowledge decreases with age. For the parameters capturing the variability the object specific trajectories around these overall parameters we used $\sigma^\theta_0, \sigma^\theta_1 \sim \text{Uniform}(0,2)$. Variation between participants: $\sigma^\theta_i \sim \text{Uniform}(0,2)$.
+
+To estimate the parameter distributions, we collected samples from six independent MCMC chains, collecting 750,000 samples from each chain and removing the first 250,000 for burn-in. Of the 500,00 remaining samples, we used every 10th to construct the posterior distribution. We excluded samples from two chains because they got stuck on a local maximum which resulted in parameter distributions that were substantially different from the other chains. The [Appendix](#appendix-2-model-parameters) visualizes some examples of these distributions.
 
 ## Model predicitons
 
+We passed the parameter distributions estimated based on the four separate sensitivity experiments through our rational integration model to generate  predictions for how children should behave in the combination experiment. Because our model parameters were specific to each child and familiar object, our model predictions were also specific to each trial in the combination experiment (i.e. unique combination of participant, familiar object and condition).
+
+In the *congruent* condition, the object in the prior social interaction (i.e., the discourse-familiar object) was the familiar object, and hence, both common ground (discourse novelty) and mutual exclusivity are cues to the same referent; in the *incongruent* condition, the object in the prior social interaction was the novel object, and hence, common ground (discourse-novelty) and mutual exclusivity are cues to different referents (see Figure \@ref(fig:fig1)C).  
+
+
+we generated a probability d then passed them through the model in line with the different ways in which they can be combined and aligned (Figure \@ref(fig:bda)). The resulting predictions come in the form of distributions of developmental trajectories for each familiar object in the congruent and the incongruent condition.
+
 Based on the parameters, we generated model predictions that were specific to each participant and trial. To evaluate the model fit, we first replicate the results of our previous study showing that a) the model predictions are highly correlated with the data and b) the *Integration* model makes better predictions compared to alternative, lesioned models (*No Common Ground* and *No Speaker Informativeness* models).
+
+## Model comparison
+
+### Models
 
 ### Correlation between model predictions and data
 
