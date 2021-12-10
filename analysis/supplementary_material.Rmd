@@ -67,8 +67,6 @@ The goal of the study was to predict information integration in children on a tr
 
 # Empirical studies
 
-Kurzer Test von Louisa
-
 ```{r}
 data <- read_csv("../data/merged_data.csv")
 ```
@@ -89,7 +87,7 @@ knitr::kable(t1, caption = "Sample size and demographic information.", digits = 
 
 ### Tasks
 
-We use the same tasks as in Bohn, Tessler, Merrick and Frank (2021) to measure children's sensitivity to the different information sources, that is:
+We used the same tasks as in Bohn, Tessler, Merrick and Frank (2021) to measure children's sensitivity to the different information sources, that is:
  
 * Mutual Exclusivity
 * Novelty
@@ -99,15 +97,41 @@ In addition, we had two new vocabulary tasks:
 * Production
 * Comprehension
 
-Across all tasks (except novelty of course) we used a total of 16 familiar objects. There was one trial for each familiar object in mutual exclusivity, production and comprehension.
+Across all tasks (except novelty, of course) we used a total of 16 familiar objects. There was one trial for each familiar object in mutual exclusivity, production and comprehension. For the 16 familiar objects, the level of familiarity varied. Four objects (duck, bread, carrot, apple) were retained from Bohn et al. (2021) and can be considered highly familiar objects for 3- and 4-year-old children. Twelve additional objects were modeled after a previous mutual exclusivity study involving German 3- and 4-year-olds (Grassmann et al., 2015). Some of these objects (e.g., corkscrew) are barely familiar for children in this age group. 
 
-The production and the comprehension task were run after the other three tasks
+#### Training 
+
+Generally, each child participated in two testing sessions. Both sessions began with a brief training. First, the child was instructed to point to colorful dots on the screen, which disappeared when their parent selected them. This way the child could practice pointing at the screen and the parent could practice interpreting their child's pointing gestures. Next, there were two training trials where animal speakers requested highly familiar objects (duck and teddy bear) from the child. This introduced children to the procedure of the following tasks, where animals requested objects from them and they had to point to the requested object. 
+
+#### Mutual exclusivity experiment 
+
+Each child participated in the mutual exclusivity experiment (16 trials) on the first testing day. Here, animal speakers stood on a small hill between two tables on which objects were placed. One of these objects was potentially familiar to the child, the other object was unknown (retained from Bohn et al., 2020 or designed for the purpose of this study). After introducing themselves, speakers requested objects from the child using novel labels label (e.g., “Oh, cool, da liegt ein Höfas auf dem Tisch, wie toll! Ein Höfas liegt auf dem Tisch! Kannst du mir das Höfas geben?” [“Oh, cool, there is a höfas on the table, how neat! A höfas is on the table. Can you give me the höfas?”]). 
+
+The mutual exclusivity experiment had only one condition. Each familiar and unknown object appeared once; each speaker appeared four times. The dependent variable was the object the child selected on each trial (i.e., choice). Here, choosing the unknown object constituted the correct choice and was coded as 1. 
+
+#### Novelty experiment 
+
+Each child participated in the novelty experiment (12 trials) on the first testing day, immediately following the mutual exclusivity experiment. Animal speakers again stood on a small hill between two tables. Contrary to the mutual exclusivity experiment, in the beginning, only one of the tables contained an object, while the other was empty. Speakers commented on the presence of the object (“Aha, schau mal da!” [“Aha, look at that!”]) and the absence of an object on the other table (“Hm, da ist nichts!” [“Hm, nothing there!”]). These utterances were designed to create common ground between the speaker and the child. Both the side where the empty table stood (left or right) and which of these comments the speaker uttered first was counterbalanced across trials. Speakers disappeared from the screen after the sound of a ringing telephone could be heard. (The child had been told priorly that at times, the animals would have to leave to answer calls.) During the speakers' absence, a second object appeared on the previously empty table. Shortly after, the speaker returned and requested an object in the same manner as in the mutual exlusivity experiment (e.g., “Oh, toll, da liegt ein Wisslo auf dem Tisch, wie interessant! Ein Wisslo liegt auf dem Tisch! Kannst du mir das Wisslo geben?” [“Oh, neat, there’s a wisslo on the table, how interesting! A wisslo is on the table. Can you give me the wisslo?”]).  
+
+The novelty experiment had only one condition. Each unknown object appeared once; each speaker appeared three times. Again, the dependent variable was choice. Here, choosing the object that appeared later during the trial and was thus new in the discourse context constituted the correct choice and was coded as 1. 
+
+The production and the comprehension task were run on the second testing day after the mutual exclusivity, the novelty and the combination experiment. 
+
+#### Combination experiment 
+
+Each child participated in the combination experiment (16 trials) on the second testing day. Here, mutual exclusivity and novelty were combined. Overall, the procedure was the same as in the novelty experiment. However, in contrast to the novelty experiment, only one of the object was unknown, while the other object was familiar. Speakers requested objects in the same manner as before. 
+
+The combination experiment had two conditions. In the congruent condition, the object that was new in the discourse context was an unknown object, that is, the pragmatic cues mutual exclusivity and novelty were aligned. In the incongruent condition, the object that was new in the discourse context was a familiar object, that is, the pragmatic cues were disaligned. 
+
+Objects with comparable familiarity were divided onto the conditions (e.g., children are similarly familiar with duck and carrot; duck was assigned to the congruent condition and carrot was assigned to the incongruent condition). The combination experiment consisted of 8 congruent and 8 incongruent trials (4 congruent and 4 incongruent trials when the procedure was stopped early). For incongruent trials the correct choice is incongruent. For our coding, choosing the unknown object constituted the correct choice and was coded as 1. 
+
+For all three experiments, children received the same order of trials to ensure comparability across participants.
 
 #### Production task
 
-For the production task, the experimenter showed the child a picture of an object (the same as is used in the other experiments) and asked:"Can you tell me what this is?" The trial was coded as correct, if the child said the correct word (or a word from a pre-specified list of synonyms). The experimenter went through each of the 16 objects one by one.
+For the production task, the experimenter showed the child an image of an object (the same as was used in the other experiments) and prompted them to label the object with probing questions such as: “Weißt du, wie man das hier nennt?” [“Do you know what this is called?”] or “Was ist das?” [“What’s this?”]. The trial was coded as correct and received a score of 1 if the child produced a label that was correct according to coding scheme that had been developed prior to data collection based on piloting data. Otherwise, the child's answer received a score of 0. The experimenter went through each of the 16 objects one by one.
 
-Picture below shows an example.The pictures were the same as the ones used in the mutual exclusivity task and the comprehension task. 
+The picture below shows an example.The images were the same as the ones used in the mutual exclusivity task and the comprehension task. 
 
 ```{r out.width="30%", fig.cap = "Example stimulus for the production task."}
 knitr::include_graphics("../documentation/production_task_example_pic.png")
@@ -115,13 +139,13 @@ knitr::include_graphics("../documentation/production_task_example_pic.png")
 
 #### Comprehension task
 
-The child was shown 6 objects on a screen, 4 of which were objects that appeared in the rest of the study and 2 were distractors The experimenter asked the child to pick out an object (e.g. "can you point to the lock?") and the child responded by touching one of the objects. 
+The child was shown images of 6 objects on a screen, 4 of which were objects that appeared in the rest of the study and 2 were distractors. The experimenter asked the child to pick out an object (e.g., “Wo ist der Korkenzieher?” [“Where is the corkscrew?”] or “Kannst du auf das Schloss zeigen?” [“Can you point to the lock?”]). The child responded by pointing at an object, which the parent then selected. 
 
-We coded as correct if the child clickeds on the correct object OR if they named the object during production.
+We coded as correct if the child selected the correct object OR if they had correctly named the object during production.
 
 The experimenter went through all 16 familiar objects on a total of 4 slides (each showing 6 objects, including 2 distractors).
 
-Picture below shows an example (familiar objects from the study: rasp, lock, apple, hanger; distractors: dog toy and hydrant).
+The picture below shows an example (familiar objects from the study: rasp, lock, apple, hanger; distractors: dog toy and hydrant).
 
 ```{r, out.width="80%", fig.cap = "Example for layout of a trial in the comprehension task."}
 knitr::include_graphics("../documentation/comprehension_task_example_pic.png")
