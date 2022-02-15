@@ -116,18 +116,18 @@ ggsave("../graphs/like_plot_full.png", width = 5, height = 3, scale = 1.5)
 # Individual BFs
 
 ```{r}
-# model_comp_id <-  bind_rows(
-#   fread("../model/output/spin-within_model_comparison_individual-chain1.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain2.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain3.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain4.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain5.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain6.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain7.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain8.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain9.csv"),
-#   fread("../model/output/spin-within_model_comparison_individual-chain10.csv")
-# )
+model_comp_id <-  bind_rows(
+  fread("../model/output/spin-within_model_comparison_individual-chain1.csv")#,
+  # fread("../model/output/spin-within_model_comparison_individual-chain2.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain3.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain4.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain5.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain6.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain7.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain8.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain9.csv"),
+  # fread("../model/output/spin-within_model_comparison_individual-chain10.csv")
+)
 
 #saveRDS(fread("../model/output/spin-within_model_comparison_individual-chain1.csv"), "../model/output/model_comparison_id_1.rds")
 
@@ -211,4 +211,6 @@ id_bf%>%
   scale_fill_colorblind()+
   scale_color_colorblind()
 ```
+
+
 
