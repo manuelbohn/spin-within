@@ -382,45 +382,33 @@ var model = function() {
                 logPrior.push(priorOnlyPred.score(combDataFamiliarSub[0]["correct"]))
             }
 
-            //display(logComb + "_" + logPrior + "_" + logFlat)
-
             return { logComb: logComb, logFlat: logFlat, logPrior: logPrior }
 
         }, familiars)
 
-        var famLogComb = []
-        var famLogFlat = []
-        var famLogPrior = []
 
-        foreach(function(number) {
-            famLogComb.push(number.logComb);
-            famLogFlat.push(number.logFlat)
-            famLogPrior.push(number.logPrior)
-        }, famLog)
+        var famLogComb = sum(_.flatten(_.map(famLog, "logComb")))
+        var famLogFlat = sum(_.flatten(_.map(famLog, "logFlat")))
+        var famLogPrior = sum(_.flatten(_.map(famLog, "logPrior")))
 
-        query.add([chain, "id", "combination", subject], sum(famLogComb.flat()))
-        query.add([chain, "id", "flatPrior", subject], sum(famLogFlat.flat()))
-        query.add([chain, "id", "priorOnly", subject], sum(famLogPrior.flat()))
+        //display(famLog)
+        //display(famLogComb)
 
-        return { famLogComb: sum(famLogComb.flat()), famLogFlat: sum(famLogFlat.flat()), famLogPrior: sum(famLogPrior.flat()) }
+        query.add([chain, "id", "combination", subject], famLogComb)
+        query.add([chain, "id", "flatPrior", subject], famLogFlat)
+        query.add([chain, "id", "priorOnly", subject], famLogPrior)
+
+        return { famLogComb: famLogComb, famLogFlat: famLogFlat, famLogPrior: famLogPrior }
 
     }, subjects)
 
+    var subLogComb = sum(_.flatten(_.map(subLog, "famLogComb")))
+    var subLogFlat = sum(_.flatten(_.map(subLog, "famLogFlat")))
+    var subLogPrior = sum(_.flatten(_.map(subLog, "famLogPrior")))
 
-    var subLogComb = []
-    var subLogFlat = []
-    var subLogPrior = []
-
-    foreach(function(number) {
-        subLogComb.push(number.famLogComb);
-        subLogFlat.push(number.famLogFlat)
-        subLogPrior.push(number.famLogPrior)
-
-    }, subLog)
-
-    query.add([chain, "global", "combination", "NA"], sum(subLogComb.flat()))
-    query.add([chain, "global", "flatPrior", "NA"], sum(subLogFlat.flat()))
-    query.add([chain, "global", "priorOnly", "NA"], sum(subLogPrior.flat()))
+    query.add([chain, "global", "combination", "NA"], subLogComb)
+    query.add([chain, "global", "flatPrior", "NA"], subLogFlat)
+    query.add([chain, "global", "priorOnly", "NA"], subLogPrior)
 
 
     return query
