@@ -258,7 +258,7 @@ var model = function() {
 
             //display(prodSubItemData[0]["correct"])
 
-            if (productionModel.score(prodSubItemData[0]["correct"]) != -Infinity) {
+            if (prodSubItemData[0]["correct"] != undefined) {
                 observe(productionModel, prodSubItemData[0]["correct"])
             }
 
@@ -279,7 +279,7 @@ var model = function() {
             // display(comprehensionSubItemData)
             //display("comprehension for subject = " + subject + " familiar = " + familiar + " score = " + comprehensionModel.score(comprehensionSubItemData[0]["correct"]))
 
-            if (comprehensionModel.score(comprehensionSubItemData[0]["correct"]) != -Infinity) {
+            if (comprehensionSubItemData[0]["correct"] != undefined) {
                 observe(comprehensionModel, comprehensionSubItemData[0]["correct"])
             }
 
@@ -331,7 +331,7 @@ var model = function() {
 
             //display("ME for subject = " + subject + " familiar = " + familiar + " score = " + meModel.score(meSubItemData[0]["correct"]))
 
-            if (meModel.score(meSubItemData[0]["correct"]) != -Infinity) {
+            if (meSubItemData[0]["correct"] != undefined) {
                 observe(meModel, meSubItemData[0]["correct"])
             }
 
@@ -352,7 +352,7 @@ var model = function() {
 
             var logComb = []
 
-            if (combPred.score(combDataFamiliarSub[0]["correct"]) != -Infinity) {
+            if (combDataFamiliarSub[0]["correct"] != undefined) {
                 logComb.push(combPred.score(combDataFamiliarSub[0]["correct"]))
             }
 
@@ -362,7 +362,7 @@ var model = function() {
 
             var logFlat = []
 
-            if (flatPriorPred.score(combDataFamiliarSub[0]["correct"]) != -Infinity) {
+            if (combDataFamiliarSub[0]["correct"] != undefined) {
                 logFlat.push(flatPriorPred.score(combDataFamiliarSub[0]["correct"]))
             }
 
@@ -378,7 +378,7 @@ var model = function() {
 
             var logPrior = []
 
-            if (priorOnlyPred.score(combDataFamiliarSub[0]["correct"]) != -Infinity) {
+            if (combDataFamiliarSub[0]["correct"] != undefined) {
                 logPrior.push(priorOnlyPred.score(combDataFamiliarSub[0]["correct"]))
             }
 
