@@ -14,6 +14,7 @@ library(tidyboot)
 library(coda)
 library(data.table)
 library(matrixStats)
+library(ggdist)
 
 estimate_mode <- function(s) {
   d <- density(s)
@@ -117,27 +118,23 @@ ggsave("../graphs/like_plot_full.png", width = 5, height = 3, scale = 1.5)
 
 ```{r}
 model_comp_id <-  bind_rows(
-  fread("../model/output/spin-within_model_comparison_individual-chain1.csv")#,
-  # fread("../model/output/spin-within_model_comparison_individual-chain2.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain3.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain4.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain5.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain6.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain7.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain8.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain9.csv"),
-  # fread("../model/output/spin-within_model_comparison_individual-chain10.csv")
+  fread("../model/output/spin-within_model_comparison_individual-chain1.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain2.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain3.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain4.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain5.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain6.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain7.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain8.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain9.csv"),
+  fread("../model/output/spin-within_model_comparison_individual-chain10.csv")
 )
 
-#saveRDS(fread("../model/output/spin-within_model_comparison_individual-chain1.csv"), "../model/output/model_comparison_id_1.rds")
 
-# For MH to get an idea of what the output looks like and to reproduce the logSumExp problem
-# These are samples from a single chain, but they show the general issue
-model_comp_id <- readRDS("../model/output/model_comparison_id_1.rds")
 ```
 
 ```{r}
-range(model_comp_id$loglike)
+unique(model_comp_id$scope)
 ```
 
 ## overall
@@ -148,6 +145,16 @@ model_comp_id %>%
   group_by(model,chain)%>%
   summarise(margllh = logSumExp(loglike))%>%
   pivot_wider(names_from = model, values_from = margllh)
+```
+
+```{r}
+model_comp_id %>%
+  filter(scope == "global")%>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)%>%
+  summarise(bf_comb_flat = combination - flatPrior, 
+            bf_comb_prior = combination - priorOnly)
 ```
 
 ## by chain
@@ -193,18 +200,26 @@ id_bf <- model_comp_id %>%
   summarise(bf_comb_flat = combination - flatPrior, 
             bf_comb_prior = combination - priorOnly)%>%
   pivot_longer(cols = c(bf_comb_flat, bf_comb_prior), names_to = "Comparison", values_to = "log_BF")
+
+saveRDS(id_bf, "./saves/id_bf.rds")
 ```
 
 ```{r}
 id_bf%>%
   group_by(Comparison)%>%
-  summarise(prop_pos_BF = sum(log_BF > 0)/60)
+  summarise(prop_pos_BF = sum(log_BF > 0)/60,
+            prop_BF_3 = sum(log_BF > 1)/60,
+            prop_BF_10 = sum(log_BF > 2.3)/60,
+            prop_BF_neg3 = sum(log_BF < -1)/60,
+            prop_BF_neg10 = sum(log_BF < -2.3)/60)
 ```
 
 ```{r}
 id_bf%>%
   ggplot(aes(x = log_BF, fill = Comparison))+
-  geom_vline(xintercept = c(0,log(3),log(10)), lty = 2, alpha = .75)+
+  geom_vline(xintercept = 0, lty = 1, col = "black")+
+  geom_vline(xintercept = c(log(3),log(10), log(100)), lty = 2, alpha = .75, col = "#7a942e")+
+  geom_vline(xintercept = c(log(0.3),log(0.1), log(0.01)), lty = 2, alpha = .75, col = "firebrick")+
   geom_density(alpha = .5)+
   geom_point(aes(y = 0, col = Comparison), pch = "I", size = 5)+
   theme_minimal()+
