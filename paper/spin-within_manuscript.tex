@@ -1,0 +1,449 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  man,floatsintext]{apa6}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Integrative modeling of children's information integration during pragmatic word learning},
+  pdfauthor={Manuel Bohn1, Louisa Schmidt2, Cornelia Schulze2, Michael C. Frank3, \& Michael Henry Tessler4,5},
+  pdflang={en-EN},
+  pdfkeywords={Pragmatics, language development, individual differences, cognitive modeling},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{english}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+% Manuscript styling
+\usepackage{upgreek}
+\captionsetup{font=singlespacing,justification=justified}
+
+% Table formatting
+\usepackage{longtable}
+\usepackage{lscape}
+% \usepackage[counterclockwise]{rotating}   % Landscape page setup for large tables
+\usepackage{multirow}		% Table styling
+\usepackage{tabularx}		% Control Column width
+\usepackage[flushleft]{threeparttable}	% Allows for three part tables with a specified notes section
+\usepackage{threeparttablex}            % Lets threeparttable work with longtable
+
+% Create new environments so endfloat can handle them
+% \newenvironment{ltable}
+%   {\begin{landscape}\begin{center}\begin{threeparttable}}
+%   {\end{threeparttable}\end{center}\end{landscape}}
+\newenvironment{lltable}{\begin{landscape}\begin{center}\begin{ThreePartTable}}{\end{ThreePartTable}\end{center}\end{landscape}}
+
+% Enables adjusting longtable caption width to table width
+% Solution found at http://golatex.de/longtable-mit-caption-so-breit-wie-die-tabelle-t15767.html
+\makeatletter
+\newcommand\LastLTentrywidth{1em}
+\newlength\longtablewidth
+\setlength{\longtablewidth}{1in}
+\newcommand{\getlongtablewidth}{\begingroup \ifcsname LT@\roman{LT@tables}\endcsname \global\longtablewidth=0pt \renewcommand{\LT@entry}[2]{\global\advance\longtablewidth by ##2\relax\gdef\LastLTentrywidth{##2}}\@nameuse{LT@\roman{LT@tables}} \fi \endgroup}
+
+% \setlength{\parindent}{0.5in}
+% \setlength{\parskip}{0pt plus 0pt minus 0pt}
+
+% Overwrite redefinition of paragraph and subparagraph by the default LaTeX template
+% See https://github.com/crsh/papaja/issues/292
+\makeatletter
+\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\parindent}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries\itshape\typesectitle}}
+
+\renewcommand{\subparagraph}[1]{\@startsection{subparagraph}{5}{1em}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-\z@\relax}%
+  {\normalfont\normalsize\itshape\hspace{\parindent}{#1}\textit{\addperi}}{\relax}}
+\makeatother
+
+% \usepackage{etoolbox}
+\makeatletter
+\patchcmd{\HyOrg@maketitle}
+  {\section{\normalfont\normalsize\abstractname}}
+  {\section*{\normalfont\normalsize\abstractname}}
+  {}{\typeout{Failed to patch abstract.}}
+\patchcmd{\HyOrg@maketitle}
+  {\section{\protect\normalfont{\@title}}}
+  {\section*{\protect\normalfont{\@title}}}
+  {}{\typeout{Failed to patch title.}}
+\makeatother
+
+\usepackage{xpatch}
+\makeatletter
+\xapptocmd\appendix
+  {\xapptocmd\section
+    {\addcontentsline{toc}{section}{\appendixname\ifoneappendix\else~\theappendix\fi\\: #1}}
+    {}{\InnerPatchFailed}%
+  }
+{}{\PatchFailed}
+\keywords{Pragmatics, language development, individual differences, cognitive modeling\newline\indent Word count: X}
+\usepackage{lineno}
+
+\linenumbers
+\usepackage{csquotes}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Integrative modeling of children's information integration during pragmatic word learning}
+\author{Manuel Bohn\textsuperscript{1}, Louisa Schmidt\textsuperscript{2}, Cornelia Schulze\textsuperscript{2}, Michael C. Frank\textsuperscript{3}, \& Michael Henry Tessler\textsuperscript{4,5}}
+\date{}
+
+
+\shorttitle{Integrative modeling of information integration}
+
+\authornote{
+
+M. Bohn received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement no. 749229. M. H. Tessler was funded by the National Science Foundation SBE Postdoctoral Research Fellowship Grant No.~1911790. M. C. Frank was supported by a Jacobs Foundation Advanced Research Fellowship and the Zhou Fund for Language and Cognition. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
+
+The authors made the following contributions. Manuel Bohn: Conceptualization, Methodology, Formal Analysis, Visualization, Writing -- original draft, Writing -- review \& editing; Louisa Schmidt: Conceptualization, Methodology, Investigation, Writing -- review \& editing; Cornelia Schulze: Conceptualization, Methodology, Writing -- review \& editing; Michael C. Frank: Conceptualization, Writing -- review \& editing; Michael Henry Tessler: Conceptualization, Methodology, Formal Analysis, Writing -- review \& editing.
+
+Correspondence concerning this article should be addressed to Manuel Bohn, Max Planck Institute for Evolutionary Anthropology, Deutscher Platz 6, 04103 Leipzig, Germany. E-mail: \href{mailto:manuel_bohn@eva.mpg.de}{\nolinkurl{manuel\_bohn@eva.mpg.de}}
+
+}
+
+\affiliation{\vspace{0.5cm}\textsuperscript{1} Department of Comparative Cultural Psychology, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany\\\textsuperscript{2} Leipzig Research Center for Early Child Development, Leipzig University, Leipzig, Germany\\\textsuperscript{3} Department of Psychology, Stanford University, Stanford, USA\\\textsuperscript{4} DeepMind, London, UK\\\textsuperscript{5} Department of Brain and Cognitive Sciences, Massachusetts Institute of Technology, Cambridge, USA}
+
+\abstract{%
+150 words
+}
+
+
+
+\begin{document}
+\maketitle
+
+Integrative modeling
+
+Hofman et al. (2021)
+
+Cognitive models for theory building
+
+Rooij (2022)
+
+Guest and Martin (2021)
+
+Rooij and Baggio (2021)
+
+In developmental psychology
+
+Simmering, Triesch, Deák, and Spencer (2010)
+
+Ullman and Tenenbaum (2020)
+
+In pragmatic language comprehension
+
+Bohn, Tessler, Merrick, and Frank (2022)
+
+Tessler and Goodman (2019)
+
+Using RSA to study individual differences:
+
+Franke and Degen (2016)
+
+Bohn, Tessler, Kordt, Hausmann, and Frank (2022)
+
+Pragmatics tasks show good re-test reliability.
+
+\hypertarget{part-1-sensitivity}{%
+\section{Part 1: Sensitivity}\label{part-1-sensitivity}}
+
+\hypertarget{methods}{%
+\subsection{Methods}\label{methods}}
+
+Methods, sample size and analyses were pre-registered at: \url{https://osf.io/pa5x2}. All data, analysis scripts, model code and experimental procedures are publicly available in the following online repository: \url{https://github.com/manuelbohn/spin-within}.
+
+\hypertarget{participants}{%
+\subsubsection{Participants}\label{participants}}
+
+We collected complete data for 60 children (\(m_{age}\) = 4.11, range\(_{age}\): 3.06 - 4.93, 30 girls). In addition \ldots{} {[}Louisa - könntest Du das ergänzen{]}. Children came from an ethnically homogeneous, mid-size German city (\textasciitilde550,000 inhabitants, median income €1,974 per month as of 2020); were mostly monolingual and had mixed socioeconomic backgrounds. The study was approved by an internal ethics committee at the Max Planck Institute for Evolutionary Anthropology. Data was collected between \ldots{[}Louisa{]}.
+
+\hypertarget{procedure}{%
+\subsubsection{Procedure}\label{procedure}}
+
+Children were recruited via a database and participated with their parents via an online conferencing tool. The different tasks were programmed as interactive picture books in \texttt{JavaScript/HTML} and presented on a website. During the video call, participants would enter the website with the different tasks and share their screen. The experimenter guided them through the procedure and told caregivers when to advance to the next task. Children responded by pointing to objects on the screen, which their caregivers would then select for them via mouse click. For the production task, the experimenter shared their screen and presented pictures in a slide show. For the mutual exclusivity, discourse novelty, and combination tasks, pre-recorded sound files were used to address the child. Figure \ref{fig:fig1} shows screenshots from the different tasks.
+
+In the \emph{discourse novelty} task, children saw a speaker (cartoon animal) standing between two tables. On one table, there was a novel object (drawn for the purpose of this study) while the other was empty. The speaker sequentially turned to both sides (order counterbalanced) and either commented on the presence or absence of an object (without using any labels). Then, the speaker disappeared and -- while the speaker was gone -- another novel object appeared on the previously empty table. Next, the speaker re-appeared and requested one of the objects using a novel non-word as the label. We assumed that children would take the novel word to refer to the object that was new to the speaker. Children received 16 trials, each with a new pair of novel objects. The location of the empty table was counterbalanced.
+
+In the \emph{mutual exclusivity} task, children again saw a speaker and two tables. On one table, there was a novel object while on the other there was a (potentially) familiar object. The speaker used a novel non-word to request one of the objects. We assumed that children would take the novel word to refer to the novel object. In line with previous work (Bohn, Tessler, Merrick, \& Frank, 2021; Grassmann, Schulze, \& Tomasello, 2015; Lewis, Cristiano, Lake, Kwan, \& Frank, 2020) we assumed this inference would be modulated by children's lexical knowledge of the familiar object. Children received 16 trials, each with a new pair of novel and familiar objects. The location of the familiar object was counterbalanced.
+
+In the \emph{word production} task, the experimenter showed the child each of the 16 familiar objects from the mutual exclusivity task and asked them to name it. We used a pre-defined list of acceptable labels per object to categorize children's responses as either correct or incorrect.
+
+In the \emph{word comprehension} task, the child saw four slides with six objects. Four objects per slide were taken from the 16 familiar objects that also featured in the mutual exclusivity and word production tasks. Two objects were unrelated distractors. The experimenter labelled one familiar object after the other and asked the child to point to it.
+
+Data collection was split into two sessions scheduled for two consecutive?? {[}Louisa{]} days. On day one, children completed the mutual exclusivity and the discourse novelty tasks. On day two, they completed the combination task followed by the word comprehension and production tasks.
+
+\begin{figure}
+\includegraphics[width=1\linewidth]{./figures/fig1} \caption{Schematic overview of the study and the model. Pictures on the left show screenshots from the four sensitivity tasks. Arrows indicate which tasks informed which parameter in the model (grey area). Based on the data from the sensitivity tasks, child specific parameter distributions for each information source were estimated. These sources were integrated via an RSA model, which generated predictions for each trial of the combination task. These predictions were then evaluated against new data from the combination task.}\label{fig:fig1}
+\end{figure}
+
+\hypertarget{analysis}{%
+\subsection{Analysis}\label{analysis}}
+
+The focus of the analysis was on estimating person-specific parameters for each inforamtion source. Models to estimate parameters were implemented in the probabilistic programming language \texttt{webppl} (Goodman \& Stuhlmüller, 2014). The three information sources were: sensitivity to common ground (\(\rho_i\)), expectations about speaker informativeness (\(\alpha_i\)), and semantic knowledge (\(\theta_{ij}\)). Figure \ref{fig:fig1} shows which tasks informed which parameters. All parameters were estimated via hierarchical regression (mixed-effects) models. That is, for each parameter, we estimated an intercept and slope (fixed effects) that best described the developmental trajectory for this parameter based on the available data. Participant-specific parameters values (random effects) were estimated as deviations from the value expected for a participant based on their age. Details about the estimation procedure can be found in the supplementary material. The code to run the models can be found in the associated online repository.
+
+The parameters for semantic knowledge (\(\theta_{ij}\)) were simultaneously informed by the data from the mutual exclusivity, the comprehension and the production experiments. To leverage the mutual exclusivity data, we adopted the RSA model described in Part 2 to a situation in which both objects (novel and familiar) had equal prior probability (i.e., no common ground information). In the same model, we also estimated the parameter for speaker informativeness (see below). For the comprehension experiment, we simply assumed that the child was able to select the correct word with probability \(\theta_{ij}\). If the child did not know the word, we assumed they would select the correct word at a rate expected by chance (1/6). For the production experiment, we assumed that if the child knew the word (a function of \(\theta_{ij}\)), they produced the word with probability \(\gamma\). This successful-production-probability \(\gamma\) was the same for all children and was inferred based on the data. This adjustment reflects the finding that children's receptive vocabulary for nouns tends to be larger than the productive (Clark \& Hecht, 1983; Frank, Braginsky, Yurovsky, \& Marchman, 2021). Taken together, for each child \(i\) and familiar object \(j\) there were three data points to inform \(\theta\): one trial from the mutual exclusivity, one from the comprehension and one from the production experiment.
+
+The parameter representing a child's expectations about how informative speakers are (\(\alpha_i\)), was estimated based on the data from the mutual exclusivity experiment. As mentioned above, this was done jointly with semantic knowledge in a RSA model adopted to a situation with equal prior probability of the two objects (novel and familiar). Thus, for each child, there were 16 data points to inform \(\alpha\).
+
+We estimated children's sensitivity to common ground (\(\rho_i\)) based on the data from the discourse novelty experiment. This was done via simple logistic regression and based on the 12 data points from this task.
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+Figure \ref{fig:fig2} visualizes the results for the four sensitivity tasks and the person specific model parameters estimated from the data. In all four tasks, we saw that children performed above chance (not applicable in the case of word production), suggesting that they made the alleged pragmatic inference or knew (some) of the words for the objects involved. With respect to age, performance in raw test scores seemed to increase with age in the three tasks relying on semantic knowledge (mutual exclusivity, word production and word comprehension). Performance in these tasks was also correlated (see supplementary material). For discourse novelty, performance did not increase with age. Most importantly, however, we saw considerable variation between individuals. When focusing on the individual-specific parameter estimates (Figure \ref{fig:fig2}B), we saw that parameters that were estimated based on more data (sensitivity to common ground -- 12 trials, and expectations about speaker informativeness -- 16 trials) had better defined posterior distributions compared to semantic knowledge (3 trials per object).
+
+\begin{figure}
+\includegraphics[width=1\linewidth]{./figures/fig2_1} \caption{Results for the sensitivity tasks. A: proportion of correct responses in each task by age. Colored dots show the mean proportion of correct responses (with 95\% CI) binned by year. Regression lines show fitted generalized linear models with 95\% CIs. B: posterior distributions for each parameter (information source) and participant, ordered by mean value, separate for each parameter. Color shows age group.}\label{fig:fig2}
+\end{figure}
+
+\hypertarget{discussion}{%
+\subsection{Discussion}\label{discussion}}
+
+The goal of Part 1 was to estimate person-specific parameters representing each individual's sensitivity to the three information sources. We found that, as a group, children were sensitive to the different information sources. Furthermore, there was substantial variation between individuals in \emph{how} sensitive they were to each information source. These results provided a solid basis for studying information integration in Part 2.
+
+\hypertarget{part-2-integration}{%
+\section{Part 2: Integration}\label{part-2-integration}}
+
+In Part 2, we studied how children integrate the three information sources. We incorporated the parameters estimated in Part 1 in a computational cognitive model of pragmatic reasoning to generate participant-specific predictions about how the three information sources should be integrated. We then compared these predictions to new data collected with a task in which all three information sources were manipulated. We used Bayesian model comparisons to compare our focal \emph{rational integration model} to alternative models that made different theoretical assumptions about the integration process.
+
+\hypertarget{methods-1}{%
+\subsection{Methods}\label{methods-1}}
+
+The study was pre-registered and all data, analysis script and materials are publicly available (see Part 1 for more information).
+
+\hypertarget{participants-1}{%
+\subsubsection{Participants}\label{participants-1}}
+
+Participants were the same as in Part 1.
+
+\hypertarget{procedure-1}{%
+\subsubsection{Procedure}\label{procedure-1}}
+
+The task was implemented in the same environment as the tasks in Part 1. Each child completed the combination task on the second testing day. The general procedure followed that of the novelty task, however, only one of the objects was unknown while the other was familiar. The combination task had two conditions. In the \emph{congruent condition}, the object that was new to discourse was the novel object. As a consequence, mutual exclusivity and discourse inferences pointed to the same object as the referent of the novel word were aligned. In the \emph{incongruent condition}, the familiar object was new to discourse and thus, the two inferences pointed to different objects. We created matched pairs for the 16 familiar objects and assigned one object of each pair to one of the two conditions. Thus, there were eight trials per condition in the combination task in which each trial was with a different familiar object. We counterbalanced the order of conditions and the side on which the discourse-novel object appeared. Responses were coded from a mutual exclusivity perspective (choosing novel object = 1). All children received the same order of trials. There was the option to terminate the study after 8 trials (two children).
+
+\hypertarget{analysis-1}{%
+\subsection{Analysis}\label{analysis-1}}
+
+We adopted the modelling framework used by Bohn et al. (2021). Our models are situated in the Rational Speech Act (RSA) framework (Frank \& Goodman, 2012; Goodman \& Frank, 2016). RSA models treat language understanding as a special case of Bayesian social reasoning. A listener interprets an utterance by assuming it was produced by a cooperative speaker who has the goal to be informative. Being informative is defined as producing messages that increase the probability of the listener inferring the speaker's intended message. The focal \emph{rational integration} model, including all data-analytic parameters, is formally defined as:
+
+\begin{equation}
+P_{L_1}(r \mid u; \{\rho_i, \alpha_i\, \theta_{ij}\})\propto P_{S_1}(u \mid r; \{\alpha_i, \theta_{ij}\}) \cdot P(r \mid \rho_i)
+\label{eq:rsafull1}
+\end{equation}
+
+The model describes a listener (\(L_1\)) reasoning about the intended referent of a speaker's (\(S_1\)) utterance. This reasoning is contextualized by the prior probability of each referent \(P(r \mid \rho_i)\). This prior probability is a function of the common ground \(\rho\) shared between speaker and listener in that interacting around the objects changes the probability that they will be referred to later.
+
+To decide between referents, the listener (\(L_1\)) reasons about what a rational speaker (\(S_1\)) would say given an intended referent. This speaker is assumed to compute the informativity for each available utterance and then choose the most informative one. The expectation of speaker informativeness may vary and is captured by the parameter \(\alpha\):
+
+\begin{equation}
+P_{S_1}(u \mid r; \{\alpha_i\, \theta_{ij}\})\propto P_{L_0}(r \mid u; \{\theta_{ij}\}) ^{\alpha_i}
+\label{eq:rsafull2}
+\end{equation}
+
+The informativity of each utterance is given by imagining which referent a literal listener (\(L_0\)), who interprets words according to their lexicon \(\mathcal{L}\), would infer upon hearing the utterance. This reasoning depends on what kind of semantic knowledge (word--object mappings, \(\theta_{i,j}\)) the speaker thinks the literal listener has. As noted above, for familiar objects, we take semantic knowledge to be a function of the degree-of-acquisition of the associated word.
+
+\begin{equation}
+P_{L_0}(r \mid u; \{\theta_{ij}\}) \propto \mathcal{L}(u, r \mid \theta_{ij})
+\label{eq:rsafull3}
+\end{equation}
+
+This modelling framework allows us to generate predictions for each participant and trial in the combination task based on the participant-specific parameters estimated in Part 1. That is, for each combination of \(\rho\), \(\alpha\), and \(\theta\) for participant \(i\) and familiar object \(j\), the model returns a distribution for the probability with which the child should choose the novel object. We contrasted the predictions made by the \emph{rational integration} model described above to those made by two plausible alternative models which assume that children selectively ignore some of the available information sources (Gagliardi, Feldman, \& Lidz, 2017). These models generated predictions based on the same parameters as the \emph{rational integration} model, the only difference lay in how the parameters were used. The \emph{no speaker informativeness} model assumed that the speaker does not communicate in an informative way and therefore focused on the sensitivity to common ground. The \emph{no common ground} model ignores common ground information and focused on the mutual exclusivity inference (speaker informativeness and semantic knowledge instead). A detailed description of all the models along with technical information about parameter estimation can be found in the supplementary material.
+
+We evaluated the model predictions in two steps. First, we replicated the group-level results of Bohn et al. (2021). That is, we compared the three models in how well they predict the data of the combination task when aggregating across individuals. For this, we correlated model predictions and the data (aggregated by trial and age group) and computed pairwise Bayes Factors based on the marginal likelihood of the data given the model.
+
+Second, and most importantly, we evaluated how well the model predicted performance on an \emph{individual} level. For each trial, we converted the (continuous) probability distribution returned by the model into a binary prediction (the structure of the data) by flipping a coin with the Maximum a posteriori estimate (MAP) of the distribution as its weight. For the focal and the two alternative models, we then computed the proportion of trials for which the model predictions matched children's responses and compared them to a level expected by random guessing using a Bayesian t-test. Finally, for each child, we computed the Bayes Factor in in favor of the \emph{rational integration} model and checked for how many children this value was above 1 (log-Bayes Factors \textgreater{} 0). Bayes Factors larger than 1 present evidence in favor of the \emph{rational integration} model. We evaluated the distribution of Bayes Factors following the classification of Lee and Wagenmakers (2014).
+
+\hypertarget{results-1}{%
+\subsection{Results}\label{results-1}}
+
+On a group-level, the results of the present study replicated those of Bohn et al. (2021). The predictions made by the \emph{rational integration} model were highly correlated with children's responses in the combination task. The model explained around 74\% of the variance in the data and with that more compared to the two alternative models (Figure \ref{fig:fig3}A). Bayes Factors computed via the marginal likelihood of the data (Figure \ref{fig:fig3}B) strongly favored the \emph{rational integration} model in comparison to the \emph{no common ground} (\(BF_{10}\) = 9.1e+53) as well as the \emph{no speaker informativeness} model (\(BF_{10}\) = 1.2e+44).
+
+\begin{figure}
+\includegraphics[width=1\linewidth]{./figures/fig3} \caption{Group-level model comparison. A: Correlation between model predictions and data (aggregated across individuals and binned by year with 95\%HDI) for each trial in the combination experiment. B: log-likelihood for each model given the data.}\label{fig:fig3}
+\end{figure}
+
+Finally, we turned to the individual-level results. When looking at the proportion of correct predictions, we saw that the \emph{rational integration} model correctly predicted children's responses in the combination task in 72\% of trials, which was well above chance (\(BF_{10}\) = 2.15e+14) and higher compared to the two alternative models (Figure \ref{fig:fig4}A). Note that the alternative models also predicted children's responses at a level above chance (\emph{no common ground}: 61\%, \(BF_{10}\) = 220251; \emph{no speaker informativeness}: 60\%, \(BF_{10}\) = 55.4), emphasizing that they constitute plausible alternatives. In the supplementary material we also compared models with respect to the situations in which they did or did not correctly predict children's responses.
+
+When directly comparing the models on an individual level, we found that the \emph{rational integration} model provided the best fit for the majority of children. In comparison to the \emph{no common ground} model, 62\% of Bayes Factors were larger than 1 and 35\% were larger than 10. In comparison to the \emph{no speaker informativeness} model, 68\% of Bayes Factors were larger than 1 and 45\% were larger than 10 (Figure \ref{fig:fig4}B).
+
+\begin{figure}
+\includegraphics[width=1\linewidth]{./figures/fig4} \caption{Individual-level model comparison. A: proportion of correct predictions for each model. Colored dots show mean with 95\%CI. Light dots show aggregated individual data. B: distribution of log-Bayes Factors for each individual. Dashed lines show Bayes Factor thresholds of 3, 10 and 100.}\label{fig:fig4}
+\end{figure}
+
+\hypertarget{discussion-1}{%
+\subsection{Discussion}\label{discussion-1}}
+
+The results of Part 2 show that the \emph{rational integration} model accurately predicted children's responses in the combination task. Importantly, this was the case not just on a group level, but also on an individual level. Based on the sensitivity measures obtained for each child in Part 2, the model correctly predicted children's responses in the majority of trials. Furthermore, it was more likely to be correct and provided a better explanation of the data compared to two alternative models that assumed that children selectively ignored some of the information sources.
+
+\hypertarget{general-discussion}{%
+\section{General discussion}\label{general-discussion}}
+
+Models work on individual level. this work shows they make good predictions and also model comparison is a great tool to contrast theories. Psychological reality of the model and their parameters are still in question, but they work well. Recent other work suggests model parameters can be used in individual differences studies, representing differences between individuals as an alternative to raw scores. Allows linking different paradigms on a process level.
+
+\newpage
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-bohn2022individual}{}}%
+Bohn, M., Tessler, M. H., Kordt, C., Hausmann, T., \& Frank, M. C. (2022). \emph{An individual differences perspective on the development of pragmatic abilities in the preschool years}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-bohn2021young}{}}%
+Bohn, M., Tessler, M. H., Merrick, M., \& Frank, M. C. (2021). How young children integrate information sources to infer the meaning of words. \emph{Nature Human Behaviour}, \emph{5}(8), 1046--1054.
+
+\leavevmode\vadjust pre{\hypertarget{ref-bohn_tessler_merrick_frank_2019}{}}%
+Bohn, M., Tessler, M. H., Merrick, M., \& Frank, M. C. (2022). Predicting pragmatic cue integration in adults' and children's inferences about novel word meanings. \emph{Journal of Experimental Psychology: General}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-clark1983comprehension}{}}%
+Clark, E. V., \& Hecht, B. F. (1983). Comprehension, production, and language acquisition. \emph{Annual Review of Psychology}, \emph{34}(1), 325--349.
+
+\leavevmode\vadjust pre{\hypertarget{ref-frank2021variability}{}}%
+Frank, M. C., Braginsky, M., Yurovsky, D., \& Marchman, V. A. (2021). \emph{Variability and consistency in early language learning: The wordbank project}. MIT Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-frank2012predicting}{}}%
+Frank, M. C., \& Goodman, N. D. (2012). Predicting pragmatic reasoning in language games. \emph{Science}, \emph{336}(6084), 998--998.
+
+\leavevmode\vadjust pre{\hypertarget{ref-franke2016reasoning}{}}%
+Franke, M., \& Degen, J. (2016). Reasoning in reference games: Individual-vs. Population-level probabilistic modeling. \emph{PloS One}, \emph{11}(5), e0154854.
+
+\leavevmode\vadjust pre{\hypertarget{ref-gagliardi2017modeling}{}}%
+Gagliardi, A., Feldman, N. H., \& Lidz, J. (2017). Modeling statistical insensitivity: Sources of suboptimal behavior. \emph{Cognitive Science}, \emph{41}(1), 188--217.
+
+\leavevmode\vadjust pre{\hypertarget{ref-goodman2016pragmatic}{}}%
+Goodman, N. D., \& Frank, M. C. (2016). Pragmatic language interpretation as probabilistic inference. \emph{Trends in Cognitive Sciences}, \emph{20}(11), 818--829.
+
+\leavevmode\vadjust pre{\hypertarget{ref-dippl}{}}%
+Goodman, N. D., \& Stuhlmüller, A. (2014). \emph{{The design and implementation of probabilistic programming languages}}. \url{http://dippl.org}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-grassmann2015children}{}}%
+Grassmann, S., Schulze, C., \& Tomasello, M. (2015). Children's level of word knowledge predicts their exclusion of familiar objects as referents of novel words. \emph{Frontiers in Psychology}, \emph{6}, 1200.
+
+\leavevmode\vadjust pre{\hypertarget{ref-guest2021computational}{}}%
+Guest, O., \& Martin, A. E. (2021). How computational modeling can force theory building in psychological science. \emph{Perspectives on Psychological Science}, \emph{16}(4), 789--802.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hofman2021integrating}{}}%
+Hofman, J. M., Watts, D. J., Athey, S., Garip, F., Griffiths, T. L., Kleinberg, J., \ldots{} others. (2021). Integrating explanation and prediction in computational social science. \emph{Nature}, \emph{595}(7866), 181--188.
+
+\leavevmode\vadjust pre{\hypertarget{ref-lee2014bayesian}{}}%
+Lee, M. D., \& Wagenmakers, E.-J. (2014). \emph{Bayesian cognitive modeling: A practical course}. Cambridge University Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-lewis2020role}{}}%
+Lewis, M., Cristiano, V., Lake, B. M., Kwan, T., \& Frank, M. C. (2020). The role of developmental change and linguistic experience in the mutual exclusivity effect. \emph{Cognition}, \emph{198}, 104191.
+
+\leavevmode\vadjust pre{\hypertarget{ref-van2022psychological}{}}%
+Rooij, I. van. (2022). Psychological models and their distractors. \emph{Nature Reviews Psychology}, 1--2.
+
+\leavevmode\vadjust pre{\hypertarget{ref-van2021theory}{}}%
+Rooij, I. van, \& Baggio, G. (2021). Theory before the test: How to build high-verisimilitude explanatory theories in psychological science. \emph{Perspectives on Psychological Science}, \emph{16}(4), 682--697.
+
+\leavevmode\vadjust pre{\hypertarget{ref-simmering2010dialogue}{}}%
+Simmering, V. R., Triesch, J., Deák, G. O., \& Spencer, J. P. (2010). A dialogue on the role of computational modeling in developmental science. \emph{Child Development Perspectives}, \emph{4}(2), 152--158.
+
+\leavevmode\vadjust pre{\hypertarget{ref-tessler2019language}{}}%
+Tessler, M. H., \& Goodman, N. D. (2019). The language of generalization. \emph{Psychological Review}, \emph{126}(3), 395.
+
+\leavevmode\vadjust pre{\hypertarget{ref-ullman2020bayesian}{}}%
+Ullman, T. D., \& Tenenbaum, J. B. (2020). Bayesian models of conceptual development: Learning as building models of the world. \emph{Annual Review of Developmental Psychology}, \emph{2}, 533--558.
+
+\end{CSLReferences}
+
+\endgroup
+
+
+\end{document}

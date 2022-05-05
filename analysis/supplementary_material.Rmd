@@ -1,5 +1,5 @@
 ---
-title: "... tbd ..."
+title: "Integrative modeling of children's information integration during pragmatic word learning"
 subtitle: "Supplementary material"
 author: "Manuel Bohn, Louisa Schmidt, Cornelia Schulze, Michael C. Frank and Michael Henry Tessler"
 output: 
@@ -317,6 +317,10 @@ We used the posterior distributions for the three parameters to generate a-prior
 
 Remember that there were two conditions in the combination experiment, depending on how the mutual exclusivity and the common ground manipulations were aligned. In the *congruent* condition, the object in the prior social interaction (i.e., the discourse-familiar object) was the familiar object, and hence, both common ground (discourse novelty) and mutual exclusivity are cues to the same referent; in the *incongruent* condition, the object in the prior social interaction was the novel object, and hence, common ground (discourse-novelty) and mutual exclusivity are cues to different referents.
 
+## Parameter estimation 
+
+...
+
 ## Model evaluation
 
 To evaluate the model predictions, we first replicated the group--level results of @bohn2021young. The goal was to show that a) model predictions are highly correlated with the data and b) the *integration* model makes better predictions compared to a set of alternative models. Next, we turned to the focal participant--level analysis and evaluated how well the *integration* model predicted the trial--by--trail performance of each child, both on an absolute level and in comparison to the alternative models. 
@@ -537,7 +541,7 @@ The results in the last section showed that the *integration* model made accurat
 
 
 ```{r}
-# model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+#model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
 # model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
 ```
 
@@ -651,29 +655,6 @@ p_chance <- ggplot(chance, aes(x = model, y = mean))+
 p_chance
 ```
 
-
-```{r}
-chance_id%>%
-  group_by(subid)%>%
-  filter(mean == max(mean))%>%
-  mutate(row = 1:n())%>%
-  pivot_wider(names_from = row, values_from = model)%>%
-  mutate(win_model = paste(`1`,`2`, sep = " & "),
-         win_model = str_remove(win_model, " & NA"))%>%
-  ungroup()%>%
-  group_by(win_model)%>%
-  summarise(n = n())%>%
-  ggplot(aes(x = win_model, y = n))+
-  geom_bar(stat = "identity")+
-  theme_few()+
-  labs(y = "No. of Individuals (out of 60)", x = "Model(s) with best predictions")+
-  theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))
-
-```
-```{r}
-ggsave("../graphs/win_model_id.png", width = 6, height = 4, scale = 1)
-```
-
 Finally, we looked at the "hits" and "misses", that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) showed that the *integration* model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in about 50% of cases.  
 
 ```{r}
@@ -696,7 +677,7 @@ hp <- mpred%>%
   facet_grid(~model)+
   #coord_fixed()+
   theme_few()+
-  scale_fill_gradient(low = "#FDE1C4", high = "dodgerblue", limit = c(0,1), name="Proportion")
+  scale_fill_gradient(low = "white", high = "black", limit = c(0,1), name="Proportion")
 ```
 
 ```{r hitplot, fig.cap = "Proportion of correct predicitons by model for the two possible outcomes in the data.",fig.height = 3.5, fig.width= 10, out.width="100%"}
@@ -706,53 +687,53 @@ hp
 ```{r}
 ### Individual predictions
 
-#idm <- model_predictions%>%
-#   select(-a, -g)%>%
-#   rename(model = b,
-#          condition = c,
-#          familiar = d,
-#          subid = e,
-#          pred = f)%>%
-#   filter(subid == 13028)
-# 
-# idd <- data%>%
-#   filter(subid == 13028 ,task == "combination")
-# 
-# idm %>%
-#   ggplot(aes(x = pred, y = familiar, fill = model))+
-#   geom_density_ridges(alpha = .5, scale = 3)+
-#   geom_point(data =idd, aes(x = correct, y = familiar), size = 3, stroke = 1, fill = "darkgreen",  col = "darkgreen", pch = 4)+
-#   facet_wrap(~condition, scales = "free_y")+
-#   scale_fill_ptol()+
-#   theme_few()
+idm <- model_predictions%>%
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
+         familiar = d,
+         subid = e,
+         pred = f)%>%
+  filter(subid == 13028)
+
+idd <- data%>%
+  filter(subid == 13028 ,task == "combination")
+
+idm %>%
+  ggplot(aes(x = pred, y = familiar, fill = model))+
+  geom_density_ridges(alpha = .5, scale = 3)+
+  geom_point(data =idd, aes(x = correct, y = familiar), size = 3, stroke = 1, fill = "darkgreen",  col = "darkgreen", pch = 4)+
+  facet_wrap(~condition, scales = "free_y")+
+  scale_fill_ptol()+
+  theme_few()
 
 ```
 
 ```{r}
 # idsk <- model_parameters%>%
 #   rename(parameter = c,
-#          familiar = d, 
-#          subid = e, 
+#          familiar = d,
+#          subid = e,
 #          value = f)%>%
 #   filter(!is.na(familiar),
-#          parameter == "semantic_knowledge", 
+#          parameter == "semantic_knowledge",
 #          familiar == "rasp",
 #          subid == 13028)
 # 
 # idp <- model_parameters%>%
 #   rename(parameter = c,
-#          familiar = d, 
-#          subid = e, 
+#          familiar = d,
+#          subid = e,
 #          value = f)%>%
-#   filter(parameter == "prior", 
+#   filter(parameter == "prior",
 #          subid == 13028)
 # 
 # idso <- model_parameters%>%
 #   rename(parameter = c,
-#          familiar = d, 
-#          subid = e, 
+#          familiar = d,
+#          subid = e,
 #          value = f)%>%
-#   filter(parameter == "speaker_optimality", 
+#   filter(parameter == "speaker_optimality",
 #          subid == 13028)
 # 
 # idc <- model_predictions%>%
@@ -794,11 +775,59 @@ hp
 
 ### Participant specific Bayes factors
 
-For this final analysis, we repeated the model comparison on an individual level. That is, for each participant, we computed a Bayes factor (BF) in favor of the *integration* model compared to the two lesioned models. Figure \@ref(fig:parytayes) visualizes the distribution of the resulting BFs on the log-scale. Log-BFs larger than 0 correspond to BFs > 1 and thus suggest that the *integration* model fit the data better compared to the other model for this participant. Taken together, `r xx` % of log-BFs were larger than 0 when comparing the *integration* model to the *no common ground* model and `r ` % of log-BFs were larger than 0 when comparing the *integration* model to the *no speaker informativeness* model. this suggests that for the majority of participants, the *integration* model was the best model to predict their behavior in a new situation. 
-
 ```{r parytayes, }
+id_bf <- readRDS("./saves/id_bf.rds")%>%
+  left_join(data%>%select(subid,subage, age)%>%rename(id = subid)%>%distinct(id, .keep_all = T))
 
+id_bf_comp <- id_bf%>%
+  group_by(Comparison)%>%
+  summarise(prop_pos_BF = sum(log_BF > 0)/60,
+            prop_BF_3 = sum(log_BF > 1)/60,
+            prop_BF_10 = sum(log_BF > 2.3)/60,
+            prop_BF_neg3 = sum(log_BF < -1)/60,
+            prop_BF_neg10 = sum(log_BF < -2.3)/60)
 ```
+
+For this final analysis, we repeated the model comparison on an individual level. That is, for each participant, we computed a Bayes factor (BF) in favor of the *integration* model compared to the two lesioned models. Figure \@ref(fig:idbfplot)A visualizes the distribution of the resulting BFs on the log-scale. Log-BFs larger than 0 correspond to BFs > 1 and thus suggest that the *integration* model fit the data better compared to the other model for this participant. Taken together, `r id_bf_comp%>%filter(Comparison == "bf_comb_flat")%>%pull(prop_pos_BF)`% of log-BFs were larger than 0 when comparing the *integration* model to the *no common ground* model and `r id_bf_comp%>%filter(Comparison == "bf_comb_prior")%>%pull(prop_pos_BF)` % of log-BFs were larger than 0 when comparing the *integration* model to the *no speaker informativeness* model. Taken together, this suggests that for the majority of participants, the *integration* model was the best model to predict their behavior in a new situation. Figure \@ref(fig:idbfplot)B 
+
+```{r}
+pidbf <- ggarrange(  
+id_bf%>%
+  dplyr::mutate(Comparison = ifelse(Comparison == "bf_comb_flat", "integration vs. no common ground", "integration vs. no speaker informativeness"))%>%
+  ggplot(aes(x = log_BF, fill = factor(Comparison)))+
+  geom_vline(xintercept = 0, lty = 1, col = "black")+
+  geom_vline(xintercept = c(log(3),log(10), log(100)), lty = 2, alpha = .75, col = "#7a942e")+
+  geom_vline(xintercept = c(log(0.3),log(0.1), log(0.01)), lty = 2, alpha = .75, col = "firebrick")+
+  geom_density(alpha = .5)+
+  #facet_grid(~Comparison)+
+  geom_point(aes(y = 0, col = factor(Comparison)), pch = "I", size = 5)+
+  theme_few()+
+  labs(x = "log(BF) favor of integration model", y = "Density")+
+  scale_fill_colorblind(name = "")+
+  scale_color_colorblind(name = "")+
+  theme(legend.position = "top")
+,
+id_bf%>%
+  dplyr::mutate(Comparison = ifelse(Comparison == "bf_comb_flat", "integration vs. no common ground", "integration vs. no speaker informativeness"))%>%
+  ggplot(aes(x = age+3, col = Comparison, y = log_BF))+
+  geom_point(alpha = .75, pch = 1)+
+  geom_smooth(method = "lm")+
+  labs(y = "log(BF) favor of integration model", x = "Age")+
+  scale_color_colorblind(name = "")+
+  stat_cor(r.accuracy = 0.01, cor.coef.name = "r", show.legend = FALSE)+
+  theme_minimal(),
+common.legend = T,
+legend = "top",
+labels = c("A","B")
+)
+  
+  
+```
+
+```{r idbfplot, fig.cap = "A: distribution of log Bayes Facotrs in favor of the integration model compared to the two lesion models. B: relation between age and log Bayes Factor in favor of the intergration model.",fig.height = 3.5, fig.width= 10, out.width="100%"}
+pidbf
+```
+
 
 # Appendix 1: Group model 
 

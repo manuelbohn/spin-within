@@ -78,7 +78,7 @@ log_id <- read_excel("../../../../Cloud/spin-within/spin-within_subject_list.xls
          subage = age,
          age = age_num, 
          sex = gender)%>%
-  select(subid, subage,age,age_month, sex,status)
+  select(subid, subage,age,sex,status)
 
 log_prod <- read_excel("../../../../Cloud/spin-within/vocab_codingsheet.xlsx")%>%
   filter(task == "production")%>%
@@ -103,8 +103,9 @@ data <-  valid_data%>%
   bind_rows(log_prod%>%left_join(log_id))%>%
   filter(status == "keep", 
          !grepl("train",trial))%>%
-  select(-target)%>%
-  mutate(age = age - min(age),
+  select(-target, -test_date, -status)%>%
+  mutate(age_num = age, 
+         age = age - min(age),
          condition = ifelse(task == "combination", ifelse(
            familiar == "rasp" | familiar == "hanger" | familiar == "mic" | familiar == "pincer", "incongruent",
            ifelse(familiar == "lock" | familiar == "opener" | familiar == "bread" | familiar == "tweezers", "congruent", condition)

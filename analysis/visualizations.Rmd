@@ -1,0 +1,421 @@
+---
+title: "Spin-within visuals"
+output: html_document
+date: '2022-04-27'
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggpubr)
+library(ggthemes)
+library(ggridges)
+library(tidyboot)
+library(matrixStats)
+
+flip <- function(x){
+  coin <- sample(c(0,1), size = 1, replace = TRUE, prob = c(1 - x,x))
+  return(coin)
+}
+```
+
+```{r}
+data <- read_csv("../data/merged_data.csv")%>%
+  mutate(task = recode(task,
+                       mutual_exclusivity = "Mutual exclusivity",
+                       novelty = "Discourse novelty",
+                       comprehension = "Word comprehension",
+                       production = "Word production"))
+```
+
+# Overview
+
+```{r}
+model_parameters <- readRDS("../model/output/comb_model_parameters.rds")
+
+idmpar <- model_parameters%>%
+  rename(parameter = c,
+         familiar = d,
+         subid = e,
+         value = f)%>%
+  filter(subid == 13028)
+
+
+idmpar%>%
+  filter(!is.na(familiar),
+         parameter == "speaker_optimality",
+         familiar == "rasp")%>%
+  ggplot(aes(x = value))+
+  geom_density(fill = "grey", adjust = 3)+
+  theme_void()
+
+idmpar%>%
+  filter(parameter == "prior")%>%
+  ggplot(aes(x = value))+
+  geom_density(fill = "grey", adjust = 3)+
+  theme_void()
+
+idmpar%>%
+  filter(parameter == "speaker_optimality")%>%
+  ggplot(aes(x = value))+
+  geom_density(fill = "grey", adjust = 3)+
+  theme_void()
+```
+
+```{r}
+ggsave("../graphs/so_dist.png", height = 3, width = 3, bg = "white")
+```
+
+
+```{r}
+model_predictions <- readRDS("../model/output/comb_model_predictions.rds")
+
+idmp <- model_predictions%>%
+  select(-a, -g)%>%
+  rename(model = b,
+         condition = c,
+         familiar = d,
+         subid = e,
+         pred = f)%>%
+  filter(subid == 13028)
+
+idmp%>%
+  filter(model == "combination", familiar == "rasp")%>%
+  ggplot(aes(x = pred))+
+  geom_density(fill = "grey", adjust = 3)+
+  theme_void()
+```
+```{r}
+ggsave("../graphs/comb_dist.png", height = 3, width = 3, bg = "white")
+```
+
+
+# Sensitivity
+
+```{r, cache = T}
+p1 <- data %>%
+  filter(task != "combination")%>%
+  group_by(subage,age,task, subid) %>%
+  filter(!grepl("train",trial)) %>%
+  summarise(mean = mean(correct, na.rm = T))%>%
+  mutate(age = age+3)
+
+p2 <- p1 %>%
+  group_by(subage,task) %>%
+  tidyboot_mean(column = mean, na.rm = T)%>%
+  mutate(chance = ifelse(task == "Mutual exclusivity" | task == "Discourse novelty", 1/2,
+                         ifelse(task == "Word comprehension", 1/6, NA)))
+
+po <- ggplot()+
+  geom_hline(data = p2, aes(yintercept =chance), lty = 2, alpha = .5)+
+  geom_smooth(data = p1, aes(x = age, y = mean), method = "glm", col = "black", size = 1)+
+  geom_point(data = p1, aes(x = age, y = mean), alpha = .25)+
+  geom_pointrange(data = p2, aes(x = subage+.5, y = mean, ymin = ci_lower, ymax = ci_upper, col = factor(subage)), position = position_dodge(width = .5))+
+  facet_wrap(task~., ncol = 2)+
+  labs(x = "Age", y = "Proportion correct") +
+  scale_color_ptol(name = "Age group", labels = c("3-year-olds", "4-year-olds"))+
+  ylim(-0.02, 1.02)+
+  #guides(col = "none")+
+  theme_few()+
+  theme(legend.position = c(0.85,0.65),
+        legend.background = element_blank())
+
+cpid1<- data%>%
+  filter(task == "Mutual exclusivity" | task == "Word comprehension" | task == "Word production")%>%
+  group_by(subid,subage, task)%>%
+  summarise(mean = mean(correct, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+cpid <- data%>%
+  filter(task == "Mutual exclusivity" | task == "Word comprehension" | task == "Word production")%>%
+  group_by(subid,subage, task)%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))%>%
+  summarise(mean_task1 = mean(correct, na.rm = T))%>%
+  left_join(cpid1 %>% rename(task2 = task, mean_task2 = mean),by = c("subid","subage"))%>%
+  filter(task != task2)%>%
+  rowwise()%>%
+  mutate(ex = paste(sort(c(task, task2)), collapse = " - "))%>%
+  distinct(ex, .keep_all = T)
+  
+
+skexp <- ggplot(cpid, aes(x = mean_task1, y = mean_task2, col = subage))+
+  #geom_count( alpha = .5)+
+  geom_jitter( alpha = .5, height = 0.02, widths = 0.02)+
+  geom_abline(intercept = 0 , slope = 1, lty = 2, alpha = .4)+
+  facet_grid(task2~task)+
+  theme_few()+
+  geom_smooth(method = lm,inherit.aes = F, aes(x = mean_task1, y = mean_task2), col = "black", size = 0.75)+
+  labs(x = "", y = "")+
+  guides(size = F)+
+  scale_color_ptol(name = "Age group") +
+  stat_cor(method = "pearson",inherit.aes = F, aes(x = mean_task1, y = mean_task2),size = 3, r.accuracy = 0.01, p.accuracy = 0.01, cor.coef.name = "r")+
+  scale_x_continuous(limits = c(-0.01,1.01),breaks = c(0,1))+
+  scale_y_continuous(limits = c(-0.01,1.01),breaks = c(0,1))+
+  theme(legend.position = c(0.75,0.75))
+
+```
+
+```{r}
+ggarrange(po, skexp, common.legend = F, labels = c("A","B"))
+```
+```{r}
+ggsave("../paper/figures/fig2.png", width = 10, height = 4, scale = 1)
+```
+
+```{r}
+idpar <- model_parameters%>%
+  rename(parameter = c,
+         familiar = d,
+         subid = e,
+         value = f)%>%
+  group_by(subid,parameter)%>%
+  sample_n(2000)%>%
+  left_join(data%>%select(subid,subage)%>%distinct(subid, .keep_all =T))%>%
+  mutate(subid = factor(subid))
+
+
+priorplot <- idpar%>%
+  filter(parameter == "prior", !is.na(subid))%>%
+  mutate(parameter = "Sensitivity to common ground")%>%
+  group_by(subid)%>%
+  mutate(mean = mean(value))%>%
+  ggplot(aes(x = value, y = reorder(subid,mean), fill = factor(subage)))+
+  geom_density_ridges(rel_min_height=.01, size = 0.25, scale = 3, alpha = 0.5)+
+  facet_grid(~parameter, scales = "free_x")+
+  theme_few()+
+  labs(y = "Participants (ordered by mean value per parameter)", x = "")+
+  xlim(0,1)+
+  scale_fill_ptol()+
+  guides(fill = "none")+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y= element_blank())
+
+soplot <- idpar%>%
+  filter(parameter == "speaker_optimality", !is.na(subid))%>%
+  mutate(parameter = "Expectation about speaker informativeness")%>%
+  group_by(subid)%>%
+  mutate(mean = mean(value))%>%
+  ggplot(aes(x = value, y = reorder(subid,mean), fill = factor(subage)))+
+  geom_density_ridges(rel_min_height=.01, size = 0.25, scale = 3, alpha = 0.5)+
+  facet_grid(~parameter, scales = "free_x")+
+  theme_few()+
+    scale_fill_ptol()+
+  guides(fill = "none")+
+  labs(x = "Parameter value")+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y= element_blank(),
+        axis.title.y = element_blank())
+
+semlot <- idpar%>%
+  filter(parameter == "semantic_knowledge", !is.na(subid),
+         familiar == "lock")%>%
+  mutate(parameter = "Semantic knowledge (object = lock)")%>%
+  group_by(familiar,subid)%>%
+  mutate(mean = mean(value))%>%
+  ggplot(aes(x = value, y = reorder(subid,mean), fill = factor(subage)))+
+  geom_density_ridges(rel_min_height=.01, size = 0.25, scale = 3, alpha = 0.5)+
+  facet_grid(~parameter)+
+    scale_fill_ptol()+
+  guides(fill = "none")+
+  theme_few()+
+  labs(x = "")+
+  xlim(0,1)+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y= element_blank(),
+        axis.title.y = element_blank())
+
+ggarrange(po,priorplot, soplot,semlot, nrow = 1, widths = c(1.5,1,1,1), labels = c("A","B","",""))
+```
+
+```{r}
+ggsave("../paper/figures/fig2_1.png", width = 10, height = 4, scale = 1.25)
+```
+
+# Model group level 
+
+```{r, cache=T}
+data_binned <- data%>%
+  filter(task == "combination")%>%
+  group_by(subage, condition,familiar)%>%
+  summarize(k = sum(correct, na.rm = T), n = n())%>%
+  ungroup() %>%
+  mutate(a = 1 + k,
+         b = 1 + n - k,
+         data_mean = (a-1)/(a+b-2),
+         data_ci_lower  = qbeta(.025, a, b),
+         data_ci_upper = qbeta(.975, a, b),
+         subage = factor(subage)
+         )%>%
+  select(-a,-b,-n,-k)#%>%
+
+model_binned <- readRDS("saves/cor_model_pred.rds")
+
+cor_plot <-  bind_rows(model_binned %>% left_join(data_binned)
+                       )%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"),
+         model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))
+
+cor_plot1 <- cor_plot%>%
+  filter(model == "Integration")%>%
+ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
+  geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
+  geom_point(size = 1.5, stroke = 1, pch = 5)+
+  #coord_fixed()+
+  facet_grid(~model)+
+stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
+  xlab("Model predictions")+
+  ylab("Child inference data\n(proportion novel object chosen)")+
+  theme_few() + 
+  scale_colour_ptol(name = "Age group")+
+  scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
+  scale_y_continuous(limits = c(0,1), breaks = c(0,1))+
+  theme(legend.position = c(0.8,0.15),
+        legend.background = element_blank())
+
+cor_plot2 <- cor_plot%>%
+  filter(model != "Integration")%>%
+ggplot(aes(x = model_mean, y = data_mean, col = subage)) +
+  geom_abline(intercept = 0, slope = 1, lty = 2, alpha = 1, size = .5)+
+  geom_errorbar(aes(ymin = data_ci_lower, ymax = data_ci_upper),width = 0,size = .5, alpha = .7)+
+  geom_errorbarh(aes(xmin = model_ci_lower, xmax = model_ci_upper), height = 0,size = .5, alpha = .7)+
+  geom_point(size = 1.5, stroke = 1, pch = 5)+
+  #coord_fixed()+
+  facet_wrap(model~., ncol = 1)+
+stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean, y = data_mean, label = paste(..rr.label..)), inherit.aes = F, size = 3)+
+  xlab("")+
+  ylab("")+
+  theme_few() + 
+  guides(col = "none")+
+  scale_colour_ptol(name = "Age group")+
+  scale_x_continuous(limits = c(0,1), breaks = c(0,1))+
+  scale_y_continuous(limits = c(0,1), breaks = c(0,1))
+
+```
+
+```{r}
+model_comp <- readRDS("../model/output/model_comparison.rds")
+```
+
+```{r}
+logbf <- model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  pivot_wider(names_from = model, values_from = margllh)%>%
+  summarise(bf_comb_flat = combination - flatPrior, 
+            bf_comb_prior = combination - priorOnly)
+```
+
+
+```{r}
+lp <- model_comp %>%
+  group_by(model)%>%
+  summarise(margllh = logSumExp(loglike))%>%
+  ggplot(aes(x = model, y = margllh, col = model))+
+  geom_segment( aes(x=model, xend=model, y=margllh, yend=-400), col = "black", size = 1)+
+  geom_point(size = 7)+
+  theme_few()+ 
+  xlab("")+
+  ylab("Log-likelihood")+
+  theme(axis.text.x=element_text(angle = 45, vjust = 1, hjust = 1))+
+  guides()+
+  ylim(-650,-400)+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank(),
+        legend.position = c(0.3, 0.2),
+        legend.background = element_blank())
+```
+
+
+```{r}
+ggarrange(
+  ggarrange(cor_plot1, cor_plot2, common.legend = F, widths = c(1.75,1)),
+  NULL,
+  lp, 
+  nrow = 1,
+  widths = c(1.5,0.2,1),
+  labels = c("A","", "B"))
+```
+
+```{r}
+ggsave("../paper/figures/fig3.png", width = 10, height = 3.5, scale = 1.25, bg="white")
+```
+
+# Model individual level 
+
+```{r}
+mpred <- readRDS("saves/id_model_pred.rds")
+
+chance_id <- mpred%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subid, subage,model)%>%
+  summarise(mean = mean(match, na.rm = T))%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+chance <- chance_id%>%
+  group_by(subage,model)%>%
+  tidyboot_mean(col = mean)
+
+
+p_chance <- ggplot(chance, aes(x = model, y = mean))+
+  geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
+  geom_dotplot(data = chance_id, binaxis='y', stackdir='center',
+               stackratio=1.5, dotsize=.5, alpha = .2)+
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
+  ylim(0,1)+
+  facet_grid(~subage)+
+  labs(x = "", y = "Proportion correct predictions")+
+  scale_color_manual(name = "Model",
+                     labels=c("Integration","No Common Ground","No Speaker Informativeness"),
+                     
+                    values= c("#6a994e","#6e1423","#a71e34"))+
+  theme_few()+
+  theme(axis.ticks.x = element_blank(), axis.text.x = element_blank(), 
+        legend.position = c(0.25,0.2),
+        legend.background = element_blank())
+
+id_bf <- readRDS("./saves/id_bf.rds")%>%
+  left_join(data%>%select(subid,subage, age)%>%rename(id = subid)%>%distinct(id, .keep_all = T))
+
+
+pidbf <- id_bf%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))%>%
+  dplyr::mutate(Comparison = ifelse(Comparison == "bf_comb_flat", "integration vs. no common ground", "integration vs. no speaker informativeness"))%>%
+  ggplot(aes(x = log_BF, fill = factor(Comparison)))+
+  geom_vline(xintercept = 0, lty = 1, col = "black")+
+  geom_vline(xintercept = c(log(3),log(10), log(100)), lty = 2, alpha = .75, col = "#7a942e")+
+  geom_vline(xintercept = c(log(0.3),log(0.1), log(0.01)), lty = 2, alpha = .75, col = "firebrick")+
+  geom_density(alpha = .5)+
+  facet_grid(~subage)+
+  geom_point(aes(y = 0, col = factor(Comparison)), pch = "I", size = 5)+
+  theme_few()+
+  labs(x = "log(BF) favor of integration model", y = "Density")+
+  scale_fill_colorblind(name = "")+
+  scale_color_colorblind(name = "")+
+  theme(#legend.position = c(0.7,0.9),
+        legend.position = "bottom",
+        legend.background = element_blank())
+```
+
+```{r}
+ggarrange(p_chance,pidbf,
+  widths = c(1,1.2),
+  labels = c("A", "B"))
+```
+
+```{r}
+ggsave("../paper/figures/fig4.png", width = 10, height = 3, scale = 1.25, bg="white")
+```
+
+
+
