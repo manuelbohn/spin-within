@@ -101,9 +101,6 @@ data <- read_csv("../data/merged_data.csv")
 ```
 
 
-Integrative modeling
-
-@hofman2021integrating
 
 Cognitive models for theory building
 
@@ -127,14 +124,15 @@ In pragmatic language comprehension
 
 @tessler2019language
 
+Integrative modeling
+
+@hofman2021integrating
 
 Using RSA to study individual differences:
 
 @franke2016reasoning
 
-@bohn2022individual
 
-Pragmatics tasks show good re-test reliability. 
 
 
 
@@ -163,7 +161,7 @@ Children were recruited via a database and participated with their parents via a
 
 In the *discourse novelty* task, children saw a speaker (cartoon animal) standing between two tables. On one table, there was a novel object (drawn for the purpose of this study) while the other was empty. The speaker sequentially turned to both sides (order counterbalanced) and either commented on the presence or absence of an object (without using any labels). Then, the speaker disappeared and -- while the speaker was gone -- another novel object appeared on the previously empty table. Next, the speaker re-appeared and requested one of the objects using a novel non-word as the label. We assumed that children would take the novel word to refer to the object that was new to the speaker. Children received 16 trials, each with a new pair of novel objects. The location of the empty table was counterbalanced. 
 
-In the *mutual exclusivity* task, children again saw a speaker and two tables. On one table, there was a novel object while on the other there was a (potentially) familiar object. The speaker used a novel non-word to request one of the objects.  We assumed that children would take the novel word to refer to the novel object. In line with previous work [@grassmann2015children; @bohn2021young; @lewis2020role] we assumed this inference would be modulated by children's lexical knowledge of the familiar object. Children received 16 trials, each with a new pair of novel and familiar objects. The location of the familiar object was counterbalanced. 
+In the *mutual exclusivity* task, children again saw a speaker and two tables. On one table, there was a novel object while on the other there was a (potentially) familiar object. The speaker used a novel non-word to request one of the objects.  We assumed that children would take the novel word to refer to the novel object. In line with previous work [@grassmann2015children; @bohn2021young; @lewis2020role] we assumed this inference would be modulated by children's lexical knowledge of the familiar object. Children received 16 trials, each with a new pair of novel and familiar objects. The location of the familiar object was counterbalanced. Both the discourse novelty as well as the mutual exclusivity showed good re-test reliability in a previous study and seem well-uited for individual-level measurement [@bohn2022individual].
 
 In the *word production* task, the experimenter showed the child each of the 16 familiar objects from the mutual exclusivity task and asked them to name it. We used a pre-defined list of acceptable labels per object to categorize children's responses as either correct or incorrect.
 
