@@ -36,7 +36,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Integrative modeling of children's information integration during pragmatic word learning},
+  pdftitle={Modeling individual differences in children's information integration during pragmatic word learning},
   pdfauthor={Manuel Bohn1, Louisa Schmidt2, Cornelia Schulze2, Michael C. Frank3, \& Michael Henry Tessler4,5},
   pdflang={en-EN},
   pdfkeywords={Pragmatics, language development, individual differences, cognitive modeling},
@@ -174,12 +174,12 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{Integrative modeling of children's information integration during pragmatic word learning}
+\title{Modeling individual differences in children's information integration during pragmatic word learning}
 \author{Manuel Bohn\textsuperscript{1}, Louisa Schmidt\textsuperscript{2}, Cornelia Schulze\textsuperscript{2}, Michael C. Frank\textsuperscript{3}, \& Michael Henry Tessler\textsuperscript{4,5}}
 \date{}
 
 
-\shorttitle{Integrative modeling of information integration}
+\shorttitle{Modeling individual differences}
 
 \authornote{
 
@@ -194,7 +194,7 @@ Correspondence concerning this article should be addressed to Manuel Bohn, Max P
 \affiliation{\vspace{0.5cm}\textsuperscript{1} Department of Comparative Cultural Psychology, Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany\\\textsuperscript{2} Leipzig Research Center for Early Child Development, Leipzig University, Leipzig, Germany\\\textsuperscript{3} Department of Psychology, Stanford University, Stanford, USA\\\textsuperscript{4} DeepMind, London, UK\\\textsuperscript{5} Department of Brain and Cognitive Sciences, Massachusetts Institute of Technology, Cambridge, USA}
 
 \abstract{%
-150 words
+Take the critical next steps and extends thes emodels to an individual level. We predict how children integrate pragmati inforamtion.
 }
 
 
@@ -202,37 +202,18 @@ Correspondence concerning this article should be addressed to Manuel Bohn, Max P
 \begin{document}
 \maketitle
 
-Integrative modeling
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
 
-Hofman et al. (2021)
+A defining feature of human communication is its flexibility. Messages can be expressed using a wide variety of means that span across modalities and structured communication systems -- akin to conventional languages -- can emerge in short periods of time; even in young children (Bohn, Kachel, \& Tomasello, 2019; Brentari \& Goldin-Meadow, 2017; Goldin-Meadow \& Feldman, 1977). The flexibility stems from a powerful social-cognitive infrastructure that underlies human communication (Sperber \& Wilson, 2001; Tomasello, 2008). Interlocutors recruit and integrate a range of different information sources (conventional language being one of them) in order to successfully communicate. For example, to infer what a speaker means by a simple utterance like ``she would like the blue one'', the listener has to integrate the semantics of the words with social information available in context such as gaze and the common ground shared with the speaker. Such inferences about intended messages are often called pragmatic inferences. They play an important role during everyday language use (H. H. Clark, 1996) and, even more so, during language acquisition (Bohn \& Frank, 2019; E. V. Clark, 2009).
 
-Cognitive models for theory building
+Theoretical accounts of language use and learning postulate that pragmatic inferences require information integration. However, they often fail to specify how exactly this happens. This special case mirrors a general issue in psychology and -- even more so --- in developmental science: a lack of explicit theories that explain and predict behavior (Muthukrishna \& Henrich, 2019; Rooij \& Baggio, 2021; Simmering, Triesch, Deák, \& Spencer, 2010). Computational cognitive modeling is often invoked as a way to overcome this issue. Cognitive models formalize the computational processes that generate the behavior we can observe (Guest \& Martin, 2021; Rooij, 2022; Ullman \& Tenenbaum, 2020). {[}\ldots{]}. Fortunate enough, the field of pragmatic language comprehension has been comparatively active from a computational modelling perspective {[}Heller, Parisien, and Stevenson (2016); Tessler and Goodman (2019); yoon2020polite; \ldots, franke, {]}. A very productive framework is the so-called Rational Speech Act (RSA) framework, which sees pragmatic language comprehension as a special case of Bayesian social reasoning (Frank \& Goodman, 2012; Goodman \& Frank, 2016). RSA models are characterized by their recursive structure in which a listener reasons about a cooperative -- sensu Grice (Grice, 1991) -- speaker who reasons about a literal listener who interprets words only based on their semantics.
 
-Rooij (2022)
+Most of the time, cognitive models -- including RSA -- are used to explain phenomena in a principled and abstract sense. That is, researchers develop algorithms that reproduce well-known findings or patterns in already existing data. For example, Frank, Goodman, and Tenenbaum (2009) modeled word learning as inferences about speaker's intentions and were thereby able to reproduce a range of different effects in early child language (e.g.~mutual exclusivity). Such work makes and important contribution to explaining phenomena in computational terms. However, for a comprehensive theory, models should also be able to \emph{predict} new data (Hofman et al., 2021; Shmueli, 2010; Yarkoni \& Westfall, 2017). Recent work has therefore explored how computational models of pragmatic reasoning can be used to make quantitative predictions about new data. For example, Bohn, Tessler, Merrick, and Frank (2021) studied young children's information integration during pragmatic word learning (see also Bohn, Tessler, Merrick, \& Frank, 2022). They measured children's developing sensitivity to three information sources and used an RSA model to generate predictions about situations in which these information sources need to be integrated. Model predictions matched the newly colected data very well, thereby lending support to the theoretical assumptions built into the model: children rationally integrate all available information sources in a stable manner across development.
 
-Guest and Martin (2021)
+This line of work critically tests the scope and validity of cognitive models of pragmatic reasoning. However, they face yet another fundamental problem. Cognitive models often predict behavior on an aggregated level. The model generates predictions for prototypical agents, which are evaluated in comparison to data that is aggregated across individuals. The assumption is that the ``average person'' behaves like the prototypical agent. This approach leaves open the question of whether these models are able to predict behavior on an individual level. In other words, it is unclear if any real individual behaves like the prototypical agent whose cognitive processes are -- computationally -- simulated. Most likely, there are differences between individuals. For example, Franke and Degen (2016) studied pragmatic inferences in reference games and found that participant data was best captured by a model that allowed for differences between individuals. A central question is therefore whether models can be used to \emph{predict} individual differences in early word learning. In the present study, we address this issue and use a computational cognitive model of pragmatic reasoning to predict individual differences between children.
 
-Rooij and Baggio (2021)
-
-In developmental psychology
-
-Simmering, Triesch, Deák, and Spencer (2010)
-
-Ullman and Tenenbaum (2020)
-
-In pragmatic language comprehension
-
-Bohn, Tessler, Merrick, and Frank (2022)
-
-Tessler and Goodman (2019)
-
-Using RSA to study individual differences:
-
-Franke and Degen (2016)
-
-Bohn, Tessler, Kordt, Hausmann, and Frank (2022)
-
-Pragmatics tasks show good re-test reliability.
+We build on the work by Bohn et al. (2021) and study how children integrate different information sources in a word learning situation. We focus on how children's semantic knowledge interacts with their expectations about informative communication and sensitivity to common ground. We formalized this integration process in a model derived from the RSA framework. Importantly, the model was designed to capture individual differences: differences between children in sensitivity to the different information sources. In Part 1, we collected data in four tasks from which we estimated child-specific sensitivity parameters. In Part 2, we used these parameters to predict -- on a trial-by-trial basis -- how the same children should behave in a new task that required information integration. Finally, we compared the model predictions to the data and found that the model accurately predicted children's behavior in the majority of trials.
 
 \hypertarget{part-1-sensitivity}{%
 \section{Part 1: Sensitivity}\label{part-1-sensitivity}}
@@ -245,7 +226,7 @@ Methods, sample size and analyses were pre-registered at: \url{https://osf.io/pa
 \hypertarget{participants}{%
 \subsubsection{Participants}\label{participants}}
 
-We collected complete data for 60 children (\(m_{age}\) = 4.11, range\(_{age}\): 3.06 - 4.93, 30 girls). In addition \ldots{} {[}Louisa - könntest Du das ergänzen{]}. Children came from an ethnically homogeneous, mid-size German city (\textasciitilde550,000 inhabitants, median income €1,974 per month as of 2020); were mostly monolingual and had mixed socioeconomic backgrounds. The study was approved by an internal ethics committee at the Max Planck Institute for Evolutionary Anthropology. Data was collected between \ldots{[}Louisa{]}.
+We collected complete data for 60 children (\(m_{age}\) = 4.11, range\(_{age}\): 3.06 - 4.93, 30 girls). In addition \ldots{} {[}Louisa - könntest Du die dropouts ergänzen, am besten auch kurz sagen warum sie drops waren{]}. Children came from an ethnically homogeneous, mid-size German city (\textasciitilde550,000 inhabitants, median income €1,974 per month as of 2020); were mostly monolingual and had mixed socioeconomic backgrounds. The study was approved by an internal ethics committee at the Max Planck Institute for Evolutionary Anthropology. Data was collected between \ldots{[}Louisa{]}.
 
 \hypertarget{procedure}{%
 \subsubsection{Procedure}\label{procedure}}
@@ -254,7 +235,7 @@ Children were recruited via a database and participated with their parents via a
 
 In the \emph{discourse novelty} task, children saw a speaker (cartoon animal) standing between two tables. On one table, there was a novel object (drawn for the purpose of this study) while the other was empty. The speaker sequentially turned to both sides (order counterbalanced) and either commented on the presence or absence of an object (without using any labels). Then, the speaker disappeared and -- while the speaker was gone -- another novel object appeared on the previously empty table. Next, the speaker re-appeared and requested one of the objects using a novel non-word as the label. We assumed that children would take the novel word to refer to the object that was new to the speaker. Children received 16 trials, each with a new pair of novel objects. The location of the empty table was counterbalanced.
 
-In the \emph{mutual exclusivity} task, children again saw a speaker and two tables. On one table, there was a novel object while on the other there was a (potentially) familiar object. The speaker used a novel non-word to request one of the objects. We assumed that children would take the novel word to refer to the novel object. In line with previous work (Bohn, Tessler, Merrick, \& Frank, 2021; Grassmann, Schulze, \& Tomasello, 2015; Lewis, Cristiano, Lake, Kwan, \& Frank, 2020) we assumed this inference would be modulated by children's lexical knowledge of the familiar object. Children received 16 trials, each with a new pair of novel and familiar objects. The location of the familiar object was counterbalanced.
+In the \emph{mutual exclusivity} task, children again saw a speaker and two tables. On one table, there was a novel object while on the other there was a (potentially) familiar object. The speaker used a novel non-word to request one of the objects. We assumed that children would take the novel word to refer to the novel object. In line with previous work (Bohn et al., 2021; Grassmann, Schulze, \& Tomasello, 2015; Lewis, Cristiano, Lake, Kwan, \& Frank, 2020) we assumed this inference would be modulated by children's lexical knowledge of the familiar object. Children received 16 trials, each with a new pair of novel and familiar objects. The location of the familiar object was counterbalanced. Both the discourse novelty as well as the mutual exclusivity showed good re-test reliability in a previous study and seem well-uited for individual-level measurement (Bohn, Tessler, Kordt, Hausmann, \& Frank, 2022).
 
 In the \emph{word production} task, the experimenter showed the child each of the 16 familiar objects from the mutual exclusivity task and asked them to name it. We used a pre-defined list of acceptable labels per object to categorize children's responses as either correct or incorrect.
 
@@ -271,7 +252,7 @@ Data collection was split into two sessions scheduled for two consecutive?? {[}L
 
 The focus of the analysis was on estimating person-specific parameters for each inforamtion source. Models to estimate parameters were implemented in the probabilistic programming language \texttt{webppl} (Goodman \& Stuhlmüller, 2014). The three information sources were: sensitivity to common ground (\(\rho_i\)), expectations about speaker informativeness (\(\alpha_i\)), and semantic knowledge (\(\theta_{ij}\)). Figure \ref{fig:fig1} shows which tasks informed which parameters. All parameters were estimated via hierarchical regression (mixed-effects) models. That is, for each parameter, we estimated an intercept and slope (fixed effects) that best described the developmental trajectory for this parameter based on the available data. Participant-specific parameters values (random effects) were estimated as deviations from the value expected for a participant based on their age. Details about the estimation procedure can be found in the supplementary material. The code to run the models can be found in the associated online repository.
 
-The parameters for semantic knowledge (\(\theta_{ij}\)) were simultaneously informed by the data from the mutual exclusivity, the comprehension and the production experiments. To leverage the mutual exclusivity data, we adopted the RSA model described in Part 2 to a situation in which both objects (novel and familiar) had equal prior probability (i.e., no common ground information). In the same model, we also estimated the parameter for speaker informativeness (see below). For the comprehension experiment, we simply assumed that the child was able to select the correct word with probability \(\theta_{ij}\). If the child did not know the word, we assumed they would select the correct word at a rate expected by chance (1/6). For the production experiment, we assumed that if the child knew the word (a function of \(\theta_{ij}\)), they produced the word with probability \(\gamma\). This successful-production-probability \(\gamma\) was the same for all children and was inferred based on the data. This adjustment reflects the finding that children's receptive vocabulary for nouns tends to be larger than the productive (Clark \& Hecht, 1983; Frank, Braginsky, Yurovsky, \& Marchman, 2021). Taken together, for each child \(i\) and familiar object \(j\) there were three data points to inform \(\theta\): one trial from the mutual exclusivity, one from the comprehension and one from the production experiment.
+The parameters for semantic knowledge (\(\theta_{ij}\)) were simultaneously informed by the data from the mutual exclusivity, the comprehension and the production experiments. To leverage the mutual exclusivity data, we adopted the RSA model described in Part 2 to a situation in which both objects (novel and familiar) had equal prior probability (i.e., no common ground information). In the same model, we also estimated the parameter for speaker informativeness (see below). For the comprehension experiment, we simply assumed that the child was able to select the correct word with probability \(\theta_{ij}\). If the child did not know the word, we assumed they would select the correct word at a rate expected by chance (1/6). For the production experiment, we assumed that if the child knew the word (a function of \(\theta_{ij}\)), they produced the word with probability \(\gamma\). This successful-production-probability \(\gamma\) was the same for all children and was inferred based on the data. This adjustment reflects the finding that children's receptive vocabulary for nouns tends to be larger than the productive (E. V. Clark \& Hecht, 1983; Frank, Braginsky, Yurovsky, \& Marchman, 2021). Taken together, for each child \(i\) and familiar object \(j\) there were three data points to inform \(\theta\): one trial from the mutual exclusivity, one from the comprehension and one from the production experiment.
 
 The parameter representing a child's expectations about how informative speakers are (\(\alpha_i\)), was estimated based on the data from the mutual exclusivity experiment. As mentioned above, this was done jointly with semantic knowledge in a RSA model adopted to a situation with equal prior probability of the two objects (novel and familiar). Thus, for each child, there were 16 data points to inform \(\alpha\).
 
@@ -381,6 +362,12 @@ Models work on individual level. this work shows they make good predictions and 
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-bohn2019pervasive}{}}%
+Bohn, M., \& Frank, M. C. (2019). The pervasive role of pragmatics in early language. \emph{Annual Review of Developmental Psychology}, \emph{1}(1), 223--249.
+
+\leavevmode\vadjust pre{\hypertarget{ref-bohn2019young}{}}%
+Bohn, M., Kachel, G., \& Tomasello, M. (2019). Young children spontaneously recreate core properties of language in a new modality. \emph{Proceedings of the National Academy of Sciences}, \emph{116}(51), 26072--26077.
+
 \leavevmode\vadjust pre{\hypertarget{ref-bohn2022individual}{}}%
 Bohn, M., Tessler, M. H., Kordt, C., Hausmann, T., \& Frank, M. C. (2022). \emph{An individual differences perspective on the development of pragmatic abilities in the preschool years}.
 
@@ -390,8 +377,17 @@ Bohn, M., Tessler, M. H., Merrick, M., \& Frank, M. C. (2021). How young childre
 \leavevmode\vadjust pre{\hypertarget{ref-bohn_tessler_merrick_frank_2019}{}}%
 Bohn, M., Tessler, M. H., Merrick, M., \& Frank, M. C. (2022). Predicting pragmatic cue integration in adults' and children's inferences about novel word meanings. \emph{Journal of Experimental Psychology: General}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-brentari2017language}{}}%
+Brentari, D., \& Goldin-Meadow, S. (2017). Language emergence. \emph{Annual Review of Linguistics}, \emph{3}, 363--388.
+
+\leavevmode\vadjust pre{\hypertarget{ref-clark2009first}{}}%
+Clark, E. V. (2009). \emph{First language acquisition}. Cambridge: Cambridge University Press.
+
 \leavevmode\vadjust pre{\hypertarget{ref-clark1983comprehension}{}}%
 Clark, E. V., \& Hecht, B. F. (1983). Comprehension, production, and language acquisition. \emph{Annual Review of Psychology}, \emph{34}(1), 325--349.
+
+\leavevmode\vadjust pre{\hypertarget{ref-clark1996using}{}}%
+Clark, H. H. (1996). \emph{Using language}. Cambridge: Cambridge University Press.
 
 \leavevmode\vadjust pre{\hypertarget{ref-frank2021variability}{}}%
 Frank, M. C., Braginsky, M., Yurovsky, D., \& Marchman, V. A. (2021). \emph{Variability and consistency in early language learning: The wordbank project}. MIT Press.
@@ -399,11 +395,17 @@ Frank, M. C., Braginsky, M., Yurovsky, D., \& Marchman, V. A. (2021). \emph{Vari
 \leavevmode\vadjust pre{\hypertarget{ref-frank2012predicting}{}}%
 Frank, M. C., \& Goodman, N. D. (2012). Predicting pragmatic reasoning in language games. \emph{Science}, \emph{336}(6084), 998--998.
 
+\leavevmode\vadjust pre{\hypertarget{ref-frank2009using}{}}%
+Frank, M. C., Goodman, N. D., \& Tenenbaum, J. B. (2009). Using speakers' referential intentions to model early cross-situational word learning. \emph{Psychological Science}, \emph{20}(5), 578--585.
+
 \leavevmode\vadjust pre{\hypertarget{ref-franke2016reasoning}{}}%
 Franke, M., \& Degen, J. (2016). Reasoning in reference games: Individual-vs. Population-level probabilistic modeling. \emph{PloS One}, \emph{11}(5), e0154854.
 
 \leavevmode\vadjust pre{\hypertarget{ref-gagliardi2017modeling}{}}%
 Gagliardi, A., Feldman, N. H., \& Lidz, J. (2017). Modeling statistical insensitivity: Sources of suboptimal behavior. \emph{Cognitive Science}, \emph{41}(1), 188--217.
+
+\leavevmode\vadjust pre{\hypertarget{ref-goldin1977development}{}}%
+Goldin-Meadow, S., \& Feldman, H. (1977). The development of language-like communication without a language model. \emph{Science}, \emph{197}(4301), 401--403.
 
 \leavevmode\vadjust pre{\hypertarget{ref-goodman2016pragmatic}{}}%
 Goodman, N. D., \& Frank, M. C. (2016). Pragmatic language interpretation as probabilistic inference. \emph{Trends in Cognitive Sciences}, \emph{20}(11), 818--829.
@@ -414,8 +416,14 @@ Goodman, N. D., \& Stuhlmüller, A. (2014). \emph{{The design and implementation
 \leavevmode\vadjust pre{\hypertarget{ref-grassmann2015children}{}}%
 Grassmann, S., Schulze, C., \& Tomasello, M. (2015). Children's level of word knowledge predicts their exclusion of familiar objects as referents of novel words. \emph{Frontiers in Psychology}, \emph{6}, 1200.
 
+\leavevmode\vadjust pre{\hypertarget{ref-grice1991studies}{}}%
+Grice, H. P. (1991). \emph{Studies in the way of words}. Cambridge, MA: Harvard University Press.
+
 \leavevmode\vadjust pre{\hypertarget{ref-guest2021computational}{}}%
 Guest, O., \& Martin, A. E. (2021). How computational modeling can force theory building in psychological science. \emph{Perspectives on Psychological Science}, \emph{16}(4), 789--802.
+
+\leavevmode\vadjust pre{\hypertarget{ref-heller2016perspective}{}}%
+Heller, D., Parisien, C., \& Stevenson, S. (2016). Perspective-taking behavior as the probabilistic weighing of multiple domains. \emph{Cognition}, \emph{149}, 104--120.
 
 \leavevmode\vadjust pre{\hypertarget{ref-hofman2021integrating}{}}%
 Hofman, J. M., Watts, D. J., Athey, S., Garip, F., Griffiths, T. L., Kleinberg, J., \ldots{} others. (2021). Integrating explanation and prediction in computational social science. \emph{Nature}, \emph{595}(7866), 181--188.
@@ -426,20 +434,35 @@ Lee, M. D., \& Wagenmakers, E.-J. (2014). \emph{Bayesian cognitive modeling: A p
 \leavevmode\vadjust pre{\hypertarget{ref-lewis2020role}{}}%
 Lewis, M., Cristiano, V., Lake, B. M., Kwan, T., \& Frank, M. C. (2020). The role of developmental change and linguistic experience in the mutual exclusivity effect. \emph{Cognition}, \emph{198}, 104191.
 
+\leavevmode\vadjust pre{\hypertarget{ref-muthukrishna2019problem}{}}%
+Muthukrishna, M., \& Henrich, J. (2019). A problem in theory. \emph{Nature Human Behaviour}, \emph{3}(3), 221--229.
+
 \leavevmode\vadjust pre{\hypertarget{ref-van2022psychological}{}}%
 Rooij, I. van. (2022). Psychological models and their distractors. \emph{Nature Reviews Psychology}, 1--2.
 
 \leavevmode\vadjust pre{\hypertarget{ref-van2021theory}{}}%
 Rooij, I. van, \& Baggio, G. (2021). Theory before the test: How to build high-verisimilitude explanatory theories in psychological science. \emph{Perspectives on Psychological Science}, \emph{16}(4), 682--697.
 
+\leavevmode\vadjust pre{\hypertarget{ref-shmueli2010explain}{}}%
+Shmueli, G. (2010). To explain or to predict? \emph{Statistical Science}, \emph{25}(3), 289--310.
+
 \leavevmode\vadjust pre{\hypertarget{ref-simmering2010dialogue}{}}%
 Simmering, V. R., Triesch, J., Deák, G. O., \& Spencer, J. P. (2010). A dialogue on the role of computational modeling in developmental science. \emph{Child Development Perspectives}, \emph{4}(2), 152--158.
+
+\leavevmode\vadjust pre{\hypertarget{ref-sperber2001relevance}{}}%
+Sperber, D., \& Wilson, D. (2001). \emph{Relevance: Communication and cognition} (2nd ed.). Cambridge, MA: Blackwell Publishers.
 
 \leavevmode\vadjust pre{\hypertarget{ref-tessler2019language}{}}%
 Tessler, M. H., \& Goodman, N. D. (2019). The language of generalization. \emph{Psychological Review}, \emph{126}(3), 395.
 
+\leavevmode\vadjust pre{\hypertarget{ref-tomasello2008origins}{}}%
+Tomasello, M. (2008). \emph{Origins of human communication}. Cambridge, MA: MIT Press.
+
 \leavevmode\vadjust pre{\hypertarget{ref-ullman2020bayesian}{}}%
 Ullman, T. D., \& Tenenbaum, J. B. (2020). Bayesian models of conceptual development: Learning as building models of the world. \emph{Annual Review of Developmental Psychology}, \emph{2}, 533--558.
+
+\leavevmode\vadjust pre{\hypertarget{ref-yarkoni2017choosing}{}}%
+Yarkoni, T., \& Westfall, J. (2017). Choosing prediction over explanation in psychology: Lessons from machine learning. \emph{Perspectives on Psychological Science}, \emph{12}(6), 1100--1122.
 
 \end{CSLReferences}
 

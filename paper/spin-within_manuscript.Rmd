@@ -1,6 +1,6 @@
 ---
-title             : "Integrative modeling of children's information integration during pragmatic word learning"
-shorttitle        : "Integrative modeling of information integration"
+title             : "Modeling individual differences in children's information integration during pragmatic word learning"
+shorttitle        : "Modeling individual differences"
 
 author: 
   - name          : "Manuel Bohn"
@@ -58,7 +58,7 @@ authornote: |
   M. Bohn received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement no. 749229. M. H. Tessler was funded by the National Science Foundation SBE Postdoctoral Research Fellowship Grant No. 1911790. M. C. Frank was supported by a Jacobs Foundation Advanced Research Fellowship and the Zhou Fund for Language and Cognition. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
 
 abstract: |
-  150 words
+  Take the critical next steps and extends thes emodels to an individual level. We predict how children integrate pragmati inforamtion. 
   
 keywords          : "Pragmatics, language development, individual differences, cognitive modeling"
 wordcount         : "X"
@@ -100,41 +100,17 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 data <- read_csv("../data/merged_data.csv")
 ```
 
+# Introduction 
 
+A defining feature of human communication is its flexibility. Messages can be expressed using a wide variety of means that span across modalities and structured communication systems -- akin to conventional languages -- can emerge in short periods of time; even in young children [@bohn2019young; @goldin1977development; @brentari2017language]. The flexibility stems from a powerful social-cognitive infrastructure that underlies human communication [@tomasello2008origins; @sperber2001relevance]. Interlocutors recruit and integrate a range of different information sources (conventional language being one of them) in order to successfully communicate. For example, to infer what a speaker means by a simple utterance like "she would like the blue one", the listener has to integrate the semantics of the words with social information available in context such as gaze and the common ground shared with the speaker. Such inferences about intended messages are often called pragmatic inferences. They play an important role during everyday language use [@clark1996using] and, even more so, during language acquisition [@bohn2019pervasive; @clark2009first].
 
-Cognitive models for theory building
+Theoretical accounts of language use and learning postulate that pragmatic inferences require information integration. However, they often fail to specify how exactly this happens. This special case mirrors a general issue in psychology and -- even more so --- in developmental science: a lack of explicit theories that explain and predict behavior [@muthukrishna2019problem; @van2021theory; @simmering2010dialogue]. Computational cognitive modeling is often invoked as a way to overcome this issue. Cognitive models formalize the computational processes that generate the behavior we can observe [@van2022psychological; @guest2021computational; @ullman2020bayesian]. [...]. Fortunate enough, the field of pragmatic language comprehension has been comparatively active from a computational modelling perspective [@heller2016perspective; @tessler2019language; yoon2020polite; ..., franke, ]. A very productive framework is the so-called Rational Speech Act (RSA) framework, which sees pragmatic language comprehension as a special case of Bayesian social reasoning [@frank2012predicting; @goodman2016pragmatic]. RSA models are characterized by their recursive structure in which a listener reasons about a cooperative -- sensu Grice [@grice1991studies] -- speaker who reasons about a literal listener who interprets words only based on their semantics.
 
-@van2022psychological
+Most of the time, cognitive models -- including RSA -- are used to explain phenomena in a principled and abstract sense. That is, researchers develop algorithms that reproduce well-known findings or patterns in already existing data. For example, @frank2009using modeled word learning as inferences about speaker's intentions and were thereby able to reproduce a range of different effects in early child language (e.g. mutual exclusivity). Such work makes and important contribution to explaining phenomena in computational terms. However, for a comprehensive theory, models should also be able to *predict* new data [@yarkoni2017choosing; @hofman2021integrating; @shmueli2010explain]. Recent work has therefore explored how computational models of pragmatic reasoning can be used to make quantitative predictions about new data. For example, @bohn2021young studied young children's information integration during pragmatic word learning [see also @bohn_tessler_merrick_frank_2019]. They measured children's developing sensitivity to three information sources and used an RSA model to generate predictions about situations in which these information sources need to be integrated. Model predictions matched the newly colected data very well, thereby lending support to the theoretical assumptions built into the model: children rationally integrate all available information sources in a stable manner across development.
 
-@guest2021computational
+This line of work critically tests the scope and validity of cognitive models of pragmatic reasoning. However, they face yet another fundamental problem. Cognitive models often predict behavior on an aggregated level. The model generates predictions for prototypical agents, which are evaluated in comparison to data that is aggregated across individuals. The assumption is that the "average person" behaves like the prototypical agent. This approach leaves open the question of whether these models are able to predict behavior on an individual level. In other words, it is unclear if any real individual behaves like the prototypical agent whose cognitive processes are -- computationally -- simulated. Most likely, there are differences between individuals. For example, @franke2016reasoning studied pragmatic inferences in reference games and found that participant data was best captured by a model that allowed for differences between individuals. A central question is therefore whether models can be used to *predict* individual differences in early word learning. In the present study, we address this issue and use a computational cognitive model of pragmatic reasoning to predict individual differences between children.
 
-@van2021theory
-
-In developmental psychology
-
-@simmering2010dialogue
-
-
-@ullman2020bayesian
-
-
-In pragmatic language comprehension
-
-@bohn_tessler_merrick_frank_2019
-
-@tessler2019language
-
-Integrative modeling
-
-@hofman2021integrating
-
-Using RSA to study individual differences:
-
-@franke2016reasoning
-
-
-
-
+We build on the work by @bohn2021young and study how children integrate different information sources in a word learning situation. We focus on how children's semantic knowledge interacts with their expectations about informative communication and sensitivity to common ground. We formalized this integration process in a model derived from the RSA framework. Importantly, the model was designed to capture individual differences: differences between children in sensitivity to the different information sources. In Part 1, we collected data in four tasks from which we estimated child-specific sensitivity parameters. In Part 2, we used these parameters to predict -- on a trial-by-trial basis -- how the same children should behave in a new task that required information integration. Finally, we compared the model predictions to the data and found that the model accurately predicted children's behavior in the majority of trials.
 
 # Part 1: Sensitivity
 

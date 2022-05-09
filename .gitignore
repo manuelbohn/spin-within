@@ -5,6 +5,8 @@ model/output/*.csv
 
 model/old_models/*
 
+*.docx
+
 analysis/rsconnect/*
 analysis/supplementary_material_files/*
 
