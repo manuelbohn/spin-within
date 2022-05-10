@@ -417,5 +417,27 @@ ggarrange(p_chance,pidbf,
 ggsave("../paper/figures/fig4.png", width = 10, height = 3, scale = 1.25, bg="white")
 ```
 
+```{r}
+library(truncnorm)
+
+dtruncnorm(200, a=0, b=480, mean = 120, sd = 60)
+
+p = seq(0,480, length=200)
+
+ggplot()+
+geom_line(aes(x = p, y = dtruncnorm(p, a = 0, b = 480, mean = 120, sd = 60)),col=3)+
+  geom_line(aes(x = p, y = dtruncnorm(p, a = 0, b = 480, mean = 120, sd = 100)),col=4)+
+theme_minimal()
+
+x1 <- round(rtruncnorm(p, a = 0, b = 480, mean = 120, sd = 60))
+
+tibble(
+  raw = round(rtruncnorm(200, a = 0, b = 480, mean = 120, sd = 60))
+)%>%
+  mutate(class = cut(raw, 
+    breaks=c(0,30, 60, 90, 120, 240, Inf), 
+                   labels=c("A","B","C","D","E","F")))
+
+```
 
 
