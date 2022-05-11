@@ -362,15 +362,48 @@ chance_id <- mpred%>%
   summarise(mean = mean(match, na.rm = T))%>%
   mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
 
+chance_id%>%
+  group_by(subage,model)%>%
+  summarise(mean = mean(mean))
+
 chance <- chance_id%>%
   group_by(subage,model)%>%
   tidyboot_mean(col = mean)
+
+chance_iter <- tibble()
+
+for (i in 1:1000) {
+
+iter <- mpred%>%
+  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+  filter(!is.na(subage))%>%
+  #ungroup()%>%
+  rowwise()%>%
+  mutate(pred = flip(model_mean))%>%
+  ungroup()%>%
+  mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+         match = ifelse(pred == correct, 1, 0))%>%
+  group_by(subid, subage,model)%>%
+  summarise(mean = mean(match, na.rm = T))%>%
+  group_by(subage, model)%>%
+  summarise(mean_iter = mean(mean))%>%
+  mutate(iter = i)%>%
+  mutate(subage = ifelse(subage == 3, "3-year-olds", "4-year-olds"))
+
+chance_iter <- bind_rows(chance_iter, iter)
+
+    
+}
+
+  
+
 
 
 p_chance <- ggplot(chance, aes(x = model, y = mean))+
   geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
   geom_dotplot(data = chance_id, binaxis='y', stackdir='center',
                stackratio=1.5, dotsize=.5, alpha = .2)+
+  geom_violin(data = chance_iter, aes(x = model, y = mean_iter), alpha = 0)+
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
   ylim(0,1)+
   facet_grid(~subage)+
