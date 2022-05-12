@@ -15,7 +15,7 @@ author:
       - Visualization
       - Writing – original draft
       - Writing – review & editing
-  - name          : "Louisa Schmidt"
+  - name          : "Louisa S. Schmidt"
     affiliation   : "2"
     role:
       - Conceptualization
@@ -129,7 +129,7 @@ dem <- data%>%
             lrange = range(age_num)[1],
             urange = range(age_num)[2])
 ```
-We collected complete data for `r dem%>%pull(n)` children ($m_{age}$ = `r dem%>%pull(mage)`, range$_{age}$: `r dem%>%pull(lrange)` - `r dem%>%pull(urange)`, `r dem%>%pull(female)` girls). In addition ... [Louisa - könntest Du die dropouts ergänzen, am besten auch kurz sagen warum sie drops waren]. Children came from an ethnically homogeneous, mid-size German city (~550,000 inhabitants, median income €1,974 per month as of 2020); were mostly monolingual and had mixed socioeconomic backgrounds. The study was approved by an internal ethics committee at the Max Planck Institute for Evolutionary Anthropology. Data was collected between ...[Louisa].
+We collected complete data for `r dem%>%pull(n)` children ($m_{age}$ = `r dem%>%pull(mage)`, range$_{age}$: `r dem%>%pull(lrange)` - `r dem%>%pull(urange)`, `r dem%>%pull(female)` girls). As per our pre-registration, children who provided valid data for fewer than half of the test trials in any of the three experiments were excluded from the analysis. This was the case for five additional children due to 1) disinterest in the experiments (n = 2), 2) disinterest in the experiments in addition to significant parental interference (n = 2), 3) withdrawal from the study after the first testing session (n = 1). [Manuel: Erst habe ich "fussiness" statt "disinterest" geschrieben, aber das ist vielleicht eher für Säuglinge angebracht? Die Kinder sind auf jeden Fall quengelig geworden, sodass ich frühzeitig abgebrochen habe und sie nicht genug valid trials beigesteuert haben. Weitere Infos falls relevant: Among the five excluded children were two 3-year-olds (one girl) and three 4-year-olds (two girls).] Children came from an ethnically homogeneous, mid-size German city (~550,000 inhabitants, median income €1,974 per month as of 2020); were mostly monolingual and had mixed socioeconomic backgrounds. The study was approved by an internal ethics committee at the Max Planck Institute for Evolutionary Anthropology. Data was collected between March and July 2021. 
 
 ### Procedure
 
@@ -143,7 +143,7 @@ In the *word production* task, the experimenter showed the child each of the 16 
 
 In the *word comprehension* task, the child saw four slides with six objects. Four objects per slide were taken from the 16 familiar objects that also featured in the mutual exclusivity and word production tasks. Two objects were unrelated distractors. The experimenter labelled one familiar object after the other and asked the child to point to it. 
 
-Data collection was split into two sessions scheduled for two consecutive?? [Louisa] days. On day one, children completed the mutual exclusivity and the discourse novelty tasks. On day two, they completed the combination task followed by the word comprehension and production tasks. 
+Data collection was split into two sessions which were scheduled for consecutive days or at most within two weeks of each other. For the majority of children, the second session was scheduled within a week of the first one. On day one, children completed the mutual exclusivity and the discourse novelty tasks. On day two, they completed the combination task followed by the word comprehension and production tasks. 
 
 
 ```{r fig1, out.width="100%", fig.cap = "Schematic overview of the study and the model. Pictures on the left show screenshots from the four sensitivity tasks. Arrows indicate which tasks informed which parameter in the model (grey area). Based on the data from the sensitivity tasks, child specific parameter distributions for each information source were estimated. These sources were integrated via an RSA model, which generated predictions for each trial of the combination task. These predictions were then evaluated against new data from the combination task."}
