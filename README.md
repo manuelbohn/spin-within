@@ -14,11 +14,10 @@ Bohn, M.,, Schmidt, L. S., Schulze, C., & Frank, M. C. & Tessler, M. H. (2022). 
 
 ```
 .
-├── data                        <-- combined data file
 ├── analysis
 │   └── model_comparison.Rmd    <-- code to run model comparisons reported in the paper
-├── paper
-│   └── manuscript.Rmd          <-- manuscript file 
+├── data                        <-- combined data file
+├── documentation               
 ├── experiments
 |   ├── ex1_me.html             <-- double click to run Part 1 mutual exclusivity task
 |   ├── ex2_novel.html          <-- .. run Part 1 discourse novelty task
@@ -27,4 +26,6 @@ Bohn, M.,, Schmidt, L. S., Schulze, C., & Frank, M. C. & Tessler, M. H. (2022). 
 |   ├── spin-within_model_comparison.wppl             <-- group-level model comparison
 |   ├── spin-within_model_comparison_individual.wppl  <-- individual-level model comparison
 │   └── spin-within_model_prediction.wppl             <-- model predictions
+└── paper
+    └── manuscript.Rmd          <-- manuscript file 
 ```
