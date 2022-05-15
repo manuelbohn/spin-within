@@ -35,7 +35,7 @@ library(data.table)
 library(ggpubr)
 library(ggridges)
 library(knitr)
-
+library(BayesFactor)
 
 
 estimate_mode <- function(s) {
@@ -556,7 +556,47 @@ knitr::include_graphics("../graphs/model_pred.png")
 
 We then compared the model's prediction for a given trial to the data simply by asking whether the two matched (coded as `1`) or not (coded as `0`). The number of matches (correct predictions) was then evaluated in three ways: 
 
-First, we averaged across predicitons for each participant and compared the proportion of correct predictions across participants to a level expected by random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows that the *rational integration* model made correct predictions at a level clearly above chance for both age groups (roughly correct in 70% of cases). In a second step, we compared the predictions made by the *rational integration* model to those of the two lesioned models. For this, we generated trial and child specific model predictions for each of the lesioned models in the same ways as for the *rational integration* model. Here we saw that both models made predictions above chance, confirming that these were valuable alternative models. However, we also saw that the *rational integration* model was more likely to make correct predictions. 
+```{r}
+
+# bf_chance <- tibble()
+# 
+# for (i in 1:1000) {
+#   
+#   x <- mpred%>%
+#   left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+#   filter(!is.na(subage))%>%
+#   #ungroup()%>%
+#   rowwise()%>%
+#   mutate(pred = flip(model_mean))%>%
+#   ungroup()%>%
+#   mutate(#match = ifelse(round(model_mean) == correct, 1, 0),
+#          match = ifelse(pred == correct, 1, 0))%>%
+#   group_by(model, subid)%>%
+#   summarise(mean = mean(match, na.rm = T))%>%
+#   summarise(correct = list(mean)) %>%
+#   group_by(model)%>%
+#   mutate(mean= mean(unlist(correct)),
+#          sd = sd(unlist(correct)),
+#          bf = extractBF(ttestBF(unlist(correct), mu = 1/2))$bf,
+#          iter = i)%>%
+#     select(-correct)
+# 
+# bf_chance <- bind_rows(x, bf_chance)
+# }
+# 
+# 
+# saveRDS(bf_chance, "../analysis/saves/chance_bfs.rds")
+
+bf_chance <- readRDS("../analysis/saves/chance_bfs.rds")
+
+bf_chnace_agg <- bf_chance%>%
+  group_by(model)%>%
+  summarise(mean_bf = mean(bf),
+            mean = mean(mean))
+```
+
+
+First, we averaged across predictions for each participant and compared the proportion of correct predictions across participants to a level expected by random guessing (50% correct predictions). Figure \@ref(fig:chanceplot) shows  the results of one run of the coin-flip procedure. For the analysis, we repeated the coin-flip 1000 times and for each run we computed the mean and the Bayes Factor for the comaprison to chance for each model. The *rational integration* model made correct predictions at a level clearly above chance for both age groups (correct onn average in `r round(bf_chnace_agg%>%filter(model == "combination")%>%pull(mean),2)*100`% of cases, average Bayes Factor = `r format(bf_chnace_agg%>%filter(model == "combination")%>%pull(mean_bf),2)`). In a second step, we compared the predictions made by the *rational integration* model to those of the two lesioned models. For this, we generated trial and child specific model predictions for each of the lesioned models in the same ways as for the *rational integration* model. Here we saw that both models made predictions above chance (*no common ground* model: mean correct = `r round(bf_chnace_agg%>%filter(model == "flatPrior")%>%pull(mean),2)*100`%, mean BF = `r format(bf_chnace_agg%>%filter(model == "flatPrior")%>%pull(mean_bf),2)`; *no speaker informativeness* model: mean correct = `r round(bf_chnace_agg%>%filter(model == "priorOnly")%>%pull(mean),2)*100`%, mean BF = `r format(bf_chnace_agg%>%filter(model == "priorOnly")%>%pull(mean_bf),2)`), confirming that these were valuable alternative models. However, we also saw that the *rational integration* model was more likely to make correct predictions. 
 
 ```{r cache=T}
 # mpred_comb <- model_predictions%>%
@@ -637,6 +677,7 @@ p_chance <- ggplot(chance, aes(x = model, y = mean))+
   geom_hline(yintercept = 0.5, lty = 2, alpha = .5)+
   geom_dotplot(data = chance_id, binaxis='y', stackdir='center',
                stackratio=1.5, dotsize=.5, alpha = .2)+
+  geom_violin(data = bf_chance, aes(x = model, y = mean), alpha = 0.25)+
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper, col = model), size = 0.6)+
   ylim(0,1)+
   facet_grid(~subage)+
@@ -654,28 +695,45 @@ p_chance <- ggplot(chance, aes(x = model, y = mean))+
 #ggsave("../graphs/within_model_pred.png", width = 6, height = 4, scale = 1.2)
 ```
 
-```{r chanceplot, fig.cap = "Proportion of correct model predictions for the three models. Colored dots show mean for each model (with 95\\% CI) and light grey dots show participant means.",fig.height = 3.5, fig.width= 10, out.width="100%"}
+```{r chanceplot, fig.cap = "Proportion of correct model predictions for the three models (one iteration of coin-flip procedure). Violins show distribution of means for 1000 runs of the procedure. Colored dots show mean for each model (with 95\\% CI) and light grey dots show participant means.",fig.height = 3.5, fig.width= 10, out.width="100%"}
 p_chance
 ```
 
-Finally, we looked at the "hits" and "misses", that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) showed that the *rational integration* model was correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in about 50% of cases.  
+Finally, we looked at the "hits" and "misses", that is, which responses the model was more likely to predict correctly and which not. Figure \@ref(fig:hitplot) showed that the *rational integration* model was -- avergaed across 1000 runs of the coin-flip procedure -- correct in almost all cases when the outcome was `1`. When the outcome was `0`, it was correct in about 50% of cases.  
 
 ```{r}
-hp <- mpred%>%
-  left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
-  filter(!is.na(subage))%>%
-  rowwise()%>%
-  mutate(pred = flip(model_mean))%>%
-  ungroup()%>%
-  group_by(model, correct, pred)%>%
-  filter(!is.na(correct))%>%
-  summarise(n= n())%>%
-  group_by(model,correct)%>%
-  mutate(prop = n / (sum(n)),
-         Data = factor(correct, levels = c(0,1), labels = c("0", "1")),
-         Prediction = factor(pred, levels = c(0,1), labels = c("0", "1")))%>%
-  mutate(model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))%>%
-  ggplot(aes(x = Prediction, y = Data, fill = prop))+
+# hpp <- tibble()
+# 
+# for (i in 1:1000) {
+#   x <- mpred%>%
+#   left_join(data %>% select(condition,subage,familiar,subid, correct))%>%
+#   filter(!is.na(subage))%>%
+#   rowwise()%>%
+#   mutate(pred = flip(model_mean))%>%
+#   ungroup()%>%
+#   group_by(model, correct, pred)%>%
+#   filter(!is.na(correct))%>%
+#   summarise(n= n())%>%
+#   group_by(model,correct)%>%
+#   mutate(prop = n / (sum(n)),
+#          Data = factor(correct, levels = c(0,1), labels = c("0", "1")),
+#          Prediction = factor(pred, levels = c(0,1), labels = c("0", "1")), 
+#          iter = i)
+#   
+#   hpp <- bind_rows(x,hpp)
+#   
+# }
+# 
+# hpp_agg <- hpp%>%
+#   group_by(model, Data, Prediction)%>%
+#   summarise(prop = mean(prop))%>%
+#   mutate(model = factor(model, levels = c("combination", "flatPrior","priorOnly"),labels=c("Integration","No Common Ground","No Speaker Informativeness")))
+# 
+# saveRDS(hpp_agg, "../analysis/saves/hit_miss.rds")
+
+hpp_agg <- readRDS("../analysis/saves/hit_miss.rds")
+
+hp <- ggplot(hpp_agg,aes(x = Prediction, y = Data, fill = prop))+
   geom_tile(colour="black",size=0.5, aes(size = n))+
   facet_grid(~model)+
   #coord_fixed()+
