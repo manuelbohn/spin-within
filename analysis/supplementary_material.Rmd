@@ -134,13 +134,13 @@ For all three tasks, children received the same order of trials to ensure compar
 
 #### Reliability Coding
 
-Reliability coding was performed to ensure that the objects parents selected matched the objects children had chosen via pointing in each respective trial. For a randomly selected 20% of the sample (n = 12), children’s object choices were coded from video by a coder who was blind to the data from parents’ selections. The results indicate that parents faithfully selected children’s chosen objects (99.74% match, κ = .997, *p* < .001). 
+Reliability coding was performed to ensure that the objects parents selected matched the objects children had chosen via pointing in each respective trial. For a randomly selected 20% of the sample (n = 12), children’s object choices were coded from video by a coder who was blind to the data from parents’ selections. The results indicate that parents faithfully selected children’s chosen objects (99.74% match, $\kappa$= .997, *p* < .001). 
 
 #### Word production task
 
 The word production and the comprehension task were run on the second testing day after the mutual exclusivity, the discourse novelty and the combination experiment. 
 
-For the production task, the experimenter showed the child an image of an object (the same as was used in the other experiments) and prompted them to label the object with probing questions such as: “Weißt du, wie man das hier nennt?” [“Do you know what this is called?”] or “Was ist das?” [“What’s this?”]. The trial was coded as correct and received a score of 1 if the child produced a label that was correct according to coding scheme that had been developed prior to data collection based on piloting data. Otherwise, the child's answer received a score of 0. The experimenter went through each of the 16 objects one by one.
+For the production task, the experimenter showed the child an image of an object (the same as was used in the other experiments) and prompted them to label the object with probing questions such as: “Weißt du, wie man das hier nennt?” [“Do you know what this is called?”] or “Was ist das?” [“What’s this?”]. The trial was coded as correct and received a score of 1 if the child produced a label that was correct according to coding scheme that had been developed prior to data collection based on piloting data. Otherwise, the child's answer received a score of 0. The experimenter went through each of the 16 objects one by one. the coding scheme is available in the associated repository at `documentation/production_task_list_of_labels.pdf`.
 
 The picture below shows an example.The images were the same as the ones used in the mutual exclusivity task and the comprehension task. 
 
@@ -1212,4 +1212,13 @@ p_pod_prob <- ggplot(pod_prob, aes(x = value, fill = factor(chain)))+
 p_pod_prob
 ```
 
+\newpage
 
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
