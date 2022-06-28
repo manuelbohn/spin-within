@@ -121,7 +121,7 @@ The mutual exclusivity experiment had only one condition. Each familiar and unkn
 Each child participated in the discourse novelty experiment (12 trials) on the first testing day, immediately following the mutual exclusivity experiment. Animal speakers again stood on a small hill between two tables. Contrary to the mutual exclusivity experiment, in the beginning, only one of the tables contained an object, while the other was empty. Speakers commented on the presence of the object (“Aha, schau mal da!” [“Aha, look at that!”]) and the absence of an object on the other table (“Hm, da ist nichts!” [“Hm, nothing there!”]). These utterances were designed to create common ground between the speaker and the child. Both the side where the empty table stood (left or right) and which of these comments the speaker uttered first was counterbalanced across trials. Speakers disappeared from the screen after the sound of a ringing telephone could be heard. (The child had been told beforehand that at times, the animals would have to leave to answer calls.) During the speakers' absence, a second object appeared on the previously empty table. Shortly after, the speaker returned and requested an object in the same manner as in the mutual exclusivity experiment (e.g., “Oh, toll, da liegt ein Wisslo auf dem Tisch, wie interessant! Ein Wisslo liegt auf dem Tisch! Kannst du mir das Wisslo geben?” [“Oh, neat, there’s a wisslo on the table, how interesting! A wisslo is on the table. Can you give me the wisslo?”]).  
 
 The discourse novelty experiment had only one condition. Each unknown object appeared once; each speaker appeared three times. Again, the dependent variable was choice. Here, choosing the object that appeared later during the trial and was thus new in the discourse context constituted the correct choice and was coded as 1. 
-
+  
 #### Combination experiment 
 
 Each child participated in the combination experiment (16 trials) on the second testing day. Here, mutual exclusivity and discourse novelty were combined. Overall, the procedure was the same as in the discourse novelty experiment. However, in contrast to the discourse novelty experiment, only one of the object was unknown, while the other object was familiar. Speakers requested objects in the same manner as before. 
@@ -131,6 +131,10 @@ The combination experiment had two conditions. In the congruent condition, the o
 Objects with comparable familiarity were assigned to the conditions (e.g., children are similarly familiar with duck and carrot; duck was assigned to the congruent condition and carrot was assigned to the incongruent condition). The combination experiment consisted of 8 congruent and 8 incongruent trials (4 congruent and 4 incongruent trials when the procedure was stopped early). For our coding, choosing the unknown object constituted the correct choice and was coded as 1. 
 
 For all three tasks, children received the same order of trials to ensure comparability across participants.
+
+#### Reliability Coding
+
+Reliability coding was performed to ensure that the objects parents selected matched the objects children had chosen via pointing in each respective trial. For a randomly selected 20% of the sample (n = 12), children’s object choices were coded from video by a coder who was blind to the data from parents’ selections. The results indicate that parents faithfully selected children’s chosen objects (99.74% match, κ = .997, *p* < .001). 
 
 #### Word production task
 
