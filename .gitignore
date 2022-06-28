@@ -6,6 +6,10 @@ model/output/*.csv
 model/old_models/*
 
 *.docx
+*.tex
+*.log
+
+paper/submissions/*
 
 graphs/*
 
