@@ -3,7 +3,7 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
-  man,mask,floatsintext]{apa6}
+  man,floatsintext]{apa6}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
 \usepackage{iftex}
@@ -37,6 +37,7 @@
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
   pdftitle={Modeling individual differences in children's information integration during pragmatic word learning},
+  pdfauthor={Manuel Bohn1, Louisa S. Schmidt2, Cornelia Schulze2,3, Michael C. Frank4, \& Michael Henry Tessler5,6},
   pdflang={en-EN},
   pdfkeywords={Pragmatics, language development, individual differences, cognitive modeling},
   hidelinks,
@@ -164,7 +165,7 @@
     {}{\InnerPatchFailed}%
   }
 {}{\PatchFailed}
-\keywords{Pragmatics, language development, individual differences, cognitive modeling\newline\indent Word count: X}
+\keywords{Pragmatics, language development, individual differences, cognitive modeling}
 \usepackage{lineno}
 
 \linenumbers
@@ -201,10 +202,17 @@ Pragmatics is foundational to language use and learning. Computational cognitive
 \begin{document}
 \maketitle
 
+\hypertarget{statement-of-relevance}{%
+\section{Statement of Relevance}\label{statement-of-relevance}}
+
+Formal computational models provide a promising tool to overcome the weaknesses of verbal theories: they explicate the psychological processes that generate behavior. Probabilistic models have been especially useful for characterizing how some human behaviors can be described as optimal use of environmental information. However, models of this type often turn a blind eye to individual differences: Explanations are offered for prototypical agents, and predictions are tested against aggregated data representing the ``average'' individual. Here, we applied computational modeling to an individual level. We first measured children's sensitivity to three information sources and then used a computational model to generate trial-by-trial predictions about how each child should behave in a new task that required information integration. We correctly predicted children's behavior in the majority of trials. This success suggests that, with sufficiently reliable measures, probabilistic models may be theories of individuals' judgments as well as behavior in the aggregate.
+
+\newpage
+
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-A defining feature of human communication is its flexibility. Conventional languages -- signed and spoken -- allow for expressing a near-infinite number of messages. In the absence of a shared language, humans can produce and understand novel signals which can rapidly be transformed into structured communication systems (Bohn, Kachel, \& Tomasello, 2019; Brentari \& Goldin-Meadow, 2017). The flexibility stems from a powerful social-cognitive infrastructure that underlies human communication (Sperber \& Wilson, 2001; Tomasello, 2008). Interlocutors can recruit and integrate a range of different information sources, conventional language being one of them, in order to successfully communicate. Such inferences about the speaker's intended meaning in context are often called pragmatic inferences. They play an important role during everyday language use (H. H. Clark, 1996) and during language acquisition (Bohn \& Frank, 2019; E. V. Clark, 2009).
+A defining feature of human communication is its flexibility. Conventional languages -- signed and spoken -- allow for expressing a near-infinite number of messages. In the absence of a shared language, humans can produce and understand novel signals which can rapidly be transformed into structured communication systems (Bohn, Kachel, \& Tomasello, 2019; Brentari \& Goldin-Meadow, 2017). The flexibility stems from a powerful social-cognitive infrastructure that underlies human communication (Sperber \& Wilson, 2001; Tomasello, 2008). Interlocutors can recruit and integrate a range of different information sources -- conventional language being one of them -- to make so-called \emph{pragmatic} inferences about the speaker's intended meaning in context. They play an important role during everyday language use (H. H. Clark, 1996) and during language acquisition (Bohn \& Frank, 2019; E. V. Clark, 2009).
 
 Decades of developmental research have shown that children readily make pragmatic inferences in a wide variety of contexts and starting at an early age (Bohn \& Frank, 2019). For example, already early in the second year of life, children use their emerging semantic knowledge (word-object mappings) to infer that a speaker uses a novel word to refer to a novel object (Markman \& Wachtel, 1988; Pomiechowska, Bródy, Csibra, \& Gliga, 2021). Around the same age, children start to use common ground (shared knowledge) in communication (Bohn \& Köymen, 2018). From age three onwards, they expect speakers to communicate in an informative and context-sensitive way (Frank \& Goodman, 2014; Schulze, Grassmann, \& Tomasello, 2013).
 
@@ -214,7 +222,7 @@ The field of pragmatic language comprehension has been particularly active from 
 
 Computational cognitive models -- including RSA -- are mostly used as summary descriptions and explanations of well-known effects from the literature or in pre-existing data. Yet, for a comprehensive theory, models should also be able to \emph{predict} new data (Hofman et al., 2021; Shmueli, 2010; Yarkoni \& Westfall, 2017). Recent work using RSA models has begun to address this issue. For example, Bohn, Tessler, Merrick, and Frank (2021) studied young children's information integration during pragmatic word learning (see also Bohn, Tessler, Merrick, \& Frank, 2022). They measured children's developing sensitivity to three different sources of information about meaning in context and used an RSA model to generate predictions about situations in which these information sources need to be integrated. Newly collected data aligned closely with what the model predicted, in the sense that the model predictions were numerically similar to the average level of performance across a large sample of children. This line of work tested the scope and validity of models of pragmatic reasoning and the results offered support for the theoretical assumptions around which the model was built in comparison to alternative models.
 
-These prior studies only explained and predicted behavior on an \emph{aggregate} level, however. The models were assessed following the assumption that the ``average person'' behaves like the prototypical agent whose cognitive processes are being simulated by the model (Estes \& Todd Maddox, 2005). Yet it is an open question if everybody -- or in fact anybody -- really behaves like this prototypical agent. Most likely, there are differences between individuals. For example, Franke and Degen (2016) studied quantity implicatures and found that participant data was best captured by a model that assumes a population in which individuals differ in the depth of their Theory of Mind reasoning. A central question is therefore whether models that accurately predict group-level results can also be used to predict individual differences. For example, although Griffiths and Tenenbaum (2006) showed that groups of participants in the aggregate could correctly make optimal judgments about the conditional probability of everyday events, Mozer, Pashler, and Homaei (2008) argued that this pattern could emerge from an aggregate of individual agents with far simpler and more heuristic strategies. Thus, the fit of cognitive models to aggregate patterns of data may not always support the inference that the cognitive model describes individuals' patterns of reasoning or inference.
+These prior studies only explained and predicted behavior on an \emph{aggregate} level, however. The models were assessed following the assumption that the ``average person'' behaves like the prototypical agent whose cognitive processes are being simulated by the model (Estes \& Todd Maddox, 2005). Yet it is an open question if everybody -- or in fact anybody -- really behaves like this prototypical agent. Most likely, there are differences between individuals. For example, Franke and Degen (2016) studied quantity implicatures and found that participant data was best captured by a model that assumes a population in which individuals differ in the depth of their Theory of Mind reasoning. A central question is therefore whether models that accurately predict group-level results can also be used to predict individual differences. For example, although Griffiths and Tenenbaum (2006) showed that groups of participants in the aggregate could correctly make optimal judgments about the conditional probability of everyday events, Mozer, Pashler, and Homaei (2008) argued that this pattern could emerge from an aggregate of individual agents with far simpler and more heuristic strategies (cf. Griffiths \& Tenenbaum, 2011). Thus, the fit of cognitive models to aggregate patterns of data may not always support the inference that the cognitive model describes individuals' patterns of reasoning or inference.
 
 In the present study, we address this issue in the domain of pragmatic word learning, using RSA models to predict individual differences between children. Our study builds on Bohn et al. (2021) and measures how children integrate different information sources. We focused on how children's semantic knowledge interacts with their expectations about informative communication and sensitivity to common ground. Following the previous study, we formalized this integration process in a model derived from the RSA framework. Importantly, however, the current model was designed to capture individual differences, which we conceptualize as differences between children in sensitivity to the different information sources. In Part 1, we collected data in four tasks from which we estimated child-specific sensitivity parameters. In Part 2, we used these parameters to predict -- on a trial-by-trial basis -- how the same children should behave in a new task that required information integration. The critical contribution of this work is thus to test whether a successful model of aggregate judgments holds at the individual level.
 
@@ -224,7 +232,7 @@ In the present study, we address this issue in the domain of pragmatic word lear
 \hypertarget{methods}{%
 \subsection{Methods}\label{methods}}
 
-Methods, sample size, and analyses were pre-registered at: \url{https://osf.io/pa5x2/?view_only=00d4d608010548b18aade9cf40909a71}. All data, analysis scripts, model code, and experimental procedures are publicly available in the following online repository: \url{https://github.com/manuelbohn/spin-within}.
+Methods, sample size, and analyses were pre-registered at: \url{https://osf.io/pa5x2/?view_only=00d4d608010548b18aade9cf40909a71}. All data, analysis scripts, model code, and experimental procedures are publicly available in the following online repository: {[}github link masked for peer review - link to repository hosted on OSF: {]}.
 
 \hypertarget{participants}{%
 \subsubsection{Participants}\label{participants}}
@@ -267,14 +275,14 @@ P_{L_1}(r \mid u; \{\rho_i, \alpha_i\ , \theta_{ij}\})\propto P_{S_1}(u \mid r; 
 
 The model describes a listener (\(L_1\)) reasoning about the intended referent of a speaker's (\(S_1\)) utterance. This reasoning is contextualized by the prior probability of each referent \(P(r \mid \rho_i)\). This prior probability is a function of the common ground \(\rho\) shared between speaker and listener in that interacting around the objects changes the probability that they will be referred to later. We assume that individuals vary in their sensitivity to common ground which, captured in participant-specific parameters \(\rho_i\).
 
-To decide between referents, the listener (\(L_1\)) reasons about what a rational speaker (\(S_1\)) would say given an intended referent. This speaker is assumed to compute the informativity for each available utterance and then choose an utterance in propotion to its informativenness raised to the power of the parameter \(\alpha\), which represents the listener's expectation of the speaker's informativeness the most informative one. The expectation of speaker informativeness may vary between individuals and is captured by the participant-specific parameter \(\alpha_i\):
+To decide between referents, the listener (\(L_1\)) reasons about what a rational speaker (\(S_1\)) would say given an intended referent. This speaker is assumed to compute the informativity for each available utterance and then choose an utterance in proportion to its informativity raised to the power of the parameter \(\alpha\). As such, \(\alpha\) reflects how informative the listener expects the speaker to be. This expectation may vary between individuals, leading to a participant-specific parameter \(\alpha_i\):
 
 \begin{equation}
 P_{S_1}(u \mid r; \{\alpha_i\, \theta_{ij}\})\propto P_{L_0}(r \mid u; \{\theta_{ij}\}) ^{\alpha_i}
 \label{eq:rsafull2}
 \end{equation}
 
-The informativity of each utterance is given by imagining which referent a literal listener (\(L_0\)), who interprets words according to their lexicon \(\mathcal{L}\), would infer upon hearing the utterance. This reasoning depends on what kind of semantic knowledge (word--object mappings, \(\theta\)) the speaker thinks the literal listener has. For familiar objects, we take semantic knowledge to be a function of the degree-of-acquisition of the associated word, which we assume to vary between individuals (\(\theta_{i,j}\)).
+The informativity of each utterance is given by imagining which referent a literal listener (\(L_0\)), who interprets words according to their lexicon \(\mathcal{L}\), would infer upon hearing the utterance. This reasoning depends on what kind of semantic knowledge (word--object mappings, \(\theta\)) the speaker thinks the literal listener has. For familiar objects, we take semantic knowledge to be a function of the degree-of-acquisition of the associated word, which we assume to vary between individuals (\(\theta_{ij}\)).
 
 \begin{equation}
 P_{L_0}(r \mid u; \{\theta_{ij}\}) \propto \mathcal{L}(u, r \mid \theta_{ij})
@@ -462,6 +470,9 @@ Grice, H. P. (1991). \emph{Studies in the way of words}. Cambridge, MA: Harvard 
 
 \leavevmode\vadjust pre{\hypertarget{ref-griffiths2006optimal}{}}%
 Griffiths, T. L., \& Tenenbaum, J. B. (2006). Optimal predictions in everyday cognition. \emph{Psychological Science}, \emph{17}(9), 767--773.
+
+\leavevmode\vadjust pre{\hypertarget{ref-griffiths2011predicting}{}}%
+Griffiths, T. L., \& Tenenbaum, J. B. (2011). Predicting the future as bayesian inference: People combine prior knowledge with observations when estimating duration and extent. \emph{Journal of Experimental Psychology: General}, \emph{140}(4), 725.
 
 \leavevmode\vadjust pre{\hypertarget{ref-guest2021computational}{}}%
 Guest, O., \& Martin, A. E. (2021). How computational modeling can force theory building in psychological science. \emph{Perspectives on Psychological Science}, \emph{16}(4), 789--802.
