@@ -27,5 +27,5 @@ Bohn, M., Schmidt, L. S., Schulze, C., Frank, M. C., & Tessler, M. H. (2022). [M
 |   ├── spin-within_model_comparison_individual.wppl  <-- individual-level model comparison
 │   └── spin-within_model_prediction.wppl             <-- model predictions
 └── paper
-    └── manuscript.Rmd          <-- manuscript file 
+    └── spin-within_manuscript.Rmd          <-- manuscript file 
 ```
