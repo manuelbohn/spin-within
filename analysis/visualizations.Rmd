@@ -16,6 +16,21 @@ flip <- function(x){
   coin <- sample(c(0,1), size = 1, replace = TRUE, prob = c(1 - x,x))
   return(coin)
 }
+
+estimate_mode <- function(s) {
+  d <- density(s)
+  return(d$x[which.max(d$y)])
+}
+
+hdi_upper<- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","upper"])
+}
+
+hdi_lower<- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","lower"])
+}
 ```
 
 ```{r}
@@ -84,6 +99,7 @@ idmp%>%
   geom_density(fill = "grey", adjust = 3)+
   theme_void()
 ```
+
 ```{r}
 ggsave("../graphs/comb_dist.png", height = 3, width = 3, bg = "white")
 ```
@@ -110,7 +126,8 @@ po <- ggplot()+
   geom_smooth(data = p1, aes(x = age, y = mean), method = "glm", col = "black", size = 1)+
   geom_point(data = p1, aes(x = age, y = mean), alpha = .25)+
   geom_pointrange(data = p2, aes(x = subage+.5, y = mean, ymin = ci_lower, ymax = ci_upper, col = factor(subage)), position = position_dodge(width = .5))+
-  facet_wrap(task~., ncol = 2)+
+  facet_wrap(task~., ncol = 1)+
+  guides(col = F)+
   labs(x = "Age", y = "Proportion correct") +
   scale_color_ptol(name = "Age group", labels = c("3-year-olds", "4-year-olds"))+
   ylim(-0.02, 1.02)+
@@ -157,6 +174,7 @@ skexp <- ggplot(cpid, aes(x = mean_task1, y = mean_task2, col = subage))+
 ```{r}
 ggarrange(po, skexp, common.legend = F, labels = c("A","B"))
 ```
+
 ```{r}
 ggsave("../paper/figures/fig2.png", width = 10, height = 4, scale = 1)
 ```
@@ -184,10 +202,10 @@ priorplot <- idpar%>%
   theme_few()+
   labs(y = "Participants (ordered by mean value per parameter)", x = "")+
   xlim(0,1)+
-  scale_fill_ptol()+
-  guides(fill = "none")+
+  scale_fill_ptol(name = "Age group")+
   theme(axis.text.y = element_blank(),
-        axis.ticks.y= element_blank())
+        axis.ticks.y= element_blank(),
+        legend.position = c(0.2,0.9))
 
 soplot <- idpar%>%
   filter(parameter == "speaker_optimality", !is.na(subid))%>%
@@ -214,7 +232,7 @@ semlot <- idpar%>%
   ggplot(aes(x = value, y = reorder(subid,mean), fill = factor(subage)))+
   geom_density_ridges(rel_min_height=.01, size = 0.25, scale = 3, alpha = 0.5)+
   facet_grid(~parameter)+
-    scale_fill_ptol()+
+    scale_fill_ptol(name = "Age group")+
   guides(fill = "none")+
   theme_few()+
   labs(x = "")+
@@ -228,6 +246,118 @@ ggarrange(po,priorplot, soplot,semlot, nrow = 1, widths = c(1.5,1,1,1), labels =
 
 ```{r}
 ggsave("../paper/figures/fig2_1.png", width = 10, height = 4, scale = 1.25)
+```
+
+# Development sensitivity parameters
+
+```{r}
+speak_opt <- readRDS("saves/speak_opt_plot.rds")
+sem_know <- readRDS("saves/sem_know_plot.rds")
+cg <- readRDS("saves/com_ground_plot.rds")
+```
+
+```{r}
+so_dev <- speak_opt%>%
+  filter(parameter != "sigma")%>%
+  pivot_wider(names_from = "parameter", values_from = "value")%>%
+  sample_n(200)%>%
+  expand_grid(age = seq(from = 0, to = 2, by = 0.2))%>%
+  mutate(so = intercept + slope * age)
+
+so_dev_map <- speak_opt%>%
+  filter(parameter != "sigma")%>%
+  group_by(parameter)%>%
+  summarise(mode = estimate_mode(value))%>%
+  pivot_wider(names_from = "parameter", values_from = "mode")%>%
+  expand_grid(age = seq(from = 0, to = 2, by = 0.2))%>%
+  mutate(so = intercept + slope * age)
+
+p_dev_so <- ggplot()+
+  geom_line(data = so_dev, aes(group = iteration*chain, x = age+3, y = so), alpha = 0.02)+
+  geom_line(data = so_dev_map, aes(x = age+3, y = so))+
+  labs(x = "Age", y = "")+
+  theme_few()
+  
+```
+
+```{r}
+sem_dev <- sem_know%>%
+  filter(parameter != "sigma")%>%
+  pivot_wider(names_from = "parameter", values_from = "value")%>%
+  sample_n(200)%>%
+  expand_grid(age = seq(from = 0, to = 2, by = 0.2))%>%
+  mutate(so = plogis(intercept + slope * age))
+
+sem_dev_map <- sem_know%>%
+  filter(parameter != "sigma")%>%
+  group_by(parameter)%>%
+  summarise(mode = estimate_mode(value))%>%
+  pivot_wider(names_from = "parameter", values_from = "mode")%>%
+  expand_grid(age = seq(from = 0, to = 2, by = 0.2))%>%
+  mutate(so = plogis(intercept + slope * age))
+
+p_dev_sem <- ggplot()+
+  geom_line(data = sem_dev, aes(group = iteration*chain, x = age+3, y = so), alpha = 0.02)+
+  geom_line(data = sem_dev_map, aes(x = age+3, y = so))+
+  labs(x = "Age", y = "")+
+  ylim(0,1)+
+  theme_few()
+  
+```
+
+```{r}
+cg_dev <- cg%>%
+  filter(parameter != "sigma")%>%
+  pivot_wider(names_from = "parameter", values_from = "value")%>%
+  sample_n(200)%>%
+  expand_grid(age = seq(from = 0, to = 2, by = 0.2))%>%
+  mutate(so = plogis(intercept + slope * age))
+
+cg_dev_map <- cg%>%
+  filter(parameter != "sigma")%>%
+  group_by(parameter)%>%
+  summarise(mode = estimate_mode(value))%>%
+  pivot_wider(names_from = "parameter", values_from = "mode")%>%
+  expand_grid(age = seq(from = 0, to = 2, by = 0.2))%>%
+  mutate(so = plogis(intercept + slope * age))
+
+p_dev_cg <- ggplot()+
+  geom_line(data = cg_dev, aes(group = iteration*chain, x = age+3, y = so), alpha = 0.02)+
+  geom_line(data = cg_dev_map, aes(x = age+3, y = so))+
+  labs(x = "Age", y = "Paramter value")+
+  ylim(0,1)+
+  theme_few()
+  
+```
+
+```{r}
+param_dev <- ggarrange(p_dev_so, p_dev_sem, p_dev_cg,
+          ncol = 1,
+          labels = c("!","",""))
+```
+
+```{r}
+ggarrange(param_dev,priorplot, soplot,semlot, nrow = 1, widths = c(1.5,1,1,1), labels = c("A","B","",""))
+```
+```{r}
+ggsave("../paper/figures/fig2_2.png", width = 10, height = 6, scale = 1.25)
+```
+
+```{r}
+ggarrange(po,
+          ggarrange(
+  ggarrange(priorplot,p_dev_cg, ncol = 1, heights = c(3,1), labels = c("B","C")),
+  ggarrange(soplot,p_dev_so, ncol = 1, heights = c(3,1)),
+  ggarrange(semlot,p_dev_sem, ncol = 1, heights = c(3,1)),
+  nrow = 1),
+  nrow = 1,
+  widths = c(1,3),
+  labels = c("A")
+)
+```
+
+```{r}
+ggsave("../paper/figures/fig2_3.png", width = 12, height = 8, scale = 1.2)
 ```
 
 # Model group level 

@@ -473,7 +473,7 @@ stat_cor(method = "pearson", label.x = 0.01, label.y = 0.99, aes(x = model_mean,
 
 ```
 
-```{r corplot, fig.cap = "Schematic experimental procedure with screenshots from the experiments.",fig.height = 4, fig.width= 10, out.width="100%"}
+```{r corplot, fig.cap = "Correlation between model predictions and data (aggregated across individuals and binned by year with 95\\%HDI) for each trial in the combination experiment for the rational integration model (left) and the two alternative models (right).",fig.height = 4, fig.width= 10, out.width="100%"}
 ggarrange(cor_plot1, cor_plot2, common.legend = T, legend = "right", widths = c(1.5,1))
 ```
 
@@ -519,7 +519,7 @@ lp <- model_comp %>%
   theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
 ```
 
-```{r loglikeplot, fig.cap = "Schematic experimental procedure with screenshots from the experiments.",fig.height = 2.5, fig.width= 10, out.width="100%"}
+```{r loglikeplot, fig.cap = "Log-likelihood of the data given each of the models in the model comparison.",fig.height = 2.5, fig.width= 10, out.width="100%"}
 lp
 ```
 
@@ -979,9 +979,7 @@ p_comp_id
 
 # Appendix 2: Model parameters
 
-Below we visualize the posterior distributions for some of the parameters in the model.
-
-## Speaker informativeness
+Below we visualize the posterior distributions for some of the parameters in the model (speaker informativeness: Figure \@ref(fig:speakoptplot); semantic knowledge: Figure \@ref(fig:semknowplot); sensitivity to common ground: Figure \@ref(fig:cgplot)). Finally, we show the posterior distribution of the production probability parameter (Figure \@ref(fig:prodprob)). This parameter was part of the production model and gives the probability that the child was able to produce a word if their semantic knowledge indicates that they knew it. This parameter was the same for all participants. 
 
 ```{r, cache=T}
 # speak_opt <- model_parameters%>%
@@ -1039,7 +1037,6 @@ p_speak_opt_id <- ggplot(speak_opt_id, aes(x = speaker_optimality, fill = factor
 ggarrange(p_speak_opt, p_speak_opt_id, common.legend = F, nrow = 1, widths = c(1.5,1), labels = c("A","B"))
 ```
 
-## Semantic knowledge
 
 ```{r, cache=T}
 # sem_know <- model_parameters%>%
@@ -1121,8 +1118,6 @@ ggarrange(p_sem_know, p_sem_know_id, common.legend = F, nrow = 1, widths = c(1.5
 #   theme_few()
 ```
 
-## Sensitivity to common ground
-
 ```{r, cache=T}
 # cg <- model_parameters%>%
 #   filter(c == "prior", 
@@ -1181,10 +1176,6 @@ p_cg_id <- ggplot(cg_id, aes(x = value, fill = factor(subject)))+
 ```{r cgplot, cache=T, fig.cap = "Model parameters for sensitivity to common ground. A) hyper parameters colored by MCMC chain and B) participant specific parameters for five randomly selected individuals.",fig.height = 3, fig.width= 10, out.width="100%"}
 ggarrange(p_cg, p_cg_id, common.legend = F, nrow = 1, widths = c(1.5,1), labels = c("A","B"))
 ```
-
-## Production probability
-
-This parameter was part of the production model and gives the probability that the child was able to produce a word if their semantic knowledge indicates that they knew it. This parameter was the same for all participants. 
 
 ```{r, cache=T}
 # pod_prob <- model_parameters%>%
