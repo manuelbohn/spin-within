@@ -8,7 +8,7 @@
 
 ## Paper
 
-Bohn, M., Schmidt, L. S., Schulze, C., Frank, M. C., & Tessler, M. H. (2022). [Modeling individual differences in children's information integration during pragmatic word learning](https://psyarxiv.com/4xqsw). *PsyArXiv*
+Bohn, M., Schmidt, L. S., Schulze, C., Frank, M. C., & Tessler, M. H. (2022). [Modeling individual differences in children's information integration during pragmatic word learning](https://direct.mit.edu/opmi/article/doi/10.1162/opmi_a_00069/114069/Modeling-Individual-Differences-in-Children-s). *Open Mind*, 6, 311–326.
 
 ## Structure
 
